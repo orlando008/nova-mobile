@@ -1,7 +1,7 @@
 # nova-mobile: Platform Specification
 
-**Status:** Draft 1 (November 18, 2026). Nothing is built yet. This describes what we intend to build; change it in the
-same commit as the code once code exists.
+**Status:** Draft 1 (November 18, 2026). The static Library and About pages are implemented. The game runtime and
+catalog integration are planned.
 **Name:** nova-mobile (written **NOVA MOBILE** in the logo).
 **Family:** one of the NOVA platforms, beside NOVA-16 (`orlando008/fanstasy-console`). The website follows
 `docs/BRAND.md`; the games do not.
@@ -393,7 +393,7 @@ the game's state after each `update()` is identical, tick for tick, on any devic
 
 ### 11.1 Library
 
-The home page: games as octagonal tiles (docs/BRAND.md), on shelves by kind (Puzzle, Merge, Build, Cards, Arcade).
+The Library is the home page. Its initial static version shows an empty state. Catalog integration will display games as octagonal tiles (docs/BRAND.md), on shelves by kind (Puzzle, Merge, Build, Cards, Arcade).
 A tile shows the game's poster; tapping it opens the cart's page, `play/<name>/` (9.6): its description,
 screenshots and Play.
 
@@ -429,7 +429,8 @@ The NOVA-16 workflow, carried over and changed for touch:
 ### 13.0 Layout
 
 ```
-index.html, style.css, sw.js, manifest.webmanifest   the site's shell and the Library
+index.html, style.css, about/index.html, site-assets/   the site's shell and the Library
+sw.js, manifest.webmanifest   planned PWA and offline support
 play/<name>/index.html   one link page for each cart (9.6)
 src/            the console: the loader, the worker, the renderers (webgl/, canvas/), input, audio, the site's UI
 carts/          index.json (9.3) and one folder for each cart (9.1)
@@ -481,12 +482,13 @@ on phone sizes) run with `tools/devkit/` on a developer's machine and are not pa
 
 ## 14. Milestones
 
-This spec is the deliverable of the planning stage. Building starts with a **console bring-up on a real phone**: the
-repository, the loader, input, the renderer and replays tested together on a minimal diagnostic fixture, before any
-game. Which games come first is decided in their own pull requests (13.1).
+The initial website shell gives the Library and About pages a home before the console is built. The next step is
+**console bring-up on a real phone**, with the loader, input, rendering, and replay tested together on a diagnostic
+fixture. Games are scoped in their own pull requests (13.1).
 
 | # | Milestone | Done when |
 |---|---|---|
+| 0 | Website shell | The branded Library and About pages use local fonts and responsive layouts. Verify both on GitHub Pages |
 | 1 | Bring-up | The repository layout (13.0), `carts/index.json` and a diagnostic fixture, `carts/diag/` (`"fixture": true`). On the user's phone, its link page finds it through the index, validates and loads its manifest (9.4), starts the worker and the fixed-tick loop, and draws a shape with WebGL. The fixture shows a tap, a drag and a release where the finger is, in points; shows the screen's size in points, the scale and the safe-area insets (4.3); and draws a grid of 88-point targets to check against a finger on a small phone (4.1). A recording of that input replays at fixed ticks to the same state hashes (10.1). A first `tools/verify.js` runs the index, manifest, files, link page, paths and network checks (13.2). The reference phone is chosen |
 | 2 | Touch and layout | Every gesture, `hit`, `button`, haptics; `resize`, orientations, the landscape column and the desktop column |
 | 3 | Renderers | The Canvas 2D fallback; batching; the sprite benchmark measured on the reference phone (target 10,000 at 60 fps); the two renderers compared by screenshot (10.1) |
@@ -494,7 +496,7 @@ game. Which games come first is decided in their own pull requests (13.1).
 | 5 | Assets | The vector kit and its recipes; lazy assets; pictures and vector art in atlases |
 | 6 | Sound | The synth, samples, music, buses; the music and sound tools |
 | 7 | Saves and time | `save`/`load`, export, the wall clock, `pause` |
-| 8 | The website | Library, link pages (9.6), pause menu, PWA and offline versions (9.5), previews (13.3), the brand |
+| 8 | Site integration | Populate the Library, add cart link pages (9.6) and the pause menu, and set up PWA, offline versions (9.5), and previews (13.3) |
 | 9 | The workbench | new-cart, the full verify, smoke, sweep, shots, gallery, the playbook |
 
 ## 15. Open questions
