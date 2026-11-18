@@ -6,6 +6,8 @@
   in the order of its milestones (section 14) and keep the spec true to the code as you go.
 - **Games are polished and sleek, not retro.** Budgets are soft (the console warns, it does not refuse). Each game may
   use vector art drawn in code, pictures, or both.
+- **Shared cart assets.** Browse [the asset index](docs/SHARED_ASSETS.md) for reusable artwork. Copy the exports you use
+  into your cart's `assets/` folder and list them in `game.json`.
 - **Portrait first.** Landscape and tablet layouts are opt-in for each game.
 - **WebGL 2 with a Canvas 2D fallback.** Many sprites and high-quality effects must be possible.
 - **Keep from NOVA-16:** deterministic replays (the same seed, starting save and recording give the same game state, tick for tick; SPEC
