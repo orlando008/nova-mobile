@@ -1,7 +1,8 @@
 # nova-mobile: Platform Specification
 
 **Status:** Draft 1 (November 18, 2026). The static Library and About pages and the shared gesture recognizer are
-implemented. Worker integration, the rest of the game runtime, and catalog integration are planned.
+implemented. The [input diagnostic](carts/diag.md) exercises the first console worker, fixed-tick input, WebGL 2
+rectangles, and replay in the browser. Phone verification and the remaining runtime and catalog work are pending.
 **Name:** nova-mobile (written **NOVA MOBILE** in the logo).
 **Family:** one of the NOVA platforms, beside NOVA-16 (`orlando008/fanstasy-console`). The website follows
 `docs/BRAND.md`; the games do not.
@@ -376,6 +377,9 @@ function state() {}        // returns the gameplay state, for state hashes (10.1
 - **Rendering.** `draw()` fills the draw list; the main thread renders the latest list once per display frame. The game
   never waits on the renderer, and the renderer never changes the game.
 - The game's code is a module evaluated with the API in scope, as on NOVA-16.
+- The diagnostic worker loads the verified module and calls its exported `createCart(api)` factory. Each session
+  gets fresh lifecycle functions. The initial API provides `gesture()`, `touches()`, `screen()`, `now()`,
+  `asset(path)` for an eager asset's bytes, and `rect(x, y, w, h, [r, g, b, a])` during `draw()`.
 - An uncaught error stops the game and shows an error screen (Bit, worried) with the message and the line.
 - `stat(key)`: `'fps'`, `'cpu'` (ms for update + draw), `'gpu'`, `'sprites'`, `'textures'` (MB), `'voices'`.
 - In development the console shows a **budget bar** that turns amber over 80% of a budget and red over it.

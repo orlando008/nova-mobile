@@ -1,0 +1,70 @@
+:root {
+  color-scheme: dark;
+  background: #102020;
+  color: #eef8ed;
+  font: 1rem/1.45 system-ui, sans-serif;
+  --accent: #c5f27d;
+  --border: #4a6560;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+main {
+  width: min(100%, 31rem);
+  margin-inline: auto;
+  padding: max(1rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+}
+header { margin-bottom: 0.85rem; }
+header a { color: var(--accent); font-size: 0.78rem; font-weight: 730; letter-spacing: 0.12em; }
+h1 { margin: 0.15rem 0 0; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.12; letter-spacing: -0.04em; }
+p { margin: 0; }
+#intro img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 0.85rem; }
+#intro p { margin: 0.8rem 0; }
+canvas {
+  display: block;
+  width: 100%;
+  height: clamp(15rem, 52svh, 30rem);
+  touch-action: none;
+  border-radius: 0.8rem;
+  outline: 1px solid var(--border);
+  background: #0e1b1b;
+}
+.readout {
+  margin-top: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: #192d2c;
+}
+.readout strong { color: var(--accent); font-variant-numeric: tabular-nums; }
+.readout p, #feedback { color: #c6d8d3; font-size: 0.875rem; }
+.controls { display: flex; gap: 0.5rem; margin-top: 0.65rem; }
+button {
+  min-width: 4rem;
+  min-height: 44px;
+  padding: 0.4rem 0.85rem;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: #203a34;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+#feedback { margin-top: 0.5rem; }
+#safe-area {
+  position: absolute;
+  visibility: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+@media (max-width: 31rem) {
+  main { padding-inline: 0; }
+  header, #intro, .readout, .controls, #feedback {
+    margin-inline: max(0.75rem, env(safe-area-inset-left)) max(0.75rem, env(safe-area-inset-right));
+  }
+  canvas { border-radius: 0; outline: 0; }
+}
