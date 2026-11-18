@@ -9,6 +9,7 @@ Part of the NOVA family, beside [NOVA-16](https://github.com/orlando008/fanstasy
 
 - [`docs/SPEC.md`](docs/SPEC.md): the platform's specification (draft)
 - [`docs/BRAND.md`](docs/BRAND.md): the NOVA brand for the website (colors, the octagon, Bit)
+- [Shared cart assets](docs/SHARED_ASSETS.md) for reusable icons, sprites, and effects.
 
 ## Adding a game
 
