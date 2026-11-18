@@ -15,7 +15,7 @@ An optional library of artwork for bootstrapping new NOVA Mobile carts. The libr
 | 7 | [Items & Tools](../shared-assets/items-tools/README.md) | Keys, locks, backpacks, scrolls, tools, and lanterns |
 | 8 | [Materials & Crafting](../shared-assets/materials-crafting/README.md) | Wood, stone, ore, ingot, clay, cloth, rope, gears, and seeds |
 | 9 | [World & Board Pieces](../shared-assets/world-board-pieces/README.md) | Crates, barrels, doors, signs, flags, tile highlights, and slots |
-| 10 | Effects | Pickup burst, hit flash, dust, splash, impact ring, smoke, and confetti |
+| 10 | [Effects](../shared-assets/effects/README.md) | Pickup burst, hit flash, dust, splash, impact ring, smoke, and confetti |
 
 ## Layout and use
 
