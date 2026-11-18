@@ -9,6 +9,9 @@ It is **not** the games. Every game has its own art, palette and style, and noth
 The source pictures are in `brand/`: the NOVA-16 console (`nova-16-console.webp`), its controller
 (`nova-16-controller.webp`) and Bit's character sheet (`bit-sheet.webp`).
 
+The [NOVA Mobile visual brand guide](../brand/nova-mobile-brand-guide.png) shows the website palette, wordmark,
+components, and concepts for the phone mark and Bit.
+
 ---
 
 ## 1. Colours
@@ -93,7 +96,8 @@ a purple cartridge backpack, a cable tail with a plug, and cyan soles.
 
 | Use | Face | Notes |
 |---|---|---|
-| The logotype: NOVA, NOVA-16, NOVA MOBILE | A blocky pixel face in cyan, as on the console | Logo only: drawn once as an image, not typed |
+| NOVA, NOVA-16 and NOVA-64 logotypes | Blocky pixel lettering in cyan, as on the NOVA-16 console | Logo artwork |
+| NOVA MOBILE wordmark | Space Grotesk Bold (700), uppercase | Cyan |
 | Headings | A geometric sans with square shoulders (proposal: *Space Grotesk*, OFL) | Cream or cyan |
 | Body and UI | A clean sans (proposal: *Inter*, OFL) | Cream; secondary in cream-shade |
 | Numbers (scores, sizes, versions) | The heading face with tabular figures | Cyan |
@@ -102,10 +106,10 @@ Fonts are served from the site itself (no outside font service), so the site wor
 
 ## 5. The logo
 
-- **NOVA** in the pixel logotype, cyan, on void or panel. For a platform, the platform's name follows it:
-  **NOVA-16**, **NOVA MOBILE**, **NOVA-64**.
+- Use the cyan pixel logotypes for **NOVA**, **NOVA-16** and **NOVA-64** on void or panel.
+- Set **NOVA MOBILE** in uppercase Space Grotesk Bold (700), in cyan on void or panel.
 - Each platform has a small **mark**: its console or device drawn in the house colours, in an octagon (NOVA-16: the
-  console from the source picture; nova-mobile: a phone, to draw).
+  console from the source picture; nova-mobile: the proposed chamfered phone with a cyan play triangle in the visual guide).
 - Leave clear space round the logo of at least the height of its letters.
 
 ## 6. Components
@@ -131,4 +135,4 @@ Fonts are served from the site itself (no outside font service), so the site wor
 
 - Fix the exact hex values once a designer's file or the source vectors exist.
 - The heading and body faces are proposals.
-- Draw Bit's worried pose and the nova-mobile mark (a phone in the house colours).
+- Draw Bit's worried pose and finalise the proposed nova-mobile phone mark.
