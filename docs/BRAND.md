@@ -14,7 +14,7 @@ components, and concepts for the phone mark and Bit.
 
 ---
 
-## 1. Colours
+## 1. Colors
 
 Four families: **black, purple, cyan and cream**. The values were sampled from the source pictures and rounded; tune
 them once, here, and every platform follows.
@@ -26,7 +26,7 @@ them once, here, and every platform follows.
 | `--panel-2` | `#202034` | A raised panel or a hovered card (a step up from `--panel`) |
 | `--slate` | `#384068` | Bevels, dividers, disabled controls, the console's trim |
 | `--purple-deep` | `#581090` | Shaded sides, pressed buttons, the lower half of a gradient |
-| `--purple` | `#9020E8` | The main brand colour: big shapes, primary buttons, the console's sides |
+| `--purple` | `#9020E8` | The main brand color: big shapes, primary buttons, the console's sides |
 | `--purple-muted` | `#8028A8` | Secondary shapes, the controller's trim, Bit's backpack |
 | `--purple-light` | `#B070F8` | Purple **text** and small purple icons (purple itself is too dark for them) |
 | `--cyan` | `#28F8F8` | Light: glow lines, focus rings, active states, links, the logotype, Bit's eyes |
@@ -35,7 +35,7 @@ them once, here, and every platform follows.
 
 **Text contrast** (WCAG, against `--panel` / `--void`; WCAG uses the unrounded ratio, so 2.96 fails 3:1):
 
-| Text colour | On panel | On void | Use for text? |
+| Text color | On panel | On void | Use for text? |
 |---|---|---|---|
 | cream | 14.5 | 16.5 | Yes: body text |
 | cyan | 13.2 | 15.1 | Yes: links, headings, numbers |
@@ -88,7 +88,7 @@ a purple cartridge backpack, a cable tail with a plug, and cyan soles.
 - Bit is a **helper, not a decoration**: one Bit per screen at most, and only where he says something.
 - His face is a screen: expressions are the cyan eyes only (open, happy arcs, worried, closed). No mouth.
 - Keep his proportions: the head is as wide as the body is tall.
-- On nova-mobile, Bit is drawn smooth (vector or high-resolution art) in the same colours and shapes. On NOVA-16 he
+- On nova-mobile, Bit is drawn smooth (vector or high-resolution art) in the same colors and shapes. On NOVA-16 he
   is pixel art. He is the same character on every platform; only the drawing style follows the platform.
 - Bit never appears inside a game unless the game chooses to put him there.
 
@@ -115,9 +115,9 @@ outside font service), so the site works offline.
   cyan on dark, the octagonal marks and Bit, not by one typeface.
 - The pixel logotypes are logo artwork (images); the NOVA MOBILE wordmark is set in the font, so it can be rendered
   at any size, but keep its letter-spacing and weight as in the visual guide.
-- Each platform has a small **mark**: its console or device drawn in the house colours, in an octagon (NOVA-16: the
+- Each platform has a small **mark**: its console or device drawn in the house colors, in an octagon (NOVA-16: the
   console from the source picture; nova-mobile: the proposed chamfered phone with a cyan play triangle in the visual guide).
-- Leave clear space round the logo of at least the height of its letters.
+- Leave clear space around the logo of at least the height of its letters.
 
 ## 6. Components
 
@@ -141,7 +141,7 @@ outside font service), so the site works offline.
 ## 8. Open questions
 
 - Fix the exact hex values once a designer's file or the source vectors exist.
-- Draw Bit's worried pose and finalise the proposed nova-mobile phone mark: check it still reads at 16 and 32 px
+- Draw Bit's worried pose and finalize the proposed nova-mobile phone mark: check it still reads at 16 and 32 px
   (the browser tab icon), where the phone and its triangle may blur together.
-- The visual guide is a fixed picture and writes "Color"; these docs write "colour". When it is next redrawn, use
-  "Colour", and consider making it from an HTML page in the repo rendered to PNG, so it cannot drift from this file.
+- The visual guide is a fixed picture. When it is next redrawn, consider making it from an HTML page in the repo
+  rendered to PNG, so it cannot drift from this file.

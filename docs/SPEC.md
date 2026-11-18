@@ -79,7 +79,7 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
   bottom (a header, a board in the middle, a bar at the bottom) and lets the middle grow.
 - **Landscape and tablets are opt-in.** A game lists the orientations it supports in its manifest (9.2):
   `"orientations": ["portrait"]` (the default) or `["portrait", "landscape"]`. In landscape the height is 720 points
-  and the width grows instead. A portrait-only game on a landscape screen is shown centred in a portrait column, with
+  and the width grows instead. A portrait-only game on a landscape screen is shown centered in a portrait column, with
   the brand's dark background around it, and a "turn your phone" hint on phones.
 - On a desktop the game runs in a phone-shaped column in the middle of the page, played with the mouse.
 - `resize()` is called when the shape changes (a rotation, a desktop window).
@@ -92,7 +92,7 @@ The console works out one **scale** from the page's CSS pixels to points, and ke
   On a 375 x 667 CSS viewport (iPhone SE) that is 1.92 points per CSS pixel and 720 x 1281 points.
 - **Landscape (opt-in):** the same with the height: `scale = 720 / viewportHeightCss`.
 - **Portrait-only on a landscape screen, and the desktop:** a portrait column of 9:16 or taller, as high as the
-  viewport, centred; the scale comes from the column's width.
+  viewport, centered; the scale comes from the column's width.
 - A touch at CSS position `(cx, cy)` relative to the game's canvas is at `(cx x scale, cy x scale)` points. The main
   thread does this conversion, so the game, the recording and the replay only ever see points.
 - The **safe area** comes from CSS `env(safe-area-inset-*)`, multiplied by the scale and given to the game in points
@@ -128,7 +128,7 @@ Both kinds are drawn with the same `spr()` call, so a game can mix them freely.
 ### 5.2 The vector kit
 
 A vector asset is a function that draws into a `ShapeContext` (a subset of the Canvas 2D path API plus helpers):
-paths, rectangles, rounded rectangles, octagons, circles, stars and polygons; fills with solid colours, linear and
+paths, rectangles, rounded rectangles, octagons, circles, stars and polygons; fills with solid colors, linear and
 radial gradients; strokes; soft shadows; inner shadow and highlight (**gloss**) helpers; and boolean helpers
 (union, cut). Recipes in `docs/art-recipes/` (to write) show candies, gems, coins, buttons, panels, fruit, buildings and
 characters made from them, with a picture of each.
@@ -136,28 +136,28 @@ characters made from them, with a picture of each.
 ### 5.3 Sprites
 
 `spr(asset, x, y, opts)` draws an asset. Options: `scale` (or `sx`, `sy`), `rot`, `anchor` (0..1, 0..1), `alpha`,
-`tint`, `flash` (mixes toward a colour, for hits and pops), `blend` (normal, add, multiply, screen), `flipX`, `flipY`,
+`tint`, `flash` (mixes toward a color, for hits and pops), `blend` (normal, add, multiply, screen), `flipX`, `flipY`,
 `frame` (for an animation strip) and `z` (order within a layer). The WebGL renderer batches sprites by atlas.
 
 ### 5.4 Shapes
 
 For UI and effects drawn live: `rect`, `rrect`, `oct`, `circ`, `line`, `poly`, `ring` (a progress ring), each with a
-fill (colour or gradient), a stroke and an alpha. These are tessellated on the GPU path, not drawn through Canvas 2D.
+fill (color or gradient), a stroke and an alpha. These are tessellated on the GPU path, not drawn through Canvas 2D.
 
 ### 5.5 Text
 
-- A game ships its own fonts (TTF, WOFF2; open licences), or uses the console's two built-in faces (a rounded display
+- A game ships its own fonts (TTF, WOFF2; open licenses), or uses the console's two built-in faces (a rounded display
   face and a clean UI face).
-- `text(str, x, y, opts)`: size, colour or gradient, alignment, wrapping width, line height, an outline, a shadow, and
+- `text(str, x, y, opts)`: size, color or gradient, alignment, wrapping width, line height, an outline, a shadow, and
   `fit` (shrink to fit a box). Text is rendered through a glyph atlas at the real resolution.
 - `measure(str, opts)` gives the box a text will take.
 - Numbers that count up (scores, coins) have a helper: `counter(id, value)` eases the shown value toward the real one.
 
 ### 5.6 Effects
 
-Per layer: **glow** (bloom on bright pixels), **drop shadow**, **blur**, **colour grade** (brightness, saturation, a
+Per layer: **glow** (bloom on bright pixels), **drop shadow**, **blur**, **color grade** (brightness, saturation, a
 tint), **vignette**. Per frame: **screen shake** and a **flash**. Effects run as WebGL passes; on Canvas 2D only shake,
-flash and colour grade are kept.
+flash and color grade are kept.
 
 ### 5.7 Motion: tweens and particles
 
@@ -166,7 +166,7 @@ flash and colour grade are kept.
   clock, so they are deterministic. Presets for what every game needs: `pop` (scale in with a bounce), `squash`, `wobble`,
   `float` (a number that rises and fades), `fly` (an item that flies to the score along a curve).
 - **Particles**: `emit(preset or settings, x, y)`. Settings: count, lifetime, speed, angle, gravity, drag, size and
-  colour over life, spin, the asset. Presets: sparkle, confetti, smoke puff, coin burst, star trail. Particles count
+  color over life, spin, the asset. Presets: sparkle, confetti, smoke puff, coin burst, star trail. Particles count
   toward the sprite budget.
 
 ### 5.8 Renderers
@@ -190,14 +190,14 @@ touch; the wheel is a pinch. These raw touches are what a recording stores, whic
 The console turns the raw touches into **gestures**, the same way on every device, so games share one feel. Distances
 and speeds are in **CSS pixels** (4.3), and gestures report positions in points:
 
-| Gesture | Recognised when | Gives |
+| Gesture | Recognized when | Gives |
 |---|---|---|
 | `tap` | Down and up within 300 ms, moving less than 10 CSS px | position |
 | `doubletap` | Two taps within 300 ms and 24 CSS px | position |
 | `press` | Held 450 ms without moving 10 CSS px | position (fires once while held) |
 | `drag` | Moved 10 CSS px after down | start, current, delta; then `drop` on release |
 | `swipe` | A drag released faster than 500 CSS px per second | direction (4 or 8), speed (points per second) |
-| `pinch` | Two touches | centre, scale change, rotation change |
+| `pinch` | Two touches | center, scale change, rotation change |
 
 `gesture()` returns this frame's gestures. Most games use only `tap`, `drag`/`drop` and `swipe`.
 
@@ -280,7 +280,7 @@ everywhere (its folder, its link, its save, its cache).
 | `splash` | no | `{ "background": "#rrggbb", "foreground": "#rrggbb" }` for the loading screen |
 | `assets` | yes | Every file in `assets/`, as `{ "path": "assets/...", "bytes": n, "sha256": "..." }`, optional ones marked `"lazy": true` (loaded on first use, such as streamed music) |
 | `contentVersion` | yes | A hash of `code.js`, `art.js` and the `assets` list; names the cached version (9.5) |
-| `credits` | no | Authors and the licences of anything not made for the cart |
+| `credits` | no | Authors and the licenses of anything not made for the cart |
 | `fixture` | no | `true` for a diagnostic or test cart, hidden from the Library and listed only in development |
 
 `bytes`, `sha256` and `contentVersion` are written by `tools/verify.js --fix`, never by hand.

@@ -8,7 +8,7 @@ Part of the NOVA family, beside [NOVA-16](https://github.com/orlando008/fanstasy
 **Status:** planning. Nothing is built yet.
 
 - [`docs/SPEC.md`](docs/SPEC.md): the platform's specification (draft)
-- [`docs/BRAND.md`](docs/BRAND.md): the NOVA brand for the website (colours, the octagon, Bit)
+- [`docs/BRAND.md`](docs/BRAND.md): the NOVA brand for the website (colors, the octagon, Bit)
 
 ## Adding a game
 

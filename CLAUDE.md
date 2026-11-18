@@ -18,5 +18,6 @@
   pull request; the site plays only the games it hosts (SPEC section 13.1).
 - Each game (a **cart**) has a spec in `docs/carts/<name>.md`. Which games come first is decided in their own pull
   requests.
+- **Write American English** in docs, code and comments: color, center, license, recognize, finalize.
 - **Branches and pull requests.** Work on the branch you are given. Commit and push after each step. Open a pull
   request only when the user asks, and merge only when told to.
