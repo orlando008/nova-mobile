@@ -10,7 +10,7 @@ An optional library of artwork for bootstrapping new NOVA Mobile carts. The libr
 | 2 | [Interaction & Feedback](../shared-assets/interaction-feedback/README.md) | Check, warning, info, help, tap, grab, target, selection, and progress indicators |
 | 3 | [Currency & Rewards](../shared-assets/currency-rewards/README.md) | Coins, coin stacks, pouch, gems, star, trophy, gift, and chest |
 | 4 | [Vitals & Status](../shared-assets/vitals-status/README.md) | Full, half, and empty hearts, shield, energy, stamina, potion, and status pips |
-| 5 | Magic & Elements | Wand, wizard hat, spellbook, flame, water, lightning, snowflake, leaf, and sparkle |
+| 5 | [Magic & Elements](../shared-assets/magic-elements/README.md) | Wand, wizard hat, spellbook, flame, water, lightning, snowflake, leaf, and sparkle |
 | 6 | Food & Drink | Fruit, vegetables, ingredients, baked goods, desserts, entrées, and drinks. Split into sub-sheets as needed. |
 | 7 | Items & Tools | Keys, locks, backpacks, scrolls, tools, and lanterns |
 | 8 | Materials & Crafting | Wood, stone, ore, ingot, clay, cloth, rope, gears, and seeds |
