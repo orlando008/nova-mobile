@@ -2,8 +2,8 @@
 
 - nova-mobile is a website hosting **touch games for phones and tablets** (match-3, merge, base building, idle, cards,
   puzzles), one of the NOVA platforms beside NOVA-16 (`orlando008/fanstasy-console`).
-- Its spec is `docs/SPEC.md`; read it before building anything. It is a **draft and nothing is built yet**: build
-  in the order of its milestones (section 14) and keep the spec true to the code as you go.
+- Its spec is `docs/SPEC.md`. The static Library and About pages are implemented. Follow the milestone order
+  in section 14 and update the spec as the platform changes.
 - **Games are polished and sleek, not retro.** Budgets are soft (the console warns, it does not refuse). Each game may
   use vector art drawn in code, pictures, or both.
 - **Shared cart assets.** Browse [the asset index](docs/SHARED_ASSETS.md) for reusable artwork. Copy the exports you use

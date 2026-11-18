@@ -5,11 +5,15 @@ Merge, match-3, base building, cards and puzzles, made to play with one thumb.
 
 Part of the NOVA family, beside [NOVA-16](https://github.com/orlando008/fanstasy-console), the 16-bit fantasy console.
 
-**Status:** planning. Nothing is built yet.
+**Status:** The static Library and About pages are available in this repository. The game runtime is planned.
 
 - [`docs/SPEC.md`](docs/SPEC.md): the platform's specification (draft)
 - [`docs/BRAND.md`](docs/BRAND.md): the NOVA brand for the website (colors, the octagon, Bit)
 - [Shared cart assets](docs/SHARED_ASSETS.md) for reusable icons, sprites, and effects.
+
+## Preview the website locally
+
+Run `python3 -m http.server 8000` from the repository root, then open `http://localhost:8000/`.
 
 ## Adding a game
 
