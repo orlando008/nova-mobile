@@ -365,13 +365,14 @@ tests/          the console's tests
 
 ## 14. Milestones
 
-The first milestone is a **playable slice on a real phone**, so the game API, touch, layout and replays are tested
-together from the start; the renderers' breadth and the sprite benchmark come after.
+The first milestone is a **console bring-up on a real phone**: the repository, the loader, input, the renderer and
+replays tested together on a minimal diagnostic fixture, before any game. The renderers' breadth and the sprite
+benchmark come after.
 
 | # | Milestone | Done when |
 |---|---|---|
-| 1 | First slice | On the user's phone, the site opens a game folder and runs a slice of Merge Café: a worker, the fixed timestep, the draw list, WebGL sprites and shapes; raw touches with `tap`, `drag` and `drop`; tap a generator to make an item, drag one onto its twin to merge them, on a portrait board laid out for the shortest supported screen (720 x 1280). A recording of that play replays to the same state hashes (10.1). The reference phone is chosen |
-| 2 | Touch and layout | Every gesture, `hit`, `button`, haptics; the safe area, `resize`, orientations, the desktop column |
+| 1 | Bring-up | On the user's phone, the site finds a diagnostic fixture (`carts/diag/`) through `carts/index.json`, validates and loads its `game.json`, starts the worker and the fixed-tick loop, and renders a shape with WebGL. A tap, a drag and a release reach the fixture in design coordinates (points), and it shows them. A recording of that input replays at fixed ticks to the same state hashes (10.1). A first `tools/verify.js` checks the index, the manifest and the fixture's files. The reference phone is chosen |
+| 2 | Touch and layout | Every gesture, `hit`, `button`, haptics; the safe area, `resize`, orientations, the desktop column; a Merge Café board prototype (tap a generator, drag to merge) on 720 x 1280 to choose its board size |
 | 3 | Renderers | The Canvas 2D fallback; batching; the sprite benchmark measured on the reference phone (target 10 000 at 60 fps); the two renderers compared by screenshot (10.1) |
 | 4 | Polish | Text with fonts, tweens and presets, particles, layer effects, camera |
 | 5 | Assets | The vector kit and its recipes; the full loader (9.2); pictures and vector art in atlases |

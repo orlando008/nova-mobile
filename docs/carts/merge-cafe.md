@@ -64,7 +64,7 @@ A taller phone gives the café more height; the board stays the same size.
 | 7 x 7 | 96 | 672 | 608 |
 | 7 x 9 | 80 (the smallest a thumb should have) | 720 | 560 |
 
-Milestone 1's slice (SPEC section 14) prototypes these on a 720 x 1280 screen before the board is chosen.
+The board prototype in the platform's milestone 2 (SPEC section 14) tries these on a 720 x 1280 screen before the board is chosen.
 
 ## 4. A first plan
 
@@ -76,7 +76,7 @@ Milestone 1's slice (SPEC section 14) prototypes these on a 720 x 1280 screen be
 6. Sound and music.
 7. Tuning with the bot (sweeps over seeds), then release.
 
-Milestone 1 of the platform is itself a slice of this game (tap a generator, drag to merge, replay it). The full game
+The platform's milestone 2 includes a prototype of this game's board (tap a generator, drag to merge). The full game
 needs nova-mobile's milestones 1 to 9 (`docs/SPEC.md` section 14) first, or at least enough of them: the frame,
 touch, polish, assets and saves.
 
