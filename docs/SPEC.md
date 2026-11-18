@@ -51,7 +51,7 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
 | Touches | Up to 5 at once |
 | Audio | 32 voices; a synth and sampled sounds; music and effects buses (7) |
 | Code | 512 KB of JavaScript source |
-| Game size | 32 MB in all (code, pictures, sounds, fonts) |
+| Cart size | 32 MB in all (code, pictures, sounds, fonts) |
 | Saves | 1 MB of JSON per game |
 | Reference phone | A mid-range phone from 2021 (proposal: an iPhone 12 or a Pixel 5a; chosen in milestone 1): the budgets are what it holds at 60 fps |
 
@@ -59,12 +59,14 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
 
 ### 4.1 Points, pixels and the safe area
 
-- A game works in **points**. The design canvas is 720 points wide; its height depends on the phone (4.2).
+- A game works in **points**. The design canvas is 720 points wide; its height depends on the phone (4.2), and section 4.3 maps it to the screen.
   720 x 1280 is a common design size for portrait phone games, and 720 points is about twice the width a phone's
   browser reports (360 to 430 CSS pixels). A point is 1.0 to 1.8 real pixels: about 1.0 on an iPhone SE (750 px),
   1.5 on a Pixel 7 (1080 px), 1.6 on an iPhone 15 (1179 px) and 1.8 on an iPhone 15 Pro Max (1290 px).
-- A finger needs a target of at least 44 CSS pixels (Apple's guideline), which is **80 to 90 points**: the smallest
-  button or cell a game should have.
+- A finger needs a target of at least **44 x 44 CSS pixels** (Apple's guideline). The minimum is set in CSS pixels,
+  not points, because that is what a finger measures: it is 84 points on the narrowest supported phone (375 CSS px
+  wide) and 74 on a 430 px one, so a game that keeps its targets at **84 points or more** meets it everywhere.
+  `tools/verify.js` cannot check this; the diagnostic fixture's target grid (section 14, milestone 1) shows it on a phone.
 - The console renders at the screen's real pixels (`devicePixelRatio`, capped at 3), so lines and text are sharp.
   A game never deals with pixels unless it asks (`screen().dpr`).
 - The **safe area** (notches, rounded corners, the home bar) is reported to the game as insets in points. The game's
@@ -75,14 +77,32 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
 - **Portrait is the default.** The width is always 720 points; the height is what the screen's shape gives: about
   1280 on a 16:9 phone, about 1560 on a tall modern phone, about 960 on an iPad. A game lays out from the top and the
   bottom (a header, a board in the middle, a bar at the bottom) and lets the middle grow.
-- **Landscape and tablets are opt-in.** A game lists the orientations it supports in its manifest (9.1):
+- **Landscape and tablets are opt-in.** A game lists the orientations it supports in its manifest (9.2):
   `"orientations": ["portrait"]` (the default) or `["portrait", "landscape"]`. In landscape the height is 720 points
   and the width grows instead. A portrait-only game on a landscape screen is shown centred in a portrait column, with
   the brand's dark background around it, and a "turn your phone" hint on phones.
 - On a desktop the game runs in a phone-shaped column in the middle of the page, played with the mouse.
 - `resize()` is called when the shape changes (a rotation, a desktop window).
 
-### 4.3 Layers and the camera
+### 4.3 Mapping the screen to points
+
+The console works out one **scale** from the page's CSS pixels to points, and keeps it until the next `resize`:
+
+- **Portrait:** `scale = 720 / viewportWidthCss`; the screen's height in points is `viewportHeightCss x scale`.
+  On a 375 x 667 CSS viewport (iPhone SE) that is 1.92 points per CSS pixel and 720 x 1281 points.
+- **Landscape (opt-in):** the same with the height: `scale = 720 / viewportHeightCss`.
+- **Portrait-only on a landscape screen, and the desktop:** a portrait column of 9:16 or taller, as high as the
+  viewport, centred; the scale comes from the column's width.
+- A touch at CSS position `(cx, cy)` relative to the game's canvas is at `(cx x scale, cy x scale)` points. The main
+  thread does this conversion, so the game, the recording and the replay only ever see points.
+- The **safe area** comes from CSS `env(safe-area-inset-*)`, multiplied by the scale and given to the game in points
+  (`screen().safe = {top, right, bottom, left}`).
+- The canvas's backing store is `viewportCss x min(devicePixelRatio, 3)` real pixels; the renderer maps points to
+  them. Neither the scale nor the pixel ratio is visible to gameplay except through `screen()`.
+- **Touch thresholds are in CSS pixels** (6.2), converted to points with the scale, so a gesture feels the same on
+  every phone whatever its size.
+
+### 4.4 Layers and the camera
 
 A frame is drawn as a list of **layers**, back to front. A game makes as many as it needs (`layer(name)`), and each
 has its own camera (position, zoom, rotation), opacity, blend mode and effects (5.6). A typical game has a world layer
@@ -167,15 +187,16 @@ touch; the wheel is a pinch. These raw touches are what a recording stores, whic
 
 ### 6.2 Gestures
 
-The console turns the raw touches into **gestures**, the same way on every device, so games share one feel:
+The console turns the raw touches into **gestures**, the same way on every device, so games share one feel. Distances
+and speeds are in **CSS pixels** (4.3), and gestures report positions in points:
 
 | Gesture | Recognised when | Gives |
 |---|---|---|
-| `tap` | Down and up within 300 ms, moving less than 12 points | position |
-| `doubletap` | Two taps within 300 ms and 30 points | position |
-| `press` | Held 450 ms without moving 12 points | position (fires once while held) |
-| `drag` | Moved 12 points after down | start, current, delta; then `drop` on release |
-| `swipe` | A drag released faster than 800 points per second | direction (4 or 8), speed |
+| `tap` | Down and up within 300 ms, moving less than 10 CSS px | position |
+| `doubletap` | Two taps within 300 ms and 24 CSS px | position |
+| `press` | Held 450 ms without moving 10 CSS px | position (fires once while held) |
+| `drag` | Moved 10 CSS px after down | start, current, delta; then `drop` on release |
+| `swipe` | A drag released faster than 500 CSS px per second | direction (4 or 8), speed (points per second) |
 | `pinch` | Two touches | centre, scale change, rotation change |
 
 `gesture()` returns this frame's gestures. Most games use only `tap`, `drag`/`drop` and `swipe`.
@@ -221,46 +242,94 @@ and when the page is hidden (the player switches apps).
   console keeps them in IndexedDB, and the pause menu can **export** a save as a file and import it again.
 - `Math.random` is a seeded generator; `rnd`, `rndi` and `srand` as on NOVA-16.
 
-## 9. Games and files
+## 9. Carts and the repository
 
-### 9.1 Source
+A game is called a **cart**, as on NOVA-16. Every cart lives in this repository and is played straight from its folder:
+there is no packed file and no pack step.
 
-A game is a folder, `carts/<name>/`, and the site plays it straight from that folder: there is no packed game file
-and no pack step.
+### 9.1 The cart folder
 
 ```
-game.json      the manifest: name, title, version, orientations, shelf, colours for the splash, credits
-code.js        the game
-art.js         vector assets (functions drawing with the vector kit), optional
-assets/        pictures, sounds, music, fonts
-tests/         the game's tests (rules as pure functions, a bot, screens to photograph)
+carts/<name>/
+  game.json      the manifest (9.2)
+  code.js        the game: the lifecycle functions of section 10
+  art.js         vector assets (functions drawing with the vector kit), optional
+  assets/        pictures, sounds, music, fonts, in any sub-folders
+  tests/         the cart's tests: rules as pure functions, a bot, recordings to replay, screens to photograph
+play/<name>/index.html   the cart's link page (9.6)
+docs/carts/<name>.md     the cart's spec
 ```
 
-### 9.2 Loading
+`<name>` is lower-case letters, digits and hyphens, 2 to 32 characters, starting with a letter, and is the cart's id
+everywhere (its folder, its link, its save, its cache).
 
-- `game.json` lists the game's asset files. The console fetches `code.js`, `art.js` and those files from the game's
-  folder, decodes the pictures and sounds, draws the vector assets, and packs pictures and vector art into atlases in
-  the browser. A loading screen (Bit plugging in) shows the progress.
-- **Offline.** A cold start offline needs more than a game's assets: the site's shell (pages, styles, the console's
-  modules and its worker), and the game's `game.json`, `code.js`, `art.js` and every file `game.json` lists, streamed
-  music included. The service worker caches a game as one **version** (named by a hash of its file list and sizes,
-  which `tools/verify.js` writes into `game.json`). A game is **ready offline** only once every file of that version is
-  cached; the Library marks it so. When a game changes, the new version downloads in the background and replaces the
-  old one only once it is complete, so the version already cached stays playable until then. The site's shell is
-  versioned the same way.
-- The site plays only the games in the repository's `carts/` folder (listed in `carts/index.json`): there is no way to
-  open a game from anywhere else.
+### 9.2 The manifest: `game.json`
 
-### 9.3 Sharing
+| Field | Required | Meaning |
+|---|---|---|
+| `format` | yes | The manifest format, `1` |
+| `name` | yes | The cart's id: the same as its folder |
+| `title` | yes | Its title as shown, up to 40 characters |
+| `version` | yes | `major.minor.patch`; raise it with every change a player would notice |
+| `console` | yes | The lowest console API version it needs, `major.minor` |
+| `description` | yes | One or two sentences, for the Library and link previews (up to 200 characters) |
+| `shelf` | yes | One of the Library's shelves (11.1) |
+| `orientations` | no | `["portrait"]` (the default), or `["portrait", "landscape"]` |
+| `poster` | yes | A picture in `assets/`, 1200 x 630, for the Library tile and link previews |
+| `icon` | yes | A square picture in `assets/`, 512 x 512, for an installed cart |
+| `splash` | no | `{ "background": "#rrggbb", "foreground": "#rrggbb" }` for the loading screen |
+| `assets` | yes | Every file in `assets/`, as `{ "path": "assets/...", "bytes": n, "sha256": "..." }`, optional ones marked `"lazy": true` (loaded on first use, such as streamed music) |
+| `contentVersion` | yes | A hash of `code.js`, `art.js` and the `assets` list; names the cached version (9.5) |
+| `credits` | no | Authors and the licences of anything not made for the cart |
+| `fixture` | no | `true` for a diagnostic or test cart, hidden from the Library and listed only in development |
 
-A game is shared by its **link**: `play/<name>/`. GitHub Pages serves static files only and runs no server code, so:
-- Each game has a real page, `play/<name>/index.html`, committed with the game. It holds the game's title,
-  description and poster in its `<title>` and Open Graph tags (for link previews), and starts the console on that game.
-  `tools/verify.js` checks that it exists and agrees with `game.json`.
+`bytes`, `sha256` and `contentVersion` are written by `tools/verify.js --fix`, never by hand.
+
+### 9.3 The cart index: `carts/index.json`
+
+The list of carts the site offers, in Library order:
+
+```json
+{ "format": 1, "carts": [ { "name": "diag", "path": "carts/diag/" } ] }
+```
+
+The site plays only the carts in this index: there is no way to open a cart from anywhere else. A cart folder that is
+not in the index, or an index entry with no folder, fails the checks (13.2).
+
+### 9.4 Startup: from a link to the first tick
+
+1. **Find.** The page (`play/<name>/` or the Library) reads `carts/index.json` and looks up `<name>`; a name not in the
+   index shows "no such game" (Bit, worried).
+2. **Validate.** It fetches `game.json` and checks it against 9.2: the format, the required fields, the name matching
+   the folder, and `console` not newer than the running console. A failure stops here with the field that failed.
+3. **Fetch.** It fetches `code.js`, `art.js` and every asset not marked lazy, checking each against its `bytes` and
+   `sha256`. The loading screen shows the progress; a file that fails shows which one.
+4. **Prepare.** It decodes the pictures and sounds, starts the worker, hands it the code and the assets, and the worker
+   draws the vector assets and packs the atlases.
+5. **Screen.** It works out the scale and the safe area (4.3) and sends them with the first frame's input.
+6. **Start.** The worker loads the save (8), seeds the generator, calls `init()`, and the fixed-tick loop begins:
+   tick 0 is the first `update()`.
+
+### 9.5 Offline
+
+A cold start offline needs more than a cart's assets: the site's shell (pages, styles, the console's modules and its
+worker) and every file of steps 1 to 3 of 9.4, lazy files included. The service worker caches a cart as one
+**version**, named by its `contentVersion`:
+- A cart is **ready offline** only once every file of that version is cached; the Library marks it so.
+- When a cart changes, the new version downloads in the background and replaces the old one only once it is complete,
+  so the version already cached stays playable until then.
+- The site's shell is versioned the same way, by a hash of its files.
+
+### 9.6 Links
+
+A cart is shared by its **link**, `play/<name>/`. GitHub Pages serves static files only and runs no server code, so:
+- Each cart has a real page, `play/<name>/index.html`, committed with it. It holds the cart's title, description and
+  poster in its `<title>` and Open Graph tags (for link previews), and starts the console on that cart. The checks
+  (13.2) confirm it agrees with `game.json`.
 - Every path the site uses is **relative to the deployment's base path**, never to the domain's root: the site is
   served under `/nova-mobile/` (`https://orlando008.github.io/nova-mobile/play/<name>/`), and later perhaps at a
   domain's root, and both must work.
-- The smoke test opens each game's link in a fresh browser (no cache, no service worker) to check it.
+- The smoke test opens each cart's link in a fresh browser (no cache, no service worker) to check it.
 
 (NOVA-16's cart-as-PNG does not fit games of tens of megabytes, so there is none here.)
 
@@ -283,7 +352,13 @@ function pause() {}        // the game was paused or hidden
   - `tools/verify.js` fails a game whose code names any of those APIs, `eval`, `Function` or `import(`;
   - before the game's code runs, the console's worker removes those names from its global scope, which stops
     accidents, not a determined author.
-  The console itself loads the game's files (9.2) and hands them to the game; a game never fetches.
+  The console itself loads the cart's files (9.4) and hands them to the game; a game never fetches.
+- **Ticks.** The loop runs `update()` at a fixed 60 ticks a second from an accumulator: each display frame runs as
+  many ticks as the time elapsed calls for, at most 4 (beyond that the backlog is dropped, so a stall never becomes a
+  spiral), then one `draw(alpha)`. Each tick reads exactly one tick's input (the touches, the clock and the screen of
+  10.1), sampled by the main thread and sent with it.
+- **Rendering.** `draw()` fills the draw list; the main thread renders the latest list once per display frame. The game
+  never waits on the renderer, and the renderer never changes the game.
 - The game's code is a module evaluated with the API in scope, as on NOVA-16.
 - An uncaught error stops the game and shows an error screen (Bit, worried) with the message and the line.
 - `stat(key)`: `'fps'`, `'cpu'` (ms for update + draw), `'gpu'`, `'sprites'`, `'textures'` (MB), `'voices'`.
@@ -341,54 +416,84 @@ The NOVA-16 workflow, carried over and changed for touch:
 | `tools/devkit/art/` | Renders vector assets and atlases to PNG to look at |
 | `tools/devkit/music/` | Renders songs and sounds to WAV and measures them |
 
-## 13. Repository layout (planned)
+## 13. The repository, review and publishing
+
+### 13.0 Layout
 
 ```
-index.html, style.css, sw.js, manifest.webmanifest   the website
-src/            the console: worker, renderer (webgl/, canvas/), input, audio, the site's UI
-carts/          one folder for each game, and index.json listing them
-docs/           SPEC.md, BRAND.md, carts/<name>.md, dev/ (the playbook)
+index.html, style.css, sw.js, manifest.webmanifest   the site's shell and the Library
+play/<name>/index.html   one link page for each cart (9.6)
+src/            the console: the loader, the worker, the renderers (webgl/, canvas/), input, audio, the site's UI
+carts/          index.json (9.3) and one folder for each cart (9.1)
+docs/           SPEC.md, BRAND.md, carts/<name>.md (one spec for each cart), dev/ (the playbook)
 brand/          the brand pictures
-tools/          the tools in section 12
-tests/          the console's tests
+tools/          the tools of section 12
+tests/          the console's own tests, and the recordings they replay
+.github/workflows/   the checks (13.2) and the publishing (13.3)
 ```
 
 ### 13.1 Adding a game
 
-- A game is written in a branch of this repository, in `carts/<name>/` with its spec in `docs/carts/<name>.md`,
-  and joins the site when its pull request is **approved and merged** by the repository's owner. Anyone who wants to
-  write a game asks to join the repository.
-- A pull request's checks run `tools/verify.js` on the games it changes; its preview link shows the site with the
-  change, to try on a phone before approving.
-- The site plays a game straight from its folder (9.2), so a merged pull request is live as soon as GitHub Pages
-  deploys it.
+- A cart is written on a branch of this repository, in `carts/<name>/` with its spec in `docs/carts/<name>.md` and its
+  link page in `play/<name>/`, and added to `carts/index.json`.
+- It joins the site when its pull request is **approved and merged** by the repository's owner. Anyone who wants to
+  write a game asks to join the repository. A new cart's first pull request should be its spec alone, so the idea is
+  agreed before the work.
+
+### 13.2 Checks
+
+`node tools/verify.js` runs on every pull request (a GitHub Actions workflow) and before every commit. It needs only
+Node, no browser. It fails on:
+
+| Check | Fails when |
+|---|---|
+| Index | `carts/index.json` is not valid (9.3), names a missing folder, or misses a folder in `carts/` |
+| Manifest | A `game.json` breaks 9.2: a missing or wrong field, a name that differs from the folder, a poster or icon of the wrong size |
+| Files | An asset listed but missing, a file in `assets/` not listed, a `bytes` or `sha256` that does not match, a stale `contentVersion` |
+| Link page | `play/<name>/index.html` missing, or its title, description or poster differing from `game.json` |
+| Paths | A path in the site or a cart that starts with `/` (it must be relative to the base path, 9.6) |
+| Network | Cart code naming `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `importScripts`, `eval`, `Function` or `import(` (10) |
+| Budgets | Code over 512 KB or a cart over 32 MB (3): a warning, not a failure |
+| Spec | A cart without `docs/carts/<name>.md`, or a doc naming a file or tool that does not exist |
+| Tests | The cart's and the console's tests, including the recordings replayed to their state hashes (10.1) |
+
+`--fast` skips the tests; `--fix` writes the hashes and sizes. Checks that need a browser (the smoke test, screenshots
+on phone sizes) run with `tools/devkit/` on a developer's machine and are not part of CI at first.
+
+### 13.3 Publishing
+
+- **The site is `main`.** GitHub Pages serves the repository's `main` branch as it is (no build step), so a merged pull
+  request is live as soon as Pages deploys it.
+- **Previews.** Each open pull request is also deployed by a workflow to `pr/<number>/` under the site
+  (`https://orlando008.github.io/nova-mobile/pr/<number>/`), to try on a phone before approving; it is removed when the
+  pull request closes. Because every path is relative (9.6), the same files work there.
+- **Branch protection.** `main` takes changes only through pull requests with one approval and the checks of 13.2
+  passing (set by the owner in the repository's settings).
 
 ## 14. Milestones
 
-The first milestone is a **console bring-up on a real phone**: the repository, the loader, input, the renderer and
-replays tested together on a minimal diagnostic fixture, before any game. The renderers' breadth and the sprite
-benchmark come after.
+This spec is the deliverable of the planning stage. Building starts with a **console bring-up on a real phone**: the
+repository, the loader, input, the renderer and replays tested together on a minimal diagnostic fixture, before any
+game. Which games come first is decided in their own pull requests (13.1).
 
 | # | Milestone | Done when |
 |---|---|---|
-| 1 | Bring-up | On the user's phone, the site finds a diagnostic fixture (`carts/diag/`) through `carts/index.json`, validates and loads its `game.json`, starts the worker and the fixed-tick loop, and renders a shape with WebGL. A tap, a drag and a release reach the fixture in design coordinates (points), and it shows them. A recording of that input replays at fixed ticks to the same state hashes (10.1). A first `tools/verify.js` checks the index, the manifest and the fixture's files. The reference phone is chosen |
-| 2 | Touch and layout | Every gesture, `hit`, `button`, haptics; the safe area, `resize`, orientations, the desktop column; a Merge Café board prototype (tap a generator, drag to merge) on 720 x 1280 to choose its board size |
+| 1 | Bring-up | The repository layout (13.0), `carts/index.json` and a diagnostic fixture, `carts/diag/` (`"fixture": true`). On the user's phone, its link page finds it through the index, validates and loads its manifest (9.4), starts the worker and the fixed-tick loop, and draws a shape with WebGL. The fixture shows a tap, a drag and a release where the finger is, in points; shows the screen's size in points, the scale and the safe-area insets (4.3); and draws a grid of 84-point targets to check against a finger on a small phone (4.1). A recording of that input replays at fixed ticks to the same state hashes (10.1). A first `tools/verify.js` runs the index, manifest, files, link page, paths and network checks (13.2). The reference phone is chosen |
+| 2 | Touch and layout | Every gesture, `hit`, `button`, haptics; `resize`, orientations, the landscape column and the desktop column |
 | 3 | Renderers | The Canvas 2D fallback; batching; the sprite benchmark measured on the reference phone (target 10 000 at 60 fps); the two renderers compared by screenshot (10.1) |
 | 4 | Polish | Text with fonts, tweens and presets, particles, layer effects, camera |
-| 5 | Assets | The vector kit and its recipes; the full loader (9.2); pictures and vector art in atlases |
+| 5 | Assets | The vector kit and its recipes; lazy assets; pictures and vector art in atlases |
 | 6 | Sound | The synth, samples, music, buses; the music and sound tools |
 | 7 | Saves and time | `save`/`load`, export, the wall clock, `pause` |
-| 8 | The website | Library, game pages and links (9.3), pause menu, PWA and offline versions (9.2), the brand |
-| 9 | The workbench | new-cart, verify, smoke, sweep, shots, gallery, the playbook |
-| 10 | First game | Merge Café (`docs/carts/merge-cafe.md`) released |
-| 11 | Second game | A match-3, to prove the kit on a different kind of game |
+| 8 | The website | Library, link pages (9.6), pause menu, PWA and offline versions (9.5), previews (13.3), the brand |
+| 9 | The workbench | new-cart, the full verify, smoke, sweep, shots, gallery, the playbook |
 
 ## 15. Open questions
 
 - The reference phone (chosen in milestone 1) and its budgets (measured in milestone 3).
 
 **Decided:**
-- **No packed game file:** the site plays each game straight from its folder (the user, 18 November 2026; 9.2).
+- **No packed game file:** the site plays each game straight from its folder (the user, 18 November 2026; 9.1).
 - The design width is **720 points** (the user, 18 November 2026; section 4.1).
 - No editors in the browser, and no loading of games from outside the repository (the user, 18 November 2026): every
   game is code in this repository, added through an approved pull request (principle 7, section 13.1).

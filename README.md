@@ -9,7 +9,6 @@ Part of the NOVA family, beside [NOVA-16](https://github.com/orlando008/fanstasy
 
 - [`docs/SPEC.md`](docs/SPEC.md): the platform's specification (draft)
 - [`docs/BRAND.md`](docs/BRAND.md): the NOVA brand for the website (colours, the octagon, Bit)
-- [`docs/carts/merge-cafe.md`](docs/carts/merge-cafe.md): the first game, a remake of NOVA-16's Merge Café (outline)
 
 ## Adding a game
 
