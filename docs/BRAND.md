@@ -97,17 +97,24 @@ a purple cartridge backpack, a cable tail with a plug, and cyan soles.
 | Use | Face | Notes |
 |---|---|---|
 | NOVA, NOVA-16 and NOVA-64 logotypes | Blocky pixel lettering in cyan, as on the NOVA-16 console | Logo artwork |
-| NOVA MOBILE wordmark | Space Grotesk Bold (700), uppercase | Cyan |
-| Headings | A geometric sans with square shoulders (proposal: *Space Grotesk*, OFL) | Cream or cyan |
-| Body and UI | A clean sans (proposal: *Inter*, OFL) | Cream; secondary in cream-shade |
+| NOVA MOBILE wordmark | *Space Grotesk* Bold (700), uppercase (OFL) | Cyan. Deliberately not pixel lettering (section 5) |
+| Headings | *Space Grotesk* (OFL), a geometric sans with square shoulders | Cream or cyan |
+| Body and UI | *Inter* (OFL), a clean sans | Cream; secondary in cream-shade |
 | Numbers (scores, sizes, versions) | The heading face with tabular figures | Cyan |
 
-Fonts are served from the site itself (no outside font service), so the site works offline.
+Space Grotesk and Inter are **decided** (the user, 18 November 2026): the wordmark is set in Space Grotesk, so the
+headings use it too, and Inter is the body face shown in the visual guide. Fonts are served from the site itself (no
+outside font service), so the site works offline.
 
 ## 5. The logo
 
 - Use the cyan pixel logotypes for **NOVA**, **NOVA-16** and **NOVA-64** on void or panel.
-- Set **NOVA MOBILE** in uppercase Space Grotesk Bold (700), in cyan on void or panel.
+- Set **NOVA MOBILE** in uppercase Space Grotesk Bold (700), in cyan on void or panel. This is **deliberately different**
+  from the pixel logotypes (the user's decision, 18 November 2026): NOVA-16 and NOVA-64 are retro consoles and their
+  logos look it, while nova-mobile is sleek and modern, so its wordmark is too. The family stays tied together by the
+  cyan on dark, the octagonal marks and Bit, not by one typeface.
+- The pixel logotypes are logo artwork (images); the NOVA MOBILE wordmark is set in the font, so it can be rendered
+  at any size, but keep its letter-spacing and weight as in the visual guide.
 - Each platform has a small **mark**: its console or device drawn in the house colours, in an octagon (NOVA-16: the
   console from the source picture; nova-mobile: the proposed chamfered phone with a cyan play triangle in the visual guide).
 - Leave clear space round the logo of at least the height of its letters.
@@ -134,5 +141,7 @@ Fonts are served from the site itself (no outside font service), so the site wor
 ## 8. Open questions
 
 - Fix the exact hex values once a designer's file or the source vectors exist.
-- The heading and body faces are proposals.
-- Draw Bit's worried pose and finalise the proposed nova-mobile phone mark.
+- Draw Bit's worried pose and finalise the proposed nova-mobile phone mark: check it still reads at 16 and 32 px
+  (the browser tab icon), where the phone and its triangle may blur together.
+- The visual guide is a fixed picture and writes "Color"; these docs write "colour". When it is next redrawn, use
+  "Colour", and consider making it from an HTML page in the repo rendered to PNG, so it cannot drift from this file.
