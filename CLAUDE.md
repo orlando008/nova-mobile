@@ -14,6 +14,8 @@
 - **The brand** (`docs/BRAND.md`: black, purple, cyan and cream, the octagon, Bit the mascot) is for the **website
   only**. Games have their own art and style.
 - **No money:** no ads, purchases or paid energy. Timers and daily rewards are allowed as design only.
+- **No editors in the browser.** Every game is code in this repository and reaches the site only through an approved
+  pull request; the site plays only the games it hosts (SPEC section 13.1).
 - Each game has a spec in `docs/carts/<name>.md`. The first game is a remake of NOVA-16's Merge Café.
 - **Branches and pull requests.** Work on the branch you are given. Commit and push after each step. Open a pull
   request only when the user asks, and merge only when told to.

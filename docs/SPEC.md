@@ -33,6 +33,9 @@ agent build, test and look at a game without a person holding the phone.
    no runtime dependencies. The repo root deploys to GitHub Pages.
 6. **No backend, no money.** No accounts, no servers, no ads, no purchases, no energy you can buy. A game may use
    timers and daily rewards as design, never as a paywall.
+7. **Games live in the repository.** There are no editors in the browser. Every game is source code and files in this
+   GitHub repository, and it reaches the site only through a reviewed pull request (13.1). The site plays only the games
+   it hosts.
 
 ## 3. The device
 
@@ -231,7 +234,8 @@ tests/         the game's tests (rules as pure functions, a bot, screens to phot
 
 `node tools/pack.js carts/src/<name> carts/<name>.novam` packs the folder into one file: a small binary container
 with the manifest, the code, the atlases (pictures packed; vector code kept as code, drawn at load) and the sounds. The
-site loads a game from its `.novam` file only.
+site loads a game from its `.novam` file only, and only the games in the repository: there is no way to open a file
+from elsewhere.
 
 ### 9.3 Sharing
 
@@ -302,6 +306,15 @@ tools/          the tools in section 12
 tests/          the console's tests
 ```
 
+### 13.1 Adding a game
+
+- A game is written in a branch of this repository, in `carts/src/<name>/` with its spec in `docs/carts/<name>.md`,
+  and joins the site when its pull request is **approved and merged** by the repository's owner. Anyone who wants to
+  write a game asks to join the repository.
+- A pull request's checks run `tools/verify.js` on the games it changes; its preview link shows the site with the
+  change, to try on a phone before approving.
+- The packed `.novam` files are built from the sources and committed with them, so the site stays static.
+
 ## 14. Milestones
 
 | # | Milestone | Done when |
@@ -321,7 +334,8 @@ tests/          the console's tests
 
 - Is 720 points wide the right design width? (It makes 1 point = 1.5 px on most phones, which is easy to reason about.)
 - The reference phone and its budgets, to measure once milestone 1 runs.
-- Does nova-mobile have built-in editors in the browser, as NOVA-16 has, or are games made only with the tools and an
-  agent? (Proposal: no editors at first; a game is code and files.)
-- The game file's name (`.novam`) and whether games from other people can be loaded (dropping a file on the site), or
-  only the hosted ones.
+- The game file's name (`.novam`).
+
+**Decided:**
+- No editors in the browser, and no loading of games from outside the repository (the user, 18 November 2026): every
+  game is code in this repository, added through an approved pull request (principle 7, section 13.1).
