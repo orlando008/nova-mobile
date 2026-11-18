@@ -6,7 +6,7 @@ An optional library of artwork for bootstrapping new NOVA Mobile carts. The libr
 
 | Review order | Sheet | Initial contents |
 |---|---|---|
-| 1 | Navigation & Menus | Directions, back, home, playback, plus/minus, settings, close, and sound |
+| 1 | [Navigation & Menus](../shared-assets/navigation-menus/README.md) | Directions, back, home, playback, plus/minus, settings, close, and sound |
 | 2 | Interaction & Feedback | Check, warning, info, help, tap, grab, target, selection, and progress indicators |
 | 3 | Currency & Rewards | Coins, coin stacks, pouch, gems, star, trophy, gift, and chest |
 | 4 | Vitals & Status | Full, half, and empty hearts, shield, energy, stamina, potion, and status pips |
