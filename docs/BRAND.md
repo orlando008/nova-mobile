@@ -1,0 +1,130 @@
+# The NOVA brand
+
+**Status:** Draft 1 (18 November 2026). Applies to the websites of every NOVA platform (NOVA-16, nova-mobile,
+nova-64 and later ones). It lives here until a `nova` umbrella repo exists, then moves there.
+
+**Scope:** the brand is the **platform**: the website, the Library, menus, loading and error screens, icons and logos.
+It is **not** the games. Every game has its own art, palette and style, and nothing here limits them.
+
+The source pictures are in `brand/`: the NOVA-16 console (`nova-16-console.webp`), its controller
+(`nova-16-controller.webp`) and Bit's character sheet (`bit-sheet.webp`).
+
+---
+
+## 1. Colours
+
+Four families: **black, purple, cyan and cream**. The values were sampled from the source pictures and rounded; tune
+them once, here, and every platform follows.
+
+| Token | Hex | Role |
+|---|---|---|
+| `--void` | `#08080C` | Outlines, the page's deepest background, letterboxing around a game |
+| `--panel` | `#181828` | Panels and cards: a navy black, the console's body |
+| `--panel-2` | `#202034` | A raised panel or a hovered card (a step up from `--panel`) |
+| `--slate` | `#384068` | Bevels, dividers, disabled controls, the console's trim |
+| `--purple-deep` | `#581090` | Shaded sides, pressed buttons, the lower half of a gradient |
+| `--purple` | `#9020E8` | The main brand colour: big shapes, primary buttons, the console's sides |
+| `--purple-muted` | `#8028A8` | Secondary shapes, the controller's trim, Bit's backpack |
+| `--cyan` | `#28F8F8` | Light: glow lines, focus rings, active states, links, the logotype, Bit's eyes |
+| `--cream` | `#F8E8C8` | Body text and Bit's body |
+| `--cream-shade` | `#D8B8A8` | Secondary text, Bit's shading |
+
+**Text contrast** (WCAG, against `--panel` / `--void`):
+
+| Text colour | On panel | On void | Use for text? |
+|---|---|---|---|
+| cream | 14.5 | 16.5 | Yes: body text |
+| cyan | 13.2 | 15.1 | Yes: links, headings, numbers |
+| cream-shade | 9.5 | 10.8 | Yes: secondary text |
+| purple | 3.0 | 3.4 | Large text and icons only, never body text |
+| purple-muted, slate | under 3 | under 3 | Never for text |
+
+Purple is for **shapes**, cyan is for **light**, cream is for **words**.
+
+**Proportions.** Mostly dark (void and panel), a lot of purple, a little cyan. Cyan is the accent: if a screen has more
+cyan than purple, it has too much.
+
+**Light mode.** None. The NOVA sites are dark, like the console. (A game can be as bright as it likes.)
+
+## 2. The octagon
+
+The console and the controller are both **octagons**: rectangles with their corners cut off at 45°. That chamfer is
+the brand's shape, the way a rounded corner is someone else's.
+
+- **Panels, cards, buttons and tiles** have chamfered corners, not rounded ones. A chamfer is about 12% of the shorter
+  side, at least 4 px. In CSS: `clip-path: polygon(...)` with the eight points, or the `oct()` helper in the site's CSS.
+- **Edge light.** A panel can carry a 2 px **cyan line** along its top edge and down the chamfers, as on the console's top.
+  Use it for the one thing on a screen that is active or chosen (the focused tile, the play button), not for everything.
+- **Bevels.** A slate line inside the top edge and a purple-deep line along the bottom give a panel its depth, as the
+  console has.
+- **The play button** is an octagon with a cyan triangle in it.
+- **Icons** that sit in a shape (the app icon, the menu button, avatars) sit in an octagon.
+- **Never** combine chamfers and rounded corners on the same element.
+
+## 3. Bit
+
+Bit is the mascot of every NOVA platform: a small robot with a cream body, a **black screen for a face with cyan eyes**,
+a purple cartridge backpack, a cable tail with a plug, and cyan soles.
+
+**Where Bit appears:**
+
+| Moment | Pose (from the sheet) |
+|---|---|
+| Loading a game | Plugging his cable into a socket |
+| Empty Library or no results | Standing, looking up, neutral eyes |
+| A game finished, a high score, an install done | Cheering, arms up, happy eyes |
+| The app icon and the splash screen | Hugging the console |
+| Errors and the 404 page | Standing with a worried look (a pose to draw) |
+| The About page | The front, three-quarter and back turnaround |
+
+**Rules:**
+- Bit is a **helper, not a decoration**: one Bit per screen at most, and only where he says something.
+- His face is a screen: expressions are the cyan eyes only (open, happy arcs, worried, closed). No mouth.
+- Keep his proportions: the head is as wide as the body is tall.
+- On nova-mobile, Bit is drawn smooth (vector or high-resolution art) in the same colours and shapes. On NOVA-16 he
+  is pixel art. He is the same character on every platform; only the drawing style follows the platform.
+- Bit never appears inside a game unless the game chooses to put him there.
+
+## 4. Type
+
+| Use | Face | Notes |
+|---|---|---|
+| The logotype: NOVA, NOVA-16, NOVA MOBILE | A blocky pixel face in cyan, as on the console | Logo only: drawn once as an image, not typed |
+| Headings | A geometric sans with square shoulders (proposal: *Space Grotesk*, OFL) | Cream or cyan |
+| Body and UI | A clean sans (proposal: *Inter*, OFL) | Cream; secondary in cream-shade |
+| Numbers (scores, sizes, versions) | The heading face with tabular figures | Cyan |
+
+Fonts are served from the site itself (no outside font service), so the site works offline.
+
+## 5. The logo
+
+- **NOVA** in the pixel logotype, cyan, on void or panel. For a platform, the platform's name follows it:
+  **NOVA-16**, **NOVA MOBILE**, **NOVA-64**.
+- Each platform has a small **mark**: its console or device drawn in the house colours, in an octagon (NOVA-16: the
+  console from the source picture; nova-mobile: a phone, to draw).
+- Leave clear space round the logo of at least the height of its letters.
+
+## 6. Components
+
+| Component | Look |
+|---|---|
+| Page | `--void` background; content on `--panel` |
+| Game tile (Library) | An octagonal card: the game's own picture fills it, its title in cream below; the focused or hovered tile gets the cyan edge light |
+| Primary button | Purple octagon, cream label; pressed: purple-deep, moved down 1 px |
+| Secondary button | Panel octagon with a slate outline, cream label |
+| Focus ring | 2 px cyan, following the octagon |
+| Toggle or tab chosen | Cyan underline or cyan edge light |
+| Menu button in a game | A small panel octagon with ☰ in cream, in a corner, never covering the game's own controls |
+
+## 7. Motion
+
+- Short and firm: 120 to 200 ms, ease-out.
+- Light moves, shapes do not wobble: the cyan edge light can sweep along a tile when it is focused; panels slide or fade.
+- Bit can bounce once when he appears.
+- Respect `prefers-reduced-motion`: fades only.
+
+## 8. Open questions
+
+- Fix the exact hex values once a designer's file or the source vectors exist.
+- The heading and body faces are proposals.
+- Draw Bit's worried pose and the nova-mobile mark (a phone in the house colours).
