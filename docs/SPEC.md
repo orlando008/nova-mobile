@@ -60,6 +60,11 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
 ### 4.1 Points, pixels and the safe area
 
 - A game works in **points**. The design canvas is 720 points wide; its height depends on the phone (4.2).
+  720 x 1280 is a common design size for portrait phone games, and 720 points is about twice the width a phone's
+  browser reports (360 to 430 CSS pixels). A point is 1.0 to 1.8 real pixels: about 1.0 on an iPhone SE (750 px),
+  1.5 on a Pixel 7 (1080 px), 1.6 on an iPhone 15 (1179 px) and 1.8 on an iPhone 15 Pro Max (1290 px).
+- A finger needs a target of at least 44 CSS pixels (Apple's guideline), which is **80 to 90 points**: the smallest
+  button or cell a game should have.
 - The console renders at the screen's real pixels (`devicePixelRatio`, capped at 3), so lines and text are sharp.
   A game never deals with pixels unless it asks (`screen().dpr`).
 - The **safe area** (notches, rounded corners, the home bar) is reported to the game as insets in points. The game's
@@ -332,10 +337,10 @@ tests/          the console's tests
 
 ## 15. Open questions
 
-- Is 720 points wide the right design width? (It makes 1 point = 1.5 px on most phones, which is easy to reason about.)
 - The reference phone and its budgets, to measure once milestone 1 runs.
 - The game file's name (`.novam`).
 
 **Decided:**
+- The design width is **720 points** (the user, 18 November 2026; section 4.1).
 - No editors in the browser, and no loading of games from outside the repository (the user, 18 November 2026): every
   game is code in this repository, added through an approved pull request (principle 7, section 13.1).
