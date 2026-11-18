@@ -25,21 +25,25 @@ them once, here, and every platform follows.
 | `--purple-deep` | `#581090` | Shaded sides, pressed buttons, the lower half of a gradient |
 | `--purple` | `#9020E8` | The main brand colour: big shapes, primary buttons, the console's sides |
 | `--purple-muted` | `#8028A8` | Secondary shapes, the controller's trim, Bit's backpack |
+| `--purple-light` | `#B070F8` | Purple **text** and small purple icons (purple itself is too dark for them) |
 | `--cyan` | `#28F8F8` | Light: glow lines, focus rings, active states, links, the logotype, Bit's eyes |
 | `--cream` | `#F8E8C8` | Body text and Bit's body |
 | `--cream-shade` | `#D8B8A8` | Secondary text, Bit's shading |
 
-**Text contrast** (WCAG, against `--panel` / `--void`):
+**Text contrast** (WCAG, against `--panel` / `--void`; WCAG uses the unrounded ratio, so 2.96 fails 3:1):
 
 | Text colour | On panel | On void | Use for text? |
 |---|---|---|---|
 | cream | 14.5 | 16.5 | Yes: body text |
 | cyan | 13.2 | 15.1 | Yes: links, headings, numbers |
 | cream-shade | 9.5 | 10.8 | Yes: secondary text |
-| purple | 3.0 | 3.4 | Large text and icons only, never body text |
+| purple-light | 5.43 | 6.21 | Yes: purple headings, labels and icons (4.95 on panel-2) |
+| purple | 2.96 | 3.39 | No: fills only. It misses 3:1 on panel, even for large text |
 | purple-muted, slate | under 3 | under 3 | Never for text |
 
-Purple is for **shapes**, cyan is for **light**, cream is for **words**.
+Purple is for **shapes**, cyan is for **light**, cream is for **words**. When words must be purple, use purple-light.
+
+**On purple:** cream on `--purple` is 4.88:1, so the primary button's cream label passes for normal text.
 
 **Proportions.** Mostly dark (void and panel), a lot of purple, a little cyan. Cyan is the accent: if a screen has more
 cyan than purple, it has too much.

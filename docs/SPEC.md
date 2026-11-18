@@ -26,7 +26,7 @@ agent build, test and look at a game without a person holding the phone.
 2. **Polish is the product.** The platform gives games what makes a phone game feel good for free: easing, squash
    and stretch, particles, glows, haptics, sound layered on every touch.
 3. **Deterministic core.** The same game, the same seed and the same recorded inputs (touches and the clock) give
-   the same frames. This is what makes bots, sweeps, replays and screenshot tests possible.
+   the same game state, tick for tick (10.1). This is what makes bots, sweeps, replays and screenshot tests possible.
 4. **Budgets, not limits.** NOVA-16's limits were the product. Here the limits are wide and **soft**: the console warns
    in development when a game goes over a budget, it does not refuse to run.
 5. **Pure JavaScript, no build step.** ES modules served as static files; no frameworks, bundlers or transpilers;
@@ -53,7 +53,7 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
 | Code | 512 KB of JavaScript source |
 | Game size | 32 MB in all (code, pictures, sounds, fonts) |
 | Saves | 1 MB of JSON per game |
-| Reference phone | A mid-range phone from 2021 (an iPhone 12 or a Pixel 5a): the budgets are what it holds at 60 fps |
+| Reference phone | A mid-range phone from 2021 (proposal: an iPhone 12 or a Pixel 5a; chosen in milestone 1): the budgets are what it holds at 60 fps |
 
 ## 4. The screen
 
@@ -241,14 +241,28 @@ tests/         the game's tests (rules as pure functions, a bot, screens to phot
 - `game.json` lists the game's asset files. The console fetches `code.js`, `art.js` and those files from the game's
   folder, decodes the pictures and sounds, draws the vector assets, and packs pictures and vector art into atlases in
   the browser. A loading screen (Bit plugging in) shows the progress.
-- For offline play, the service worker caches every file `game.json` lists the first time a game is played.
+- **Offline.** A cold start offline needs more than a game's assets: the site's shell (pages, styles, the console's
+  modules and its worker), and the game's `game.json`, `code.js`, `art.js` and every file `game.json` lists, streamed
+  music included. The service worker caches a game as one **version** (named by a hash of its file list and sizes,
+  which `tools/verify.js` writes into `game.json`). A game is **ready offline** only once every file of that version is
+  cached; the Library marks it so. When a game changes, the new version downloads in the background and replaces the
+  old one only once it is complete, so the version already cached stays playable until then. The site's shell is
+  versioned the same way.
 - The site plays only the games in the repository's `carts/` folder (listed in `carts/index.json`): there is no way to
   open a game from anywhere else.
 
 ### 9.3 Sharing
 
-A game is shared by its **link** (`/play/<name>`), with a poster picture and a title for link previews. (NOVA-16's
-cart-as-PNG does not fit games of tens of megabytes, so there is none here.)
+A game is shared by its **link**: `play/<name>/`. GitHub Pages serves static files only and runs no server code, so:
+- Each game has a real page, `play/<name>/index.html`, committed with the game. It holds the game's title,
+  description and poster in its `<title>` and Open Graph tags (for link previews), and starts the console on that game.
+  `tools/verify.js` checks that it exists and agrees with `game.json`.
+- Every path the site uses is **relative to the deployment's base path**, never to the domain's root: the site is
+  served under `/nova-mobile/` (`https://orlando008.github.io/nova-mobile/play/<name>/`), and later perhaps at a
+  domain's root, and both must work.
+- The smoke test opens each game's link in a fresh browser (no cache, no service worker) to check it.
+
+(NOVA-16's cart-as-PNG does not fit games of tens of megabytes, so there is none here.)
 
 ## 10. Programming model
 
@@ -260,13 +274,39 @@ function resize(w, h) {}   // the screen's shape changed (points)
 function pause() {}        // the game was paused or hidden
 ```
 
-- The game runs in a **Web Worker**: no DOM, no network. `draw()` fills a draw list (typed arrays), transferred to
-  the main thread, which renders it with WebGL or Canvas 2D. This keeps a slow game from freezing the page and keeps
-  the game away from the page.
+- The game runs in a **Web Worker**. `draw()` fills a draw list (typed arrays), transferred to the main thread, which
+  renders it with WebGL or Canvas 2D. This keeps a slow game from freezing the page.
+- **No network for games** is a **rule for reviewed code, not a security guarantee.** A worker has no DOM, but it
+  does have `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource` and `importScripts`, and GitHub Pages cannot send the
+  response headers that would let a Content-Security-Policy lock a worker down. What holds the rule:
+  - games reach the site only through an approved pull request (13.1), and review is the real guarantee;
+  - `tools/verify.js` fails a game whose code names any of those APIs, `eval`, `Function` or `import(`;
+  - before the game's code runs, the console's worker removes those names from its global scope, which stops
+    accidents, not a determined author.
+  The console itself loads the game's files (9.2) and hands them to the game; a game never fetches.
 - The game's code is a module evaluated with the API in scope, as on NOVA-16.
 - An uncaught error stops the game and shows an error screen (Bit, worried) with the message and the line.
 - `stat(key)`: `'fps'`, `'cpu'` (ms for update + draw), `'gpu'`, `'sprites'`, `'textures'` (MB), `'voices'`.
 - In development the console shows a **budget bar** that turns amber over 80% of a budget and red over it.
+
+### 10.1 Determinism and replays
+
+**What a replay guarantees:** given the same game version, the same **starting save** and the same **recording**,
+the game's state after each `update()` is identical, tick for tick, on any device and either renderer.
+
+- **The recording** is indexed by tick (one tick = one `update()`). For each tick it stores everything the game can
+  read: the touches (6.1), the wall clock (8), the screen's size and safe area (4.1), and the lifecycle events (`init`,
+  `resize`, `pause`, resume). Gestures are not stored: they are worked out from the touches, the same way every time.
+  It also stores the seed and the starting save.
+- **`update()` owns the game's state.** `draw()` may read the state and keep purely visual things (an animation's
+  frame, a particle's position), but it must not change gameplay state or call the gameplay random generator: it runs
+  a different number of times on a 60 Hz and a 120 Hz screen, and with a different `alpha`. A second generator,
+  `vrnd()`, is for visual randomness in `draw()`; it never affects a replay. In development the console checks this
+  by snapshotting the state before and after `draw()`.
+- Tweens and particles (5.7) that matter to gameplay run in `update()`; purely decorative ones may run in `draw()`.
+- **Comparing runs:** tests compare a hash of the game's state (`state()`, which the game returns) at fixed ticks, not
+  pixels. Screenshots, for the gallery and the renderer comparison, are taken at a fixed tick with `alpha = 0`, so
+  both renderers draw the same frame.
 
 ## 11. The website
 
@@ -325,22 +365,26 @@ tests/          the console's tests
 
 ## 14. Milestones
 
+The first milestone is a **playable slice on a real phone**, so the game API, touch, layout and replays are tested
+together from the start; the renderers' breadth and the sprite benchmark come after.
+
 | # | Milestone | Done when |
 |---|---|---|
-| 1 | The frame | The site opens a game folder; worker, fixed timestep, draw list, WebGL sprites and shapes, Canvas 2D fallback; a test game draws 10 000 sprites at 60 fps on the reference phone |
-| 2 | Touch | Raw touches, gestures, `hit`, `button`, haptics; a test game for each gesture; recordings replay exactly |
-| 3 | Polish | Text with fonts, tweens and presets, particles, layer effects, camera |
-| 4 | Assets | The vector kit and its recipes; loading a game's folder; pictures and vector art in atlases |
-| 5 | Sound | The synth, samples, music, buses; the music and sound tools |
-| 6 | Saves and time | `save`/`load`, export, the wall clock, `pause` |
-| 7 | The website | Library, game pages, pause menu, PWA and offline, the brand |
-| 8 | The workbench | new-cart, verify, smoke, sweep, shots, gallery, the playbook |
-| 9 | First game | Merge Café (`docs/carts/merge-cafe.md`) released |
-| 10 | Second game | A match-3, to prove the kit on a different kind of game |
+| 1 | First slice | On the user's phone, the site opens a game folder and runs a slice of Merge Café: a worker, the fixed timestep, the draw list, WebGL sprites and shapes; raw touches with `tap`, `drag` and `drop`; tap a generator to make an item, drag one onto its twin to merge them, on a portrait board laid out for the shortest supported screen (720 x 1280). A recording of that play replays to the same state hashes (10.1). The reference phone is chosen |
+| 2 | Touch and layout | Every gesture, `hit`, `button`, haptics; the safe area, `resize`, orientations, the desktop column |
+| 3 | Renderers | The Canvas 2D fallback; batching; the sprite benchmark measured on the reference phone (target 10 000 at 60 fps); the two renderers compared by screenshot (10.1) |
+| 4 | Polish | Text with fonts, tweens and presets, particles, layer effects, camera |
+| 5 | Assets | The vector kit and its recipes; the full loader (9.2); pictures and vector art in atlases |
+| 6 | Sound | The synth, samples, music, buses; the music and sound tools |
+| 7 | Saves and time | `save`/`load`, export, the wall clock, `pause` |
+| 8 | The website | Library, game pages and links (9.3), pause menu, PWA and offline versions (9.2), the brand |
+| 9 | The workbench | new-cart, verify, smoke, sweep, shots, gallery, the playbook |
+| 10 | First game | Merge Café (`docs/carts/merge-cafe.md`) released |
+| 11 | Second game | A match-3, to prove the kit on a different kind of game |
 
 ## 15. Open questions
 
-- The reference phone and its budgets, to measure once milestone 1 runs.
+- The reference phone (chosen in milestone 1) and its budgets (measured in milestone 3).
 
 **Decided:**
 - **No packed game file:** the site plays each game straight from its folder (the user, 18 November 2026; 9.2).

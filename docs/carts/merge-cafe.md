@@ -45,8 +45,8 @@ The design the user already agreed for NOVA-16, as a starting point:
 |  [bubble][bubble][bubble]   |
 +-----------------------------+
 |                             |
-|   THE BOARD (about 50%)     |  7 x 9 cells of about 96 points:
-|                             |  big enough for a thumb, room to grow
+|   THE BOARD                 |  7 columns of 96 points (672 wide);
+|                             |  the rows: see below
 |                             |
 +-----------------------------+
 |  cafe   recipes   bin       |  the bar: tasks, encyclopedia, sell
@@ -54,6 +54,17 @@ The design the user already agreed for NOVA-16, as a starting point:
 ```
 
 A taller phone gives the café more height; the board stays the same size.
+
+**The board has to fit the shortest supported screen, 720 x 1280** (16:9, an iPhone SE). Nine rows of 96 points need
+864 points before gaps, which leaves only 416 for the header, the café and the bar together: too little. The options:
+
+| Board | Cells | Board height | Left for header, café and bar |
+|---|---|---|---|
+| 7 x 5 | 96 | 480 | 800 |
+| 7 x 7 | 96 | 672 | 608 |
+| 7 x 9 | 80 (the smallest a thumb should have) | 720 | 560 |
+
+Milestone 1's slice (SPEC section 14) prototypes these on a 720 x 1280 screen before the board is chosen.
 
 ## 4. A first plan
 
@@ -65,13 +76,14 @@ A taller phone gives the café more height; the board stays the same size.
 6. Sound and music.
 7. Tuning with the bot (sweeps over seeds), then release.
 
-It needs nova-mobile's milestones 1 to 8 (`docs/SPEC.md` section 14) first, or at least enough of them: the frame,
+Milestone 1 of the platform is itself a slice of this game (tap a generator, drag to merge, replay it). The full game
+needs nova-mobile's milestones 1 to 9 (`docs/SPEC.md` section 14) first, or at least enough of them: the frame,
 touch, polish, assets and saves.
 
 ## 5. Questions for the kickoff
 
 - **Art style:** glossy vector (bright, clean, like a match-3), soft painted pictures (warm, storybook), or vector items
   on a painted café?
-- **The board:** 7 x 9, or keep 7 x 5 with bigger cells?
+- **The board:** 7 x 5, 7 x 7 or 7 x 9 (the table in section 3), chosen after the prototype on the shortest screen.
 - **Time:** stay timer-free, or use the real clock for the daily special and for regulars' visits?
 - **What else changes:** the setting, the regulars, the lines of items, or the title?
