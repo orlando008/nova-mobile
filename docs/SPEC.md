@@ -1,6 +1,6 @@
 # nova-mobile: Platform Specification
 
-**Status:** Draft 1 (18 November 2026). Nothing is built yet. This describes what we intend to build; change it in the
+**Status:** Draft 1 (November 18, 2026). Nothing is built yet. This describes what we intend to build; change it in the
 same commit as the code once code exists.
 **Name:** nova-mobile (written **NOVA MOBILE** in the logo).
 **Family:** one of the NOVA platforms, beside NOVA-16 (`orlando008/fanstasy-console`). The website follows
@@ -16,7 +16,7 @@ installed as an app if the player wants).
 
 Unlike NOVA-16 it is **not a retro console**. Its games should look **polished and sleek**: smooth vector shapes or
 painted pictures at the phone's full sharpness, soft light, lots of motion and lots of sprites. What it keeps from
-NOVA-16 is the way games are made: a small fixed API, one file per game, deterministic frames, and tools that let an
+NOVA-16 is the way games are made: a small fixed API, one folder per game, deterministic frames, and tools that let an
 agent build, test and look at a game without a person holding the phone.
 
 ## 2. Design principles
@@ -25,8 +25,8 @@ agent build, test and look at a game without a person holding the phone.
    Other inputs (a mouse, a second finger) are extras.
 2. **Polish is the product.** The platform gives games what makes a phone game feel good for free: easing, squash
    and stretch, particles, glows, haptics, sound layered on every touch.
-3. **Deterministic core.** The same game, the same seed and the same recorded inputs (touches and the clock) give
-   the same game state, tick for tick (10.1). This is what makes bots, sweeps, replays and screenshot tests possible.
+3. **Deterministic core.** The same game, the same seed, the same starting save and the same recording (touches, the
+   clock, the screen and lifecycle events) give the same game state, tick for tick (10.1). This is what makes bots, sweeps, replays and screenshot tests possible.
 4. **Budgets, not limits.** NOVA-16's limits were the product. Here the limits are wide and **soft**: the console warns
    in development when a game goes over a budget, it does not refuse to run.
 5. **Pure JavaScript, no build step.** ES modules served as static files; no frameworks, bundlers or transpilers;
@@ -46,7 +46,7 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
 | Screen | Portrait, designed at **720 x 1280 points** (9:16), rendered at the device's real pixel density (up to 3x) |
 | Frame rate | 60 Hz fixed timestep (logic); rendering follows the display, up to 120 Hz, interpolated |
 | Renderer | WebGL 2, with a Canvas 2D fallback (5.8) |
-| Sprites | **10 000 per frame** on WebGL (soft budget; the reference phone holds 60 fps); 2 000 on Canvas 2D |
+| Sprites | **10,000 per frame** on WebGL (soft budget; the reference phone holds 60 fps); 2,000 on Canvas 2D |
 | Texture memory | 128 MB of decoded images and drawn vector art |
 | Touches | Up to 5 at once |
 | Audio | 32 voices; a synth and sampled sounds; music and effects buses (7) |
@@ -64,8 +64,9 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
   browser reports (360 to 430 CSS pixels). A point is 1.0 to 1.8 real pixels: about 1.0 on an iPhone SE (750 px),
   1.5 on a Pixel 7 (1080 px), 1.6 on an iPhone 15 (1179 px) and 1.8 on an iPhone 15 Pro Max (1290 px).
 - A finger needs a target of at least **44 x 44 CSS pixels** (Apple's guideline). The minimum is set in CSS pixels,
-  not points, because that is what a finger measures: it is 84 points on the narrowest supported phone (375 CSS px
-  wide) and 74 on a 430 px one, so a game that keeps its targets at **84 points or more** meets it everywhere.
+  not points, because that is what a finger measures: it is 88 points on the narrowest supported phone (360 CSS px
+  wide, common on Android), 84 on an iPhone SE (375 px) and 74 on a 430 px phone, so a game that keeps its targets at
+  **88 points or more** meets it everywhere.
   `tools/verify.js` cannot check this; the diagnostic fixture's target grid (section 14, milestone 1) shows it on a phone.
 - The console renders at the screen's real pixels (`devicePixelRatio`, capped at 3), so lines and text are sharp.
   A game never deals with pixels unless it asks (`screen().dpr`).
@@ -142,7 +143,8 @@ characters made from them, with a picture of each.
 ### 5.4 Shapes
 
 For UI and effects drawn live: `rect`, `rrect`, `oct`, `circ`, `line`, `poly`, `ring` (a progress ring), each with a
-fill (color or gradient), a stroke and an alpha. These are tessellated on the GPU path, not drawn through Canvas 2D.
+fill (color or gradient), a stroke and an alpha. On WebGL they are tessellated into triangles; the
+Canvas 2D fallback draws them with its own paths.
 
 ### 5.5 Text
 
@@ -162,8 +164,8 @@ flash and color grade are kept.
 ### 5.7 Motion: tweens and particles
 
 - **Tweens**: `tween(obj, {x: 300, scale: 1.2}, {time, ease, delay, yoyo, repeat, then})` changes numbers on any object
-  over frames. Easing: linear, quad, cubic, back, elastic, bounce, each in, out and in-out. Tweens run on the frame
-  clock, so they are deterministic. Presets for what every game needs: `pop` (scale in with a bounce), `squash`, `wobble`,
+  over ticks. Easing: linear, quad, cubic, back, elastic, bounce, each in, out and in-out. Tweens started in `update()`
+  advance with the ticks, so they are deterministic; purely decorative ones may run in `draw()` (10.1). Presets for what every game needs: `pop` (scale in with a bounce), `squash`, `wobble`,
   `float` (a number that rises and fades), `fly` (an item that flies to the score along a curve).
 - **Particles**: `emit(preset or settings, x, y)`. Settings: count, lifetime, speed, angle, gravity, drag, size and
   color over life, spin, the asset. Presets: sparkle, confetti, smoke puff, coin burst, star trail. Particles count
@@ -171,7 +173,7 @@ flash and color grade are kept.
 
 ### 5.8 Renderers
 
-- **WebGL 2** is the renderer: batched textured quads, the effects in 5.6, up to 10 000 sprites at 60 fps on the
+- **WebGL 2** is the renderer: batched textured quads, the effects in 5.6, up to 10,000 sprites at 60 fps on the
   reference phone.
 - **Canvas 2D** is the fallback when WebGL is missing or lost: the same draw list, fewer effects, a lower sprite budget.
   A game does not need code for it.
@@ -181,7 +183,7 @@ flash and color grade are kept.
 
 ### 6.1 Touches
 
-Each frame the main thread samples the pointers and sends them to the game: up to 5 touches, each with an id, a
+Each tick the main thread sends the game the pointers as they were sampled for that tick (10): up to 5 touches, each with an id, a
 position in points (in the layer's space on request), and a phase (`down`, `move`, `up`, `cancel`). A mouse is one
 touch; the wheel is a pinch. These raw touches are what a recording stores, which keeps the game deterministic.
 
@@ -199,7 +201,7 @@ and speeds are in **CSS pixels** (4.3), and gestures report positions in points:
 | `swipe` | A drag released faster than 500 CSS px per second | direction (4 or 8), speed (points per second) |
 | `pinch` | Two touches | center, scale change, rotation change |
 
-`gesture()` returns this frame's gestures. Most games use only `tap`, `drag`/`drop` and `swipe`.
+`gesture()` returns this tick's gestures. Most games use only `tap`, `drag`/`drop` and `swipe`.
 
 ### 6.3 Hit testing and buttons
 
@@ -234,13 +236,14 @@ and when the page is hidden (the player switches apps).
 
 ## 8. Time, saves and the clock
 
-- `t()` is frames since the game started.
-- **The wall clock** is an input like a touch: the main thread sends the real time each frame, and recordings store it.
+- `t()` is ticks since the game started (60 a second).
+- **The wall clock** is an input like a touch: the main thread sends the real time with each tick, and recordings store it.
   `now()` returns it (ms since 1970). A game uses it for "the bakery finishes in 2 hours" or "a new daily special
   tomorrow", and a bot can move it forward to test them.
 - **Saves**: `save(obj)` stores any JSON-able object (up to 1 MB) for the game; `load()` gives it back or `null`. The
   console keeps them in IndexedDB, and the pause menu can **export** a save as a file and import it again.
-- `Math.random` is a seeded generator; `rnd`, `rndi` and `srand` as on NOVA-16.
+- `Math.random` is a seeded generator; `rnd`, `rndi` and `srand` as on NOVA-16, for gameplay. `vrnd()` is a separate
+  generator for visual randomness in `draw()` (10.1).
 
 ## 9. Carts and the repository
 
@@ -298,15 +301,16 @@ not in the index, or an index entry with no folder, fails the checks (13.2).
 
 ### 9.4 Startup: from a link to the first tick
 
-1. **Find.** The page (`play/<name>/` or the Library) reads `carts/index.json` and looks up `<name>`; a name not in the
-   index shows "no such game" (Bit, worried).
+1. **Find.** The player taps **Play** on the cart's page (`play/<name>/`, 9.6), which is also the touch that unlocks
+   audio (7). The page reads `carts/index.json` and looks up `<name>`; a name not in the index shows "no such game"
+   (Bit, worried).
 2. **Validate.** It fetches `game.json` and checks it against 9.2: the format, the required fields, the name matching
    the folder, and `console` not newer than the running console. A failure stops here with the field that failed.
 3. **Fetch.** It fetches `code.js`, `art.js` and every asset not marked lazy, checking each against its `bytes` and
    `sha256`. The loading screen shows the progress; a file that fails shows which one.
 4. **Prepare.** It decodes the pictures and sounds, starts the worker, hands it the code and the assets, and the worker
    draws the vector assets and packs the atlases.
-5. **Screen.** It works out the scale and the safe area (4.3) and sends them with the first frame's input.
+5. **Screen.** It works out the scale and the safe area (4.3) and sends them with the first tick's input.
 6. **Start.** The worker loads the save (8), seeds the generator, calls `init()`, and the fixed-tick loop begins:
    tick 0 is the first `update()`.
 
@@ -323,8 +327,9 @@ worker) and every file of steps 1 to 3 of 9.4, lazy files included. The service 
 ### 9.6 Links
 
 A cart is shared by its **link**, `play/<name>/`. GitHub Pages serves static files only and runs no server code, so:
-- Each cart has a real page, `play/<name>/index.html`, committed with it. It holds the cart's title, description and
-  poster in its `<title>` and Open Graph tags (for link previews), and starts the console on that cart. The checks
+- Each cart has a real page, `play/<name>/index.html`, committed with it: the **cart's page** of the Library (11.1),
+  with its title, description, poster and a **Play** button that starts the console on that cart (9.4). The title,
+  description and poster are also in its `<title>` and Open Graph tags, for link previews. The checks
   (13.2) confirm it agrees with `game.json`.
 - Every path the site uses is **relative to the deployment's base path**, never to the domain's root: the site is
   served under `/nova-mobile/` (`https://orlando008.github.io/nova-mobile/play/<name>/`), and later perhaps at a
@@ -337,10 +342,11 @@ A cart is shared by its **link**, `play/<name>/`. GitHub Pages serves static fil
 
 ```js
 function init() {}         // once, after load and after the save is loaded
-function update() {}       // 60 times per second: read gestures, change state
-function draw(alpha) {}    // after each update, or more often on a 120 Hz screen; alpha is 0..1 between updates
+function update() {}       // once per tick, 60 a second: read gestures, change state
+function draw(alpha) {}    // once per display frame (60 or 120 Hz); alpha is 0..1 between the last two ticks
 function resize(w, h) {}   // the screen's shape changed (points)
 function pause() {}        // the game was paused or hidden
+function state() {}        // returns the gameplay state, for state hashes (10.1); optional for a cart without tests
 ```
 
 - The game runs in a **Web Worker**. `draw()` fills a draw list (typed arrays), transferred to the main thread, which
@@ -370,7 +376,7 @@ function pause() {}        // the game was paused or hidden
 the game's state after each `update()` is identical, tick for tick, on any device and either renderer.
 
 - **The recording** is indexed by tick (one tick = one `update()`). For each tick it stores everything the game can
-  read: the touches (6.1), the wall clock (8), the screen's size and safe area (4.1), and the lifecycle events (`init`,
+  read: the touches (6.1), the wall clock (8), the screen's size, scale and safe area (4.3), and the lifecycle events (`init`,
   `resize`, `pause`, resume). Gestures are not stored: they are worked out from the touches, the same way every time.
   It also stores the seed and the starting save.
 - **`update()` owns the game's state.** `draw()` may read the state and keep purely visual things (an animation's
@@ -379,7 +385,7 @@ the game's state after each `update()` is identical, tick for tick, on any devic
   `vrnd()`, is for visual randomness in `draw()`; it never affects a replay. In development the console checks this
   by snapshotting the state before and after `draw()`.
 - Tweens and particles (5.7) that matter to gameplay run in `update()`; purely decorative ones may run in `draw()`.
-- **Comparing runs:** tests compare a hash of the game's state (`state()`, which the game returns) at fixed ticks, not
+- **Comparing runs:** tests compare a hash of what `state()` returns at fixed ticks, not
   pixels. Screenshots, for the gallery and the renderer comparison, are taken at a fixed tick with `alpha = 0`, so
   both renderers draw the same frame.
 
@@ -388,7 +394,8 @@ the game's state after each `update()` is identical, tick for tick, on any devic
 ### 11.1 Library
 
 The home page: games as octagonal tiles (docs/BRAND.md), on shelves by kind (Puzzle, Merge, Build, Cards, Arcade).
-A tile shows the game's poster; tapping it opens the game's page (a short description, screenshots, Play).
+A tile shows the game's poster; tapping it opens the cart's page, `play/<name>/` (9.6): its description,
+screenshots and Play.
 
 ### 11.2 Playing
 
@@ -398,7 +405,8 @@ save, Restart, Quit to the Library.
 
 ### 11.3 Installing and offline
 
-The site is a PWA: it can be added to the home screen, and every game played once works offline. Each game can also be
+The site is a PWA: it can be added to the home screen, and a game works offline once its version is fully cached
+(9.5). Each game can also be
 installed on its own, opening straight into it.
 
 ## 12. Tools
@@ -408,7 +416,7 @@ The NOVA-16 workflow, carried over and changed for touch:
 | Tool | Does |
 |---|---|
 | `tools/new-cart.js` | A new game from a template: a working frame, tests, a bot, art and audio scripts, a spec |
-| `tools/verify.js` | Checks a game: `game.json` lists every asset and nothing missing, its tests pass, a soak run, its budgets, its docs |
+| `tools/verify.js` | The repository's checks (13.2): index, manifests, files, link pages, paths, network, budgets, specs, tests |
 | `tools/devkit/smoke.mjs` | Runs the game in Chromium with a phone's screen and touch, and taps through it |
 | `tools/devkit/sweep.mjs` | The game's bot over many seeds |
 | `tools/devkit/shots.mjs` | Screenshots on a set of devices (a small phone, a tall phone, an iPad in both orientations) |
@@ -442,7 +450,8 @@ tests/          the console's own tests, and the recordings they replay
 
 ### 13.2 Checks
 
-`node tools/verify.js` runs on every pull request (a GitHub Actions workflow) and before every commit. It needs only
+`node tools/verify.js` runs on every pull request (a GitHub Actions workflow), and authors run it before
+every commit. It needs only
 Node, no browser. It fails on:
 
 | Check | Fails when |
@@ -454,7 +463,7 @@ Node, no browser. It fails on:
 | Paths | A path in the site or a cart that starts with `/` (it must be relative to the base path, 9.6) |
 | Network | Cart code naming `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `importScripts`, `eval`, `Function` or `import(` (10) |
 | Budgets | Code over 512 KB or a cart over 32 MB (3): a warning, not a failure |
-| Spec | A cart without `docs/carts/<name>.md`, or a doc naming a file or tool that does not exist |
+| Spec | A cart without `docs/carts/<name>.md`, or a cart's spec naming a file or tool that does not exist |
 | Tests | The cart's and the console's tests, including the recordings replayed to their state hashes (10.1) |
 
 `--fast` skips the tests; `--fix` writes the hashes and sizes. Checks that need a browser (the smoke test, screenshots
@@ -478,9 +487,9 @@ game. Which games come first is decided in their own pull requests (13.1).
 
 | # | Milestone | Done when |
 |---|---|---|
-| 1 | Bring-up | The repository layout (13.0), `carts/index.json` and a diagnostic fixture, `carts/diag/` (`"fixture": true`). On the user's phone, its link page finds it through the index, validates and loads its manifest (9.4), starts the worker and the fixed-tick loop, and draws a shape with WebGL. The fixture shows a tap, a drag and a release where the finger is, in points; shows the screen's size in points, the scale and the safe-area insets (4.3); and draws a grid of 84-point targets to check against a finger on a small phone (4.1). A recording of that input replays at fixed ticks to the same state hashes (10.1). A first `tools/verify.js` runs the index, manifest, files, link page, paths and network checks (13.2). The reference phone is chosen |
+| 1 | Bring-up | The repository layout (13.0), `carts/index.json` and a diagnostic fixture, `carts/diag/` (`"fixture": true`). On the user's phone, its link page finds it through the index, validates and loads its manifest (9.4), starts the worker and the fixed-tick loop, and draws a shape with WebGL. The fixture shows a tap, a drag and a release where the finger is, in points; shows the screen's size in points, the scale and the safe-area insets (4.3); and draws a grid of 88-point targets to check against a finger on a small phone (4.1). A recording of that input replays at fixed ticks to the same state hashes (10.1). A first `tools/verify.js` runs the index, manifest, files, link page, paths and network checks (13.2). The reference phone is chosen |
 | 2 | Touch and layout | Every gesture, `hit`, `button`, haptics; `resize`, orientations, the landscape column and the desktop column |
-| 3 | Renderers | The Canvas 2D fallback; batching; the sprite benchmark measured on the reference phone (target 10 000 at 60 fps); the two renderers compared by screenshot (10.1) |
+| 3 | Renderers | The Canvas 2D fallback; batching; the sprite benchmark measured on the reference phone (target 10,000 at 60 fps); the two renderers compared by screenshot (10.1) |
 | 4 | Polish | Text with fonts, tweens and presets, particles, layer effects, camera |
 | 5 | Assets | The vector kit and its recipes; lazy assets; pictures and vector art in atlases |
 | 6 | Sound | The synth, samples, music, buses; the music and sound tools |
@@ -492,8 +501,10 @@ game. Which games come first is decided in their own pull requests (13.1).
 
 - The reference phone (chosen in milestone 1) and its budgets (measured in milestone 3).
 
-**Decided:**
-- **No packed game file:** the site plays each game straight from its folder (the user, 18 November 2026; 9.1).
-- The design width is **720 points** (the user, 18 November 2026; section 4.1).
-- No editors in the browser, and no loading of games from outside the repository (the user, 18 November 2026): every
+**Decided** (with the user, November 18, 2026):
+- Portrait first; landscape and tablets opt-in (4.2). WebGL 2 with a Canvas 2D fallback (5.8). A synth and samples
+  (7).
+- **No packed game file:** the site plays each game straight from its folder (9.1).
+- The design width is **720 points** (4.1).
+- No editors in the browser, and no loading of games from outside the repository: every
   game is code in this repository, added through an approved pull request (principle 7, section 13.1).

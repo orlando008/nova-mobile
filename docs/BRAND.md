@@ -1,7 +1,7 @@
 # The NOVA brand
 
-**Status:** Draft 1 (18 November 2026). Applies to the websites of every NOVA platform (NOVA-16, nova-mobile,
-nova-64 and later ones). It lives here until a `nova` umbrella repo exists, then moves there.
+**Status:** Draft 1 (November 18, 2026). Applies to the websites of every NOVA platform (NOVA-16, nova-mobile,
+NOVA-64 and later ones). It lives here until a `nova` umbrella repo exists, then moves there.
 
 **Scope:** the brand is the **platform**: the website, the Library, menus, loading and error screens, icons and logos.
 It is **not** the games. Every game has its own art, palette and style, and nothing here limits them.
@@ -9,7 +9,7 @@ It is **not** the games. Every game has its own art, palette and style, and noth
 The source pictures are in `brand/`: the NOVA-16 console (`nova-16-console.webp`), its controller
 (`nova-16-controller.webp`) and Bit's character sheet (`bit-sheet.webp`).
 
-The [NOVA Mobile visual brand guide](../brand/nova-mobile-brand-guide.png) shows the website palette, wordmark,
+The [nova-mobile visual brand guide](../brand/nova-mobile-brand-guide.png) shows the website palette, wordmark,
 components, and concepts for the phone mark and Bit.
 
 ---
@@ -29,7 +29,7 @@ them once, here, and every platform follows.
 | `--purple` | `#9020E8` | The main brand color: big shapes, primary buttons, the console's sides |
 | `--purple-muted` | `#8028A8` | Secondary shapes, the controller's trim, Bit's backpack |
 | `--purple-light` | `#B070F8` | Purple **text** and small purple icons (purple itself is too dark for them) |
-| `--cyan` | `#28F8F8` | Light: glow lines, focus rings, active states, links, the logotype, Bit's eyes |
+| `--cyan` | `#28F8F8` | Light: glow lines, focus rings, active states, links, the logotypes and the NOVA MOBILE wordmark, Bit's eyes |
 | `--cream` | `#F8E8C8` | Body text and Bit's body |
 | `--cream-shade` | `#D8B8A8` | Secondary text, Bit's shading |
 
@@ -59,7 +59,7 @@ The console and the controller are both **octagons**: rectangles with their corn
 the brand's shape, the way a rounded corner is someone else's.
 
 - **Panels, cards, buttons and tiles** have chamfered corners, not rounded ones. A chamfer is about 12% of the shorter
-  side, at least 4 px. In CSS: `clip-path: polygon(...)` with the eight points, or the `oct()` helper in the site's CSS.
+  side, at least 4 px. In CSS: `clip-path: polygon(...)` with the eight points, or the site's `oct()` helper (to write).
 - **Edge light.** A panel can carry a 2 px **cyan line** along its top edge and down the chamfers, as on the console's top.
   Use it for the one thing on a screen that is active or chosen (the focused tile, the play button), not for everything.
 - **Bevels.** A slate line inside the top edge and a purple-deep line along the bottom give a panel its depth, as the
@@ -80,7 +80,7 @@ a purple cartridge backpack, a cable tail with a plug, and cyan soles.
 | Loading a game | Plugging his cable into a socket |
 | Empty Library or no results | Standing, looking up, neutral eyes |
 | A game finished, a high score, an install done | Cheering, arms up, happy eyes |
-| The app icon and the splash screen | Hugging the console |
+| The splash screen | Hugging the console (the app icon is the platform's mark, section 5) |
 | Errors and the 404 page | Standing with a worried look (a pose to draw) |
 | The About page | The front, three-quarter and back turnaround |
 
@@ -102,7 +102,7 @@ a purple cartridge backpack, a cable tail with a plug, and cyan soles.
 | Body and UI | *Inter* (OFL), a clean sans | Cream; secondary in cream-shade |
 | Numbers (scores, sizes, versions) | The heading face with tabular figures | Cyan |
 
-Space Grotesk and Inter are **decided** (the user, 18 November 2026): the wordmark is set in Space Grotesk, so the
+Space Grotesk and Inter are **decided** (with the user, November 18, 2026): the wordmark is set in Space Grotesk, so the
 headings use it too, and Inter is the body face shown in the visual guide. Fonts are served from the site itself (no
 outside font service), so the site works offline.
 
@@ -110,7 +110,7 @@ outside font service), so the site works offline.
 
 - Use the cyan pixel logotypes for **NOVA**, **NOVA-16** and **NOVA-64** on void or panel.
 - Set **NOVA MOBILE** in uppercase Space Grotesk Bold (700), in cyan on void or panel. This is **deliberately different**
-  from the pixel logotypes (the user's decision, 18 November 2026): NOVA-16 and NOVA-64 are retro consoles and their
+  from the pixel logotypes (the user's decision, November 18, 2026): NOVA-16 and NOVA-64 are retro consoles and their
   logos look it, while nova-mobile is sleek and modern, so its wordmark is too. The family stays tied together by the
   cyan on dark, the octagonal marks and Bit, not by one typeface.
 - The pixel logotypes are logo artwork (images); the NOVA MOBILE wordmark is set in the font, so it can be rendered

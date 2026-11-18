@@ -8,7 +8,8 @@
   use vector art drawn in code, pictures, or both.
 - **Portrait first.** Landscape and tablet layouts are opt-in for each game.
 - **WebGL 2 with a Canvas 2D fallback.** Many sprites and high-quality effects must be possible.
-- **Keep from NOVA-16:** deterministic frames (same seed and inputs, including the clock, give the same frames), pure
+- **Keep from NOVA-16:** deterministic replays (the same seed, starting save and recording give the same game state, tick for tick; SPEC
+  10.1), pure
   JavaScript with no build step and no runtime dependencies, no backend, and the agent workflow (tests, bots, sweeps,
   screenshots). NOVA-16's tools and playbook are the model; copy and change them, do not import them.
 - **The brand** (`docs/BRAND.md`: black, purple, cyan and cream, the octagon, Bit the mascot) is for the **website
