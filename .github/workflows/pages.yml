@@ -40,7 +40,7 @@ jobs:
             local ref="$1" dest="$2" path
             local -a paths=(index.html)
 
-            for path in about style.css site-assets; do
+            for path in about style.css site-assets src carts play; do
               if git cat-file -e "$ref:$path" 2>/dev/null; then
                 paths+=("$path")
               fi
