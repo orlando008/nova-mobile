@@ -51,7 +51,7 @@ nova-mobile describes an imaginary phone, generous by today's standards, so a ga
 | Touches | Up to 5 at once |
 | Audio | 32 voices; a synth and sampled sounds; music and effects buses (7) |
 | Code | 512 KB of JavaScript source |
-| Game file | 32 MB in all (code, pictures, sounds, fonts) |
+| Game size | 32 MB in all (code, pictures, sounds, fonts) |
 | Saves | 1 MB of JSON per game |
 | Reference phone | A mid-range phone from 2021 (an iPhone 12 or a Pixel 5a): the budgets are what it holds at 60 fps |
 
@@ -98,7 +98,7 @@ and renders the whole list at once. Nothing persists between frames except the a
 A game can use either kind, or both, whichever suits it.
 
 - **Pictures**: PNG or WebP files in the game (painted art, photos of clay models, generated art, pixel art scaled
-  up). The packer packs them into texture atlases.
+  up). At load the console packs them into texture atlases in the browser.
 - **Vector art**: shapes described in code with the **vector kit** (5.2). At load, the console draws each vector asset
   once into an atlas **at the screen's real resolution**, so it is as sharp as on a native app and as fast to draw as a
   picture. A vector asset can be re-rendered at a new size (a zoom) on request.
@@ -225,7 +225,8 @@ and when the page is hidden (the player switches apps).
 
 ### 9.1 Source
 
-A game is a folder, `carts/src/<name>/`:
+A game is a folder, `carts/<name>/`, and the site plays it straight from that folder: there is no packed game file
+and no pack step.
 
 ```
 game.json      the manifest: name, title, version, orientations, shelf, colours for the splash, credits
@@ -235,12 +236,14 @@ assets/        pictures, sounds, music, fonts
 tests/         the game's tests (rules as pure functions, a bot, screens to photograph)
 ```
 
-### 9.2 The game file: `.novam`
+### 9.2 Loading
 
-`node tools/pack.js carts/src/<name> carts/<name>.novam` packs the folder into one file: a small binary container
-with the manifest, the code, the atlases (pictures packed; vector code kept as code, drawn at load) and the sounds. The
-site loads a game from its `.novam` file only, and only the games in the repository: there is no way to open a file
-from elsewhere.
+- `game.json` lists the game's asset files. The console fetches `code.js`, `art.js` and those files from the game's
+  folder, decodes the pictures and sounds, draws the vector assets, and packs pictures and vector art into atlases in
+  the browser. A loading screen (Bit plugging in) shows the progress.
+- For offline play, the service worker caches every file `game.json` lists the first time a game is played.
+- The site plays only the games in the repository's `carts/` folder (listed in `carts/index.json`): there is no way to
+  open a game from anywhere else.
 
 ### 9.3 Sharing
 
@@ -290,8 +293,7 @@ The NOVA-16 workflow, carried over and changed for touch:
 | Tool | Does |
 |---|---|
 | `tools/new-cart.js` | A new game from a template: a working frame, tests, a bot, art and audio scripts, a spec |
-| `tools/pack.js` | Packs a game into its `.novam` file |
-| `tools/verify.js` | Checks a game: it packs, its tests pass, a soak run, its budgets, its docs |
+| `tools/verify.js` | Checks a game: `game.json` lists every asset and nothing missing, its tests pass, a soak run, its budgets, its docs |
 | `tools/devkit/smoke.mjs` | Runs the game in Chromium with a phone's screen and touch, and taps through it |
 | `tools/devkit/sweep.mjs` | The game's bot over many seeds |
 | `tools/devkit/shots.mjs` | Screenshots on a set of devices (a small phone, a tall phone, an iPad in both orientations) |
@@ -304,7 +306,7 @@ The NOVA-16 workflow, carried over and changed for touch:
 ```
 index.html, style.css, sw.js, manifest.webmanifest   the website
 src/            the console: worker, renderer (webgl/, canvas/), input, audio, the site's UI
-carts/          packed games and carts/src/ their sources
+carts/          one folder for each game, and index.json listing them
 docs/           SPEC.md, BRAND.md, carts/<name>.md, dev/ (the playbook)
 brand/          the brand pictures
 tools/          the tools in section 12
@@ -313,12 +315,13 @@ tests/          the console's tests
 
 ### 13.1 Adding a game
 
-- A game is written in a branch of this repository, in `carts/src/<name>/` with its spec in `docs/carts/<name>.md`,
+- A game is written in a branch of this repository, in `carts/<name>/` with its spec in `docs/carts/<name>.md`,
   and joins the site when its pull request is **approved and merged** by the repository's owner. Anyone who wants to
   write a game asks to join the repository.
 - A pull request's checks run `tools/verify.js` on the games it changes; its preview link shows the site with the
   change, to try on a phone before approving.
-- The packed `.novam` files are built from the sources and committed with them, so the site stays static.
+- The site plays a game straight from its folder (9.2), so a merged pull request is live as soon as GitHub Pages
+  deploys it.
 
 ## 14. Milestones
 
@@ -327,7 +330,7 @@ tests/          the console's tests
 | 1 | The frame | The site opens a game folder; worker, fixed timestep, draw list, WebGL sprites and shapes, Canvas 2D fallback; a test game draws 10 000 sprites at 60 fps on the reference phone |
 | 2 | Touch | Raw touches, gestures, `hit`, `button`, haptics; a test game for each gesture; recordings replay exactly |
 | 3 | Polish | Text with fonts, tweens and presets, particles, layer effects, camera |
-| 4 | Assets | The vector kit and its recipes; pictures in atlases; the packer and `.novam` |
+| 4 | Assets | The vector kit and its recipes; loading a game's folder; pictures and vector art in atlases |
 | 5 | Sound | The synth, samples, music, buses; the music and sound tools |
 | 6 | Saves and time | `save`/`load`, export, the wall clock, `pause` |
 | 7 | The website | Library, game pages, pause menu, PWA and offline, the brand |
@@ -338,9 +341,9 @@ tests/          the console's tests
 ## 15. Open questions
 
 - The reference phone and its budgets, to measure once milestone 1 runs.
-- The game file's name (`.novam`).
 
 **Decided:**
+- **No packed game file:** the site plays each game straight from its folder (the user, 18 November 2026; 9.2).
 - The design width is **720 points** (the user, 18 November 2026; section 4.1).
 - No editors in the browser, and no loading of games from outside the repository (the user, 18 November 2026): every
   game is code in this repository, added through an approved pull request (principle 7, section 13.1).
