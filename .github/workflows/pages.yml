@@ -1,0 +1,88 @@
+name: Publish NOVA Mobile
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  package:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Package production and open PR previews
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          out="$RUNNER_TEMP/nova-pages"
+          mkdir -p "$out"
+
+          stage_site() {
+            local ref="$1" dest="$2" path
+            local -a paths=(index.html)
+
+            for path in about style.css site-assets; do
+              if git cat-file -e "$ref:$path" 2>/dev/null; then
+                paths+=("$path")
+              fi
+            done
+
+            git ls-tree -r "$ref" -- "${paths[@]}" |
+              awk '$1 == "120000" || $1 == "160000" { bad = 1 } END { exit (bad ? 1 : 0) }'
+            mkdir -p "$dest"
+            git archive "$ref" -- "${paths[@]}" | tar -xf - -C "$dest"
+          }
+
+          stage_site HEAD "$out"
+
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls?state=open&base=main&per_page=100" |
+            jq -r --arg repo "$GITHUB_REPOSITORY" \
+              '.[] | select(.head.repo.full_name == $repo) | [.number, .head.sha] | @tsv' \
+            > "$RUNNER_TEMP/preview-prs.tsv"
+
+          while IFS=$'\t' read -r number sha; do
+            git fetch --quiet --no-tags --no-recurse-submodules --depth=1 origin "$sha"
+            if ! git cat-file -e "$sha:index.html" 2>/dev/null; then
+              continue
+            fi
+            stage_site "$sha" "$out/pr/$number"
+            printf -- '- PR #%s: https://orlando008.github.io/nova-mobile/pr/%s/\n' \
+              "$number" "$number" >> "$GITHUB_STEP_SUMMARY"
+          done < "$RUNNER_TEMP/preview-prs.tsv"
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/nova-pages
+
+  deploy:
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: publish
+        uses: actions/deploy-pages@v4
