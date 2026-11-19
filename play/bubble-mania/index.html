@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c131a">
+  <meta name="description" content="Launch molten glass, grow stained-glass bubbles, and cover as much of the board as you can.">
+  <meta property="og:title" content="Bubble Mania">
+  <meta property="og:description" content="Launch molten glass, grow stained-glass bubbles, and cover as much of the board as you can.">
+  <meta property="og:image" content="../../carts/bubble-mania/assets/poster.png">
+  <title>Bubble Mania</title>
+  <link rel="icon" href="../../carts/bubble-mania/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./workshop.css">
+</head>
+<body data-cart="bubble-mania">
+  <main>
+    <header class="topbar">
+      <a href="../../">&#8592; Library</a>
+      <button type="button" id="menu" hidden>Menu</button>
+    </header>
+    <section id="intro" aria-labelledby="title">
+      <h1 class="sr-only" id="title">Bubble Mania</h1>
+      <img class="poster" src="../../carts/bubble-mania/assets/poster.png" width="1200" height="630" alt="">
+      <button class="primary" type="button" id="play">Play Bubble Mania</button>
+      <ul class="instructions">
+        <li>Hold below the frame to charge, drag left or right to aim, and release to fire.</li>
+        <li>The glass grows until it touches a wall, a firebrick, or another bubble.</li>
+        <li>Your score is the area covered. Hit a bubble with the bead and the run ends.</li>
+      </ul>
+    </section>
+    <section id="board" aria-label="Bubble Mania game" hidden>
+      <div class="scorecard">
+        <div class="score"><span>Coverage</span><strong data-cart-field="coverage">0.0%</strong></div>
+        <div class="best"><span>Best</span><strong id="best">0.0%</strong></div>
+      </div>
+      <div class="surface-frame" id="surface-frame">
+        <canvas id="surface" data-cart-events aria-label="Stained-glass playfield and launcher" aria-describedby="controls-hint cart-status"></canvas>
+        <div class="radius-layer" id="radius-layer" aria-hidden="true"></div>
+        <div class="blowpipe" id="blowpipe" aria-hidden="true">
+          <div class="stand"></div>
+          <div class="shaft"><div class="mouth"></div></div>
+          <div class="hinge"></div>
+        </div>
+        <div class="power" id="power" role="meter" aria-label="Power" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="power-window"><div class="power-fill"></div></div>
+          <span aria-hidden="true">Power</span>
+        </div>
+      </div>
+      <p id="controls-hint">Hold and drag below the frame. Release to fire.</p>
+      <p id="cart-status" class="sr-only" role="status"></p>
+    </section>
+    <p id="feedback" role="status"></p>
+  </main>
+
+  <dialog id="pause-menu" aria-labelledby="pause-title">
+    <h2 id="pause-title">Workshop</h2>
+    <div class="actions">
+      <button type="button" class="primary" id="resume">Resume</button>
+      <button type="button" data-new>New board</button>
+      <label class="setting">Sound effects <input type="checkbox" id="sound" checked></label>
+    </div>
+    <details id="controls" hidden>
+      <summary>Replay tools</summary>
+      <div class="actions">
+        <button type="button" id="record" disabled>Record</button>
+        <button type="button" id="replay" disabled>Replay</button>
+        <button type="button" id="live" data-reset disabled>Return to live play</button>
+      </div>
+    </details>
+  </dialog>
+  <dialog id="result" aria-labelledby="result-title">
+    <h2 id="result-title">Glass shattered</h2>
+    <p id="result-detail"></p>
+    <div class="actions">
+      <button type="button" class="primary" id="retry">Retry board</button>
+      <button type="button" data-new>New board</button>
+    </div>
+  </dialog>
+  <div id="safe-area" aria-hidden="true"></div>
+  <script type="module" src="./workshop.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{
+  "format": 1,
+  "name": "bubble-mania",
+  "title": "Bubble Mania",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Launch molten glass, grow stained-glass bubbles, and cover as much of the board as you can.",
+  "shelf": "Puzzle",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/amethyst.png",
+      "bytes": 54318,
+      "sha256": "f79049723373b0391422334f804be38afb6a78964dcc0acdce4fac548e4688aa"
+    },
+    {
+      "path": "assets/brick.png",
+      "bytes": 42550,
+      "sha256": "553f8e2e1de42dd87ccc691d09f529c7399f1432611e0d804b3031c717f8a798"
+    },
+    {
+      "path": "assets/ember-amethyst.png",
+      "bytes": 1589,
+      "sha256": "59ccf7da7bc9b33779d1d5a0da4d024f3224209ea984c93537ac4d568940e25d"
+    },
+    {
+      "path": "assets/ember-emerald.png",
+      "bytes": 1471,
+      "sha256": "96bc2f531bc45a2845138ff771947d26e79fccecc3ce90c1f4141596b14961be"
+    },
+    {
+      "path": "assets/ember-gold.png",
+      "bytes": 1563,
+      "sha256": "8e829436f7daaa9c113a2cd9bf32d9c4f24ca58e5e1c0b4391061736ca24f748"
+    },
+    {
+      "path": "assets/ember-ruby.png",
+      "bytes": 1685,
+      "sha256": "2ccf3a799bfd3a89c07ae809f5eacc63a91616438dc487a83990e40275f1cb01"
+    },
+    {
+      "path": "assets/ember-sapphire.png",
+      "bytes": 1607,
+      "sha256": "a1bb64c1a7175e97f869b280bbda0e2082c4bc339dff0a3815785403566ef4c6"
+    },
+    {
+      "path": "assets/emerald.png",
+      "bytes": 53359,
+      "sha256": "27b4b27eae85ea18952f55ee96931463b626409caa90de233f301823a59f0bed"
+    },
+    {
+      "path": "assets/gold.png",
+      "bytes": 51267,
+      "sha256": "513b5d692124bcd32f165ddcb9cd8d5cf0a5ef9c5e6bd87689e26831e440374b"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 115755,
+      "sha256": "043865cada3ca278a46ffad4d8090eb7b517d585897d496a1e29ce35238fbf49"
+    },
+    {
+      "path": "assets/kiln.png",
+      "bytes": 24163,
+      "sha256": "72c72d039950e46d12b85a95251aa3519fb9823678363d34a5995fa854ea51f4"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 278105,
+      "sha256": "05de654a4875d1b5755193348b32a39d8399030767466d79dd2f05807b1e74bd"
+    },
+    {
+      "path": "assets/ruby.png",
+      "bytes": 51508,
+      "sha256": "7a7a8ec3624427c7a1fb5aeca94f9c23f2a7a921391266524eafe4614e1549da"
+    },
+    {
+      "path": "assets/sapphire.png",
+      "bytes": 52898,
+      "sha256": "e1cd803223783b2559e017490c628b774c94ab7d2ae5e1398a85987df6637b86"
+    },
+    {
+      "path": "assets/shard.png",
+      "bytes": 1054,
+      "sha256": "145aba4ee54c08a0c140d05418ad9b96e101ff61fd5c67bbea715a549e8bc01f"
+    }
+  ],
+  "contentVersion": "aed13b03d9af1572156c9779275a6fc506ff259819710bad41158b7e6104ae55"
+}
