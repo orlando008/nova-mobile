@@ -24,7 +24,7 @@ export function createClock() {
   return { frame, reset };
 }
 
-export function createRuntime(createCart, initialScreen, assets = []) {
+export function createRuntime(createCart, initialScreen, assets = [], pictures = []) {
   const input = createGestureInput();
   const buttons = createButtonInput();
   const freezeScreen = screen => Object.freeze({ ...screen, safe: Object.freeze({ ...screen.safe }) });
@@ -33,6 +33,9 @@ export function createRuntime(createCart, initialScreen, assets = []) {
   let now = 0;
   let commands = null;
   const bytesByPath = new Map(assets.map(({ path, bytes }) => [path, bytes]));
+  const picturesByPath = new Map(pictures.map(({ path, width, height }, index) => [path, {
+    width, height, index: index + 1,
+  }]));
   const cart = createCart(Object.freeze({
     gesture: input.gesture,
     hit,
@@ -42,9 +45,22 @@ export function createRuntime(createCart, initialScreen, assets = []) {
     touches: () => touches,
     now: () => now,
     asset: path => bytesByPath.get(path)?.slice(0),
-    rect(x, y, width, height, color) {
+    rect(x, y, width, height, [red, green, blue, alpha = 1]) {
       if (!commands) throw new Error('rect() is only available during draw()');
-      commands.push(x, y, width, height, ...color);
+      commands.push(x, y, width, height, red, green, blue, alpha, 0);
+    },
+    spr(path, x, y, { scale = 1, sx = scale, sy = scale, anchor = [0, 0], alpha = 1 } = {}) {
+      if (!commands) throw new Error('spr() is only available during draw()');
+      const picture = picturesByPath.get(path);
+      if (!picture) throw new Error('Picture is not loaded: ' + path);
+      const width = picture.width * sx;
+      const height = picture.height * sy;
+      const [ax, ay] = anchor;
+      if (!(Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0 &&
+          ax >= 0 && ax <= 1 && ay >= 0 && ay <= 1 && alpha >= 0 && alpha <= 1)) {
+        throw new RangeError('Invalid sprite scale, anchor, or alpha for ' + path);
+      }
+      commands.push(x - ax * width, y - ay * height, width, height, 1, 1, 1, alpha, picture.index);
     },
   }));
   if (typeof cart?.update !== 'function' || typeof cart?.draw !== 'function') {

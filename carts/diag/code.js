@@ -1,10 +1,10 @@
 const SIZE = 88;
+const CRATE = 'assets/crate.png';
 const COLORS = {
   target: [0.16, 0.29, 0.28, 1],
   highlight: [0.77, 0.95, 0.49, 1],
   mark: [0.36, 0.9, 0.77, 1],
   center: [0.12, 0.2, 0.2, 1],
-  piece: [1, 0.71, 0.35, 1],
 };
 
 function controls({ w, h, safe }) {
@@ -14,7 +14,7 @@ function controls({ w, h, safe }) {
   return { button: box(-102), home: box(0), slot: box(102) };
 }
 
-export function createCart({ gesture, hit, button, consumed, rect, screen }) {
+export function createCart({ gesture, hit, button, consumed, rect, spr, screen }) {
   let event = 'Ready';
   let x = 0;
   let y = 0;
@@ -98,7 +98,7 @@ export function createCart({ gesture, hit, button, consumed, rect, screen }) {
         rect(box.x + 3, box.y + 3, SIZE - 6, SIZE - 6, COLORS.center);
       }
       const piece = drag ?? boxes[position];
-      rect(piece.x + 9, piece.y + 9, SIZE - 18, SIZE - 18, COLORS.piece);
+      spr(CRATE, piece.x + SIZE / 2, piece.y + SIZE / 2, { scale: SIZE / 160, anchor: [0.5, 0.5] });
       if (event !== 'Ready') {
         rect(x - 22, y - 2, 44, 4, COLORS.mark);
         rect(x - 2, y - 22, 4, 44, COLORS.mark);

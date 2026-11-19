@@ -1,8 +1,9 @@
 # nova-mobile: Platform Specification
 
 **Status:** Draft 1 (November 18, 2026). The static Library and About pages and the shared gesture recognizer are
-implemented. The [input diagnostic](carts/diag.md) exercises the first console worker, fixed-tick input, WebGL 2
-rectangles, and replay in the browser. Phone verification and the remaining runtime and catalog work are pending.
+implemented. The [input diagnostic](carts/diag.md) exercises the console worker, fixed-tick input, picture sprites,
+and replay in the browser. The renderers draw rectangles and PNG or WebP sprites. Phone verification and the
+remaining runtime and catalog work are pending.
 **Name:** nova-mobile (written **NOVA MOBILE** in the logo).
 **Family:** one of the NOVA platforms, beside NOVA-16 (`orlando008/fanstasy-console`). The website follows
 `docs/BRAND.md`; the games do not.
@@ -137,6 +138,13 @@ characters made from them, with a picture of each.
 
 ### 5.3 Sprites
 
+The current runtime draws eager PNG and WebP assets by their manifest path, such as
+`spr('assets/crate.png', x, y, { scale: 0.55, anchor: [0.5, 0.5] })`. It loads verified image bytes into the
+renderer once at startup. `scale` sets points per image pixel and defaults to `1`. `sx` and `sy` can scale the
+axes independently. `anchor` defaults to `[0, 0]` at top left and `alpha` defaults to `1`. WebGL 2 and Canvas 2D
+draw the same ordered commands. WebGL 2 groups adjacent commands with the same texture.
+
+The planned sprite API extends this first implementation.
 `spr(asset, x, y, opts)` draws an asset. Options: `scale` (or `sx`, `sy`), `rot`, `anchor` (0..1, 0..1), `alpha`,
 `tint`, `flash` (mixes toward a color, for hits and pops), `blend` (normal, add, multiply, screen), `flipX`, `flipY`,
 `frame` (for an animation strip) and `z` (order within a layer). The WebGL renderer batches sprites by atlas.
@@ -396,7 +404,7 @@ function state() {}        // returns the gameplay state, for state hashes (10.1
 - The diagnostic worker loads the verified module and calls its exported `createCart(api)` factory. Each session
   gets fresh lifecycle functions. The initial API provides `gesture()`, `touches()`, `hit()`, `button()`, `consumed()`,
   `screen()`, `now()`,
-  `asset(path)` for an eager asset's bytes, and `rect(x, y, w, h, [r, g, b, a])` during `draw()`.
+  `asset(path)` for an eager asset's bytes, plus `rect(x, y, w, h, [r, g, b, a])` and `spr()` during `draw()`.
 - An uncaught error stops the game and shows an error screen (Bit, worried) with the message and the line.
 - `stat(key)`: `'fps'`, `'cpu'` (ms for update + draw), `'gpu'`, `'sprites'`, `'textures'` (MB), `'voices'`.
 - In development the console shows a **budget bar** that turns amber over 80% of a budget and red over it.

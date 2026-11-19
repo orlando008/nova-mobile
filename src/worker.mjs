@@ -3,11 +3,12 @@ import { createRuntime } from './runtime.mjs';
 let session;
 let createCart;
 let assets;
+let pictures;
 let runtime;
 
 function start(id, screen) {
   session = id;
-  runtime = createRuntime(createCart, screen, assets);
+  runtime = createRuntime(createCart, screen, assets, pictures);
   self.postMessage({ type: 'ready', session });
 }
 
@@ -26,6 +27,7 @@ self.addEventListener('message', async ({ data }) => {
       }
       if (typeof createCart !== 'function') throw new Error('Cart code must export createCart()');
       assets = data.assets;
+      pictures = data.pictures;
       start(data.session, data.screen);
     } else if (data.type === 'restart') {
       start(data.session, data.screen);

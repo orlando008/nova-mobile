@@ -2,7 +2,7 @@
   "format": 1,
   "name": "diag",
   "title": "NOVA Mobile Input Diagnostic",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "console": "0.1",
   "description": "Test shared gestures, touch targets, and deterministic replay on your device.",
   "shelf": "Arcade",
@@ -10,6 +10,11 @@
   "poster": "assets/poster.png",
   "icon": "assets/icon.png",
   "assets": [
+    {
+      "path": "assets/crate.png",
+      "bytes": 33458,
+      "sha256": "25145ccd94a1ca3ad36ebdb5e171d8d70a37f16a619315caed41c096e527e849"
+    },
     {
       "path": "assets/icon.png",
       "bytes": 2508,
@@ -21,5 +26,5 @@
       "sha256": "fe9aba217a2c13829ca0da6987c28eb5485dcea0888e78704a77ab818c1ba7be"
     }
   ],
-  "contentVersion": "d08ec4f3cb7a51a9b3699feb0afc3006665b6c725de495710d9a1fd838cddcc4"
+  "contentVersion": "a8d50ac6e85e64b97ff001154bc0f5b7923ed4591c6aaa776b54b5948d53a5f7"
 }
