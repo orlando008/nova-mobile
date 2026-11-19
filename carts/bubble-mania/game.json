@@ -14,13 +14,13 @@
   "assets": [
     {
       "path": "assets/amethyst.png",
-      "bytes": 54318,
-      "sha256": "f79049723373b0391422334f804be38afb6a78964dcc0acdce4fac548e4688aa"
+      "bytes": 78451,
+      "sha256": "d51ac81ec6bc25c4823ecc68be9efdbbfbb195cae5d0251a72b41ca687b20b19"
     },
     {
       "path": "assets/brick.png",
-      "bytes": 42550,
-      "sha256": "553f8e2e1de42dd87ccc691d09f529c7399f1432611e0d804b3031c717f8a798"
+      "bytes": 87004,
+      "sha256": "26bfa9ca539fd1a2625e848904a3924002a45e2c7a9cde3b49579b278a3be69e"
     },
     {
       "path": "assets/ember-amethyst.png",
@@ -49,19 +49,19 @@
     },
     {
       "path": "assets/emerald.png",
-      "bytes": 53359,
-      "sha256": "27b4b27eae85ea18952f55ee96931463b626409caa90de233f301823a59f0bed"
+      "bytes": 76792,
+      "sha256": "74501ca3a7f0107ab52ab3143d6b6f19e42b75ae79b1e89c906aec1cc112016e"
     },
     {
       "path": "assets/gold.png",
-      "bytes": 51267,
-      "sha256": "513b5d692124bcd32f165ddcb9cd8d5cf0a5ef9c5e6bd87689e26831e440374b"
+      "bytes": 73946,
+      "sha256": "108f066026cbdcd3ff06418c444c2d81044032c3f78cd0733a97252dde7086c7"
     },
     {
       "path": "assets/icon.png",
       "lazy": true,
-      "bytes": 115755,
-      "sha256": "043865cada3ca278a46ffad4d8090eb7b517d585897d496a1e29ce35238fbf49"
+      "bytes": 139701,
+      "sha256": "a71184a4b560fef0be72232aa385f2504da8959ee7c0b53f99298563c89c4bec"
     },
     {
       "path": "assets/kiln.png",
@@ -71,18 +71,18 @@
     {
       "path": "assets/poster.png",
       "lazy": true,
-      "bytes": 278105,
-      "sha256": "05de654a4875d1b5755193348b32a39d8399030767466d79dd2f05807b1e74bd"
+      "bytes": 250099,
+      "sha256": "2eb287f0333f2a27979ea99abc0eee5a867c8a8f9f81de202708962b54f309fb"
     },
     {
       "path": "assets/ruby.png",
-      "bytes": 51508,
-      "sha256": "7a7a8ec3624427c7a1fb5aeca94f9c23f2a7a921391266524eafe4614e1549da"
+      "bytes": 73827,
+      "sha256": "993363181bfcb29442e9654f571ee2cbd5ac882a16817c0137326e53d511db94"
     },
     {
       "path": "assets/sapphire.png",
-      "bytes": 52898,
-      "sha256": "e1cd803223783b2559e017490c628b774c94ab7d2ae5e1398a85987df6637b86"
+      "bytes": 75475,
+      "sha256": "f62774ea1f92686f554d3179b6a0ce9026164bf45c86474fe02c62f618edece0"
     },
     {
       "path": "assets/shard.png",
@@ -90,5 +90,5 @@
       "sha256": "145aba4ee54c08a0c140d05418ad9b96e101ff61fd5c67bbea715a549e8bc01f"
     }
   ],
-  "contentVersion": "aed13b03d9af1572156c9779275a6fc506ff259819710bad41158b7e6104ae55"
+  "contentVersion": "7d7c9b78f316d5c5d09758f785c5ab25eacedcb56a57dc57a1c6800e923ffaac"
 }
