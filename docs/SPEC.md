@@ -216,9 +216,16 @@ pauses, or a resize invalidates the current pointer coordinates.
 
 ### 6.3 Hit testing and buttons
 
-`hit(x, y, shape)` tests a point against a rectangle, circle or octagon. `button(id, box, opts)` is an immediate-mode
-button: it draws nothing itself, but tracks press, release and cancel (a finger sliding off cancels), and returns
-`'pressed'`, `'held'` or `'clicked'`, so a game's own drawing can squash while held.
+`hit(x, y, shape)` uses points and includes the shape's edges. A rectangle is `{x, y, w, h}`, an octagon adds
+`type: 'octagon'` to those bounds, and a circle is `{type: 'circle', x, y, r}` with `x` and `y` at its center.
+
+Call `button(id, box, opts)` from `update()` with a stable ID. It reads the tick's ordered pointer samples and
+returns `'pressed'` on capture, `'held'` while the pointer stays inside, `'clicked'` on release inside, or `null`
+when idle. A press and release in a single tick returns `'clicked'`. The cart draws its own treatment in `draw()`.
+
+Sliding outside or losing the pointer cancels the press, and the same finger must lift before it can register a new
+press. Setting `opts.disabled`, omitting the button for a tick, pausing, or resizing clears its capture. For overlapping
+buttons, the first one queried gets the press. Buttons and gestures read the same recorded samples.
 
 ### 6.4 Haptics
 
@@ -378,7 +385,7 @@ function state() {}        // returns the gameplay state, for state hashes (10.1
   never waits on the renderer, and the renderer never changes the game.
 - The game's code is a module evaluated with the API in scope, as on NOVA-16.
 - The diagnostic worker loads the verified module and calls its exported `createCart(api)` factory. Each session
-  gets fresh lifecycle functions. The initial API provides `gesture()`, `touches()`, `screen()`, `now()`,
+  gets fresh lifecycle functions. The initial API provides `gesture()`, `touches()`, `hit()`, `button()`, `screen()`, `now()`,
   `asset(path)` for an eager asset's bytes, and `rect(x, y, w, h, [r, g, b, a])` during `draw()`.
 - An uncaught error stops the game and shows an error screen (Bit, worried) with the message and the line.
 - `stat(key)`: `'fps'`, `'cpu'` (ms for update + draw), `'gpu'`, `'sprites'`, `'textures'` (MB), `'voices'`.
