@@ -1,4 +1,7 @@
 {
   "format": 1,
-  "carts": [{ "name": "diag", "path": "carts/diag/" }]
+  "carts": [
+    { "name": "sprite-yard", "path": "carts/sprite-yard/" },
+    { "name": "diag", "path": "carts/diag/" }
+  ]
 }

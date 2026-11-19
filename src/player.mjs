@@ -9,6 +9,7 @@ const byId = id => document.getElementById(id);
 const { cart } = document.body.dataset;
 const canvas = byId('surface');
 const safeArea = byId('safe-area');
+const resetInLive = byId('live').hasAttribute('data-reset');
 const maxTicks = 60 * 60;
 const clock = createClock();
 let worker;
@@ -29,7 +30,7 @@ function message(text) {
 
 function setText(id, text) {
   const element = byId(id);
-  if (element.textContent !== text) element.textContent = text;
+  if (element && element.textContent !== text) element.textContent = text;
 }
 
 function describe(view, state) {
@@ -37,11 +38,12 @@ function describe(view, state) {
     view.scale.toFixed(2) + ' pts/CSS px · ' + view.dpr + '× DPR · ' + renderer.name);
   setText('insets', 'Safe area (top/right/bottom/left) ' +
     Object.values(view.safe).map(value => Math.round(value)).join(' / '));
-  if (state) setText('gesture', state.event +
+  if (state?.event) setText('gesture', state.event +
     (state.event === 'Ready' ? '' : ' · ' + Math.round(state.x) + ', ' + Math.round(state.y) + ' pts'));
   if (state?.buttonClicks !== undefined) {
     setText('interaction', 'Button clicks ' + state.buttonClicks + ' · Valid drops ' + state.drops);
   }
+  if (typeof state?.status === 'string') setText('cart-status', state.status);
 }
 
 function fail(error) {
@@ -80,7 +82,7 @@ function start(next, loaded) {
 function stopRecording() {
   mode = 'live';
   byId('record').textContent = 'Record';
-  byId('live').disabled = true;
+  byId('live').disabled = !resetInLive;
   byId('replay').disabled = !record.frames.length;
   message('Recorded ' + record.frames.length + ' ticks');
 }
@@ -90,6 +92,7 @@ function onMessage({ data }) {
   if (data.type === 'ready') {
     ready = true;
     byId('record').disabled = false;
+    if (resetInLive) byId('live').disabled = false;
     return;
   }
   if (data.type === 'error') {
@@ -159,11 +162,10 @@ const refresh = () => {
 
 byId('play').addEventListener('click', async () => {
   byId('play').disabled = true;
-  message('Loading the diagnostic cart…');
+  message('Loading cart…');
   let pictures = [];
   try {
     const loaded = await loadCart(cart, new URL('../', import.meta.url));
-    if (!loaded.manifest.fixture) throw new Error('Expected a diagnostic fixture');
     pictures = await decodePictures(loaded.assets);
     loaded.pictures = pictures.map(({ path, bitmap }) => ({ path, width: bitmap.width, height: bitmap.height }));
     const bitmaps = pictures.map(({ bitmap }) => bitmap);

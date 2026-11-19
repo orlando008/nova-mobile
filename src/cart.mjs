@@ -69,22 +69,31 @@ export async function contentVersion(code, art, assets) {
   return sha256(new TextEncoder().encode(JSON.stringify(data)));
 }
 
+async function get(base, path, optional = false) {
+  const response = await fetch(new URL(path, base));
+  if (optional && response.status === 404) return null;
+  if (!response.ok) throw new Error('Could not load ' + path + ' (' + response.status + ')');
+  return response;
+}
+
+export async function loadIndex(base) {
+  return validateIndex(await (await get(base, 'carts/index.json')).json());
+}
+
+export async function loadManifest(base, entry) {
+  return validateManifest(await (await get(base, entry.path + 'game.json')).json(), entry.name);
+}
+
 export async function loadCart(name, base) {
-  const get = async (path, optional = false) => {
-    const response = await fetch(new URL(path, base));
-    if (optional && response.status === 404) return null;
-    if (!response.ok) throw new Error('Could not load ' + path + ' (' + response.status + ')');
-    return response;
-  };
-  const index = validateIndex(await (await get('carts/index.json')).json());
+  const index = await loadIndex(base);
   const entry = index.carts.find(cart => cart.name === name);
   if (!entry) throw new Error('This cart is missing from the index');
-  const manifest = validateManifest(await (await get(entry.path + 'game.json')).json(), name);
+  const manifest = await loadManifest(base, entry);
   const [code, art, ...assets] = await Promise.all([
-    get(entry.path + 'code.js').then(response => response.arrayBuffer()),
-    get(entry.path + 'art.js', true).then(response => response?.arrayBuffer() ?? null),
+    get(base, entry.path + 'code.js').then(response => response.arrayBuffer()),
+    get(base, entry.path + 'art.js', true).then(response => response?.arrayBuffer() ?? null),
     ...manifest.assets.filter(asset => !asset.lazy).map(async asset => {
-      const bytes = await (await get(entry.path + asset.path)).arrayBuffer();
+      const bytes = await (await get(base, entry.path + asset.path)).arrayBuffer();
       if (bytes.byteLength !== asset.bytes || await sha256(bytes) !== asset.sha256) {
         throw new Error('Integrity check failed for ' + asset.path);
       }

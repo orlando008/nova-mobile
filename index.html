@@ -38,13 +38,14 @@
 
     <section class="catalog" aria-labelledby="library">
       <h2 id="library">Library</h2>
-      <div class="empty-state">
+      <div id="catalog-shelves" hidden></div>
+      <div class="empty-state" id="catalog-state" role="status">
         <div class="catalog-icon" aria-hidden="true">
           <span></span><span></span><span></span><span></span>
         </div>
         <div>
-          <h3>No games published yet</h3>
-          <p>New games will appear here as they’re published.</p>
+          <h3 id="catalog-status">Loading games…</h3>
+          <p id="catalog-detail"></p>
         </div>
       </div>
     </section>
@@ -56,5 +57,6 @@
       <a href="https://orlando008.github.io/fanstasy-console/">NOVA-16 <span aria-hidden="true">↗</span></a>
     </div>
   </footer>
+  <script type="module" src="./src/library.mjs"></script>
 </body>
 </html>

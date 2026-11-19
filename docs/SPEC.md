@@ -1,9 +1,8 @@
 # nova-mobile: Platform Specification
 
-**Status:** Draft 1 (November 18, 2026). The static Library and About pages and the shared gesture recognizer are
-implemented. The [input diagnostic](carts/diag.md) exercises the console worker, fixed-tick input, picture sprites,
-and replay in the browser. The renderers draw rectangles and PNG or WebP sprites. Phone verification and the
-remaining runtime and catalog work are pending.
+**Status:** Draft 1 (November 18, 2026). The Library lists public carts from the cart index. The [Sprite Yard test fixture](carts/sprite-yard.md)
+and [input diagnostic](carts/diag.md) exercise the shared console worker, touch controls, picture sprites, and replay.
+Both fixtures are available by direct link. Phone verification and the remaining runtime work are pending.
 **Name:** nova-mobile (written **NOVA MOBILE** in the logo).
 **Family:** one of the NOVA platforms, beside NOVA-16 (`orlando008/fanstasy-console`). The website follows
 `docs/BRAND.md`; the games do not.
@@ -432,9 +431,9 @@ the game's state after each `update()` is identical, tick for tick, on any devic
 
 ### 11.1 Library
 
-The Library is the home page. Its initial static version shows an empty state. Catalog integration will display games as octagonal tiles (docs/BRAND.md), on shelves by kind (Puzzle, Merge, Build, Cards, Arcade).
-A tile shows the game's poster; tapping it opens the cart's page, `play/<name>/` (9.6): its description,
-screenshots and Play.
+The Library is the home page. It reads `carts/index.json`, validates each manifest, and groups playable carts
+into shelves by kind (Puzzle, Merge, Build, Cards, Arcade). Diagnostic fixtures are hidden. Octagonal tiles
+(docs/BRAND.md) show each cart's poster, title, and description. Tapping one opens `play/<name>/` (9.6).
 
 ### 11.2 Playing
 
