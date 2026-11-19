@@ -9,6 +9,7 @@ const byId = id => document.getElementById(id);
 const { cart } = document.body.dataset;
 const canvas = byId('surface');
 const safeArea = byId('safe-area');
+const cartFields = document.querySelectorAll('[data-cart-field]');
 const resetInLive = byId('live').hasAttribute('data-reset');
 const maxTicks = 60 * 60;
 const clock = createClock();
@@ -23,6 +24,20 @@ let lifecycle = [];
 let mode = 'live';
 let record;
 let replayed = 0;
+let options = {};
+let paused = false;
+
+export function chooseCartOptions(next) {
+  options = { ...next };
+}
+
+export function pausePlayer(value) {
+  if (paused === value) return;
+  paused = value;
+  clock.reset();
+  pointers?.reset();
+  if (paused && ready && (mode === 'live' || mode === 'record')) lifecycle.push({ lifecycle: 'pause' });
+}
 
 function message(text) {
   byId('feedback').textContent = text;
@@ -44,6 +59,13 @@ function describe(view, state) {
     setText('interaction', 'Button clicks ' + state.buttonClicks + ' · Valid drops ' + state.drops);
   }
   if (typeof state?.status === 'string') setText('cart-status', state.status);
+  for (const field of cartFields) {
+    const value = state?.readout?.[field.dataset.cartField];
+    if (typeof value === 'number' || typeof value === 'string') {
+      const text = String(value);
+      if (field.textContent !== text) field.textContent = text;
+    }
+  }
 }
 
 function fail(error) {
@@ -65,17 +87,18 @@ function start(next, loaded) {
   clock.reset();
   replayed = 0;
   const initial = next === 'replay' ? record.screen : screen;
-  if (next === 'record') record = { screen, frames: [], states: [] };
+  const initialOptions = next === 'replay' ? record.options : options;
+  if (next === 'record') record = { screen, options: initialOptions, frames: [], states: [] };
   byId('record').textContent = next === 'record' ? 'Stop' : 'Record';
   byId('replay').disabled = true;
   byId('live').disabled = next === 'live';
   message({ live: 'Live input', record: 'Recording…', replay: 'Replaying…' }[next]);
   if (loaded) {
-    worker.postMessage({ type: 'load', session, screen: initial, code: loaded.code,
+    worker.postMessage({ type: 'load', session, screen: initial, options: initialOptions, code: loaded.code,
       assets: loaded.assets, pictures: loaded.pictures },
       [loaded.code, ...loaded.assets.map(asset => asset.bytes)]);
   } else {
-    worker.postMessage({ type: 'restart', session, screen: initial });
+    worker.postMessage({ type: 'restart', session, screen: initial, options: initialOptions });
   }
 }
 
@@ -111,6 +134,7 @@ function onMessage({ data }) {
   }
   renderer.draw(data.drawList, data.screen);
   describe(data.screen, data.state);
+  const frameMode = capture ?? mode;
   if (capture === 'record') {
     record.frames.push(...frames);
     record.states.push(...data.states);
@@ -126,6 +150,9 @@ function onMessage({ data }) {
       byId('replay').disabled = false;
     }
   }
+  if (canvas.hasAttribute('data-cart-events')) {
+    canvas.dispatchEvent(new CustomEvent('cartframe', { detail: { state: data.state, mode: frameMode, session } }));
+  }
 }
 
 function liveFrame() {
@@ -137,7 +164,7 @@ function liveFrame() {
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
-  if (!ready || pending || mode === 'finished' || document.hidden) return;
+  if (!ready || pending || paused || mode === 'finished' || document.hidden) return;
   const { count, alpha } = clock.frame(timestamp);
   let frames;
   if (mode === 'replay') frames = record.frames.slice(replayed, replayed + count);
@@ -200,7 +227,8 @@ byId('record').addEventListener('click', () => {
   else start('record');
 });
 byId('replay').addEventListener('click', () => start('replay'));
-byId('live').addEventListener('click', () => {
+export function restartPlayer() {
   start('live');
   if (record?.frames.length) byId('replay').disabled = false;
-});
+}
+byId('live').addEventListener('click', restartPlayer);

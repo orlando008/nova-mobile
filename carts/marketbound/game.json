@@ -1,0 +1,54 @@
+{
+  "format": 1,
+  "name": "marketbound",
+  "title": "Marketbound",
+  "version": "0.2.0",
+  "console": "0.1",
+  "description": "Match produce, pack orders, and clear the fields across eight market puzzles.",
+  "shelf": "Puzzle",
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/apple.png",
+      "bytes": 25913,
+      "sha256": "8b28bea248725fe3332c341090061ca091a3c5fd85ec7a79897a634d875d736b"
+    },
+    {
+      "path": "assets/bananas.png",
+      "bytes": 26259,
+      "sha256": "668cbc7b71f210653e981816c5176791b4bbf649aaf577904033ff4802c2dae5"
+    },
+    {
+      "path": "assets/blueberries.png",
+      "bytes": 31202,
+      "sha256": "2b6e7856473f0b67014a0de7fd7ae65f8f1d880e3de2d9879d23a0745069ae35"
+    },
+    {
+      "path": "assets/broccoli.png",
+      "bytes": 27653,
+      "sha256": "18f58f540e5a9613bbe774168553d7382ff3b401e1be46d7e405f8a3b030f523"
+    },
+    {
+      "path": "assets/carrot.png",
+      "bytes": 20102,
+      "sha256": "f6e20ca1fd3a7e6dd4bda5f4b72d7284eeb6c685e812f745e23770f5bf52e944"
+    },
+    {
+      "path": "assets/icon.png",
+      "bytes": 35303,
+      "sha256": "5e23b156d7762d511e365daf9ed34758d2d352129c892dc0f0ca9024d0a9cd75"
+    },
+    {
+      "path": "assets/poster.png",
+      "bytes": 73213,
+      "sha256": "2216e4b5e547124d7f8a457189b917da44ce77ea6c3c7b6b3ab99bb250c85b63"
+    },
+    {
+      "path": "assets/strawberry.png",
+      "bytes": 26636,
+      "sha256": "889bec096e2ecdb2d527b13139d5726353415d93984b37e5277dd12d5d658ead"
+    }
+  ],
+  "contentVersion": "f3b67b31b23b01e34168793f9e422d64c6c04a1336127ac57d91758389565ba7"
+}
