@@ -1,7 +1,8 @@
 # nova-mobile: Platform Specification
 
-**Status:** Draft 1 (November 18, 2026). The static Library and About pages are implemented. The game runtime and
-catalog integration are planned.
+**Status:** Draft 1 (November 18, 2026). The static Library and About pages and the shared gesture recognizer are
+implemented. The [input diagnostic](carts/diag.md) exercises the first console worker, fixed-tick input, WebGL 2
+rectangles, and replay in the browser. Phone verification and the remaining runtime and catalog work are pending.
 **Name:** nova-mobile (written **NOVA MOBILE** in the logo).
 **Family:** one of the NOVA platforms, beside NOVA-16 (`orlando008/fanstasy-console`). The website follows
 `docs/BRAND.md`; the games do not.
@@ -183,9 +184,10 @@ flash and color grade are kept.
 
 ### 6.1 Touches
 
-Each tick the main thread sends the game the pointers as they were sampled for that tick (10): up to 5 touches, each with an id, a
-position in points (in the layer's space on request), and a phase (`down`, `move`, `up`, `cancel`). A mouse is one
-touch; the wheel is a pinch. These raw touches are what a recording stores, which keeps the game deterministic.
+Each tick the main thread sends the game the pointers sampled for that tick (10). Each sample has an id, a position
+in points (in the layer's space on request), and a phase (`down`, `move`, `up`, `cancel`). The input stream supports up
+to five active touches and preserves the order of samples within a tick. A mouse is one touch. Wheel zoom is sampled
+with its center in points and a positive scale multiplier. The recording stores the samples and the screen scale.
 
 ### 6.2 Gestures
 
@@ -197,11 +199,20 @@ and speeds are in **CSS pixels** (4.3), and gestures report positions in points:
 | `tap` | Down and up within 300 ms, moving less than 10 CSS px | position |
 | `doubletap` | Two taps within 300 ms and 24 CSS px | position |
 | `press` | Held 450 ms without moving 10 CSS px | position (fires once while held) |
-| `drag` | Moved 10 CSS px after down | start, current, delta; then `drop` on release |
-| `swipe` | A drag released faster than 500 CSS px per second | direction (4 or 8), speed (points per second) |
-| `pinch` | Two touches | center, scale change, rotation change |
+| `drag` | Moved 10 CSS px after down | start, current, delta from start |
+| `drop` | Released a drag | Same fields as `drag` |
+| `cancel` | An active drag was interrupted by pointer cancellation, a second touch, or a screen-scale change | Same fields as `drag` |
+| `swipe` | A drag released with an average speed above 500 CSS px per second | Same fields as `drop`, plus direction (4 or 8) and speed (points per second) |
+| `pinch` | A pair of touches changes position, separation, or angle, or a wheel zoom is sampled | center, scale multiplier, rotation change in radians |
 
-`gesture()` returns this tick's gestures. Most games use only `tap`, `drag`/`drop` and `swipe`.
+The [shared recognizer](../src/input/gestures.mjs) advances once per 60 Hz simulation tick with the sampled input.
+It counts 18 ticks for the tap and double-tap windows and 27 for a press. A completed press consumes that pointer
+until release. Two touches start a pinch, and every pointer that joined the pinch stays ineligible for single-touch
+gestures until released. Pinch deltas are relative to the previous measurement, with a new baseline if the pair changes.
+
+`gesture()` returns the current tick's read-only gesture list. Single-pointer gestures include the pointer id. Most
+games use `tap`, `drag`, `drop`, and `swipe`. The runtime resets the recognizer when a session restarts, the console
+pauses, or a resize invalidates the current pointer coordinates.
 
 ### 6.3 Hit testing and buttons
 
@@ -366,6 +377,9 @@ function state() {}        // returns the gameplay state, for state hashes (10.1
 - **Rendering.** `draw()` fills the draw list; the main thread renders the latest list once per display frame. The game
   never waits on the renderer, and the renderer never changes the game.
 - The game's code is a module evaluated with the API in scope, as on NOVA-16.
+- The diagnostic worker loads the verified module and calls its exported `createCart(api)` factory. Each session
+  gets fresh lifecycle functions. The initial API provides `gesture()`, `touches()`, `screen()`, `now()`,
+  `asset(path)` for an eager asset's bytes, and `rect(x, y, w, h, [r, g, b, a])` during `draw()`.
 - An uncaught error stops the game and shows an error screen (Bit, worried) with the message and the line.
 - `stat(key)`: `'fps'`, `'cpu'` (ms for update + draw), `'gpu'`, `'sprites'`, `'textures'` (MB), `'voices'`.
 - In development the console shows a **budget bar** that turns amber over 80% of a budget and red over it.

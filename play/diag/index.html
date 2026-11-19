@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Test shared gestures, touch targets, and deterministic replay on your device.">
+  <meta property="og:title" content="NOVA Mobile Input Diagnostic">
+  <meta property="og:description" content="Test shared gestures, touch targets, and deterministic replay on your device.">
+  <meta property="og:image" content="../../carts/diag/assets/poster.png">
+  <meta name="theme-color" content="#102020">
+  <title>NOVA Mobile Input Diagnostic</title>
+  <link rel="icon" href="../../carts/diag/assets/icon.png">
+  <link rel="stylesheet" href="./diagnostic.css">
+</head>
+<body data-cart="diag">
+  <main>
+    <header>
+      <a href="../../">NOVA MOBILE</a>
+      <h1>Input diagnostic</h1>
+    </header>
+    <section id="intro">
+      <img src="../../carts/diag/assets/poster.png" alt="" width="1200" height="630">
+      <p>Try the console’s shared gestures, then record and replay a short run.</p>
+      <button type="button" id="play">Play</button>
+    </section>
+    <section id="board" hidden>
+      <canvas id="surface" aria-label="Touch diagnostic grid with 88-point targets"></canvas>
+      <div class="readout">
+        <strong id="gesture">Ready</strong>
+        <p id="screen"></p>
+        <p id="insets"></p>
+      </div>
+    </section>
+    <div id="controls" class="controls" hidden>
+      <button type="button" id="record" disabled>Record</button>
+      <button type="button" id="replay" disabled>Replay</button>
+      <button type="button" id="live" disabled>Live</button>
+    </div>
+    <p id="feedback" role="status"></p>
+  </main>
+  <div id="safe-area" aria-hidden="true"></div>
+  <script type="module" src="../../src/player.mjs"></script>
+</body>
+</html>

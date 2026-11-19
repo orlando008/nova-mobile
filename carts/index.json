@@ -1,0 +1,4 @@
+{
+  "format": 1,
+  "carts": [{ "name": "diag", "path": "carts/diag/" }]
+}
