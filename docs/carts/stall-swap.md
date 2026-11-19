@@ -7,4 +7,4 @@ Stall Swap is an original match-three game about filling orders for a produce st
 - Packing both orders wins the level. If the last move ends without packing both, the player can retry. If a settled board has no matching swaps, it is reshuffled without spending a move.
 - The starting board and refill seed are fixed. Record and Replay use the shared console so the same input reproduces the same state at every tick.
 
-Open Stall Swap from the Build shelf in the Library or at `play/stall-swap/`.
+Open Stall Swap from the Puzzle shelf in the Library or at `play/stall-swap/`.

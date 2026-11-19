@@ -1,6 +1,7 @@
 {
   "format": 1,
   "carts": [
+    { "name": "stall-swap", "path": "carts/stall-swap/" },
     { "name": "sprite-yard", "path": "carts/sprite-yard/" },
     { "name": "diag", "path": "carts/diag/" }
   ]

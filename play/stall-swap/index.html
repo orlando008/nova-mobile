@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1b251c">
+  <meta name="description" content="Swap produce to pack two market orders before your moves run out.">
+  <meta property="og:title" content="Stall Swap">
+  <meta property="og:description" content="Swap produce to pack two market orders before your moves run out.">
+  <meta property="og:image" content="../../carts/stall-swap/assets/poster.png">
+  <title>Stall Swap</title>
+  <link rel="icon" href="../../carts/stall-swap/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./stall.css">
+</head>
+<body data-cart="stall-swap">
+  <main>
+    <header>
+      <div><a href="../../">Library</a><h1>Stall Swap</h1></div>
+      <div class="moves" aria-label="Moves remaining"><span>Moves</span><strong data-cart-field="moves">18</strong></div>
+    </header>
+    <section id="intro" aria-label="About Stall Swap">
+      <img src="../../carts/stall-swap/assets/poster.png" width="1200" height="630" alt="">
+      <p>Swap produce to pack two market orders before your moves run out.</p>
+      <button type="button" id="play" class="primary">Play</button>
+    </section>
+    <section id="board" hidden aria-label="Stall Swap game">
+      <div class="orders" aria-label="Produce still needed">
+        <section class="order" aria-labelledby="orchard-order">
+          <h2 id="orchard-order">Orchard box</h2>
+          <ul>
+            <li><img src="../../carts/stall-swap/assets/apple.png" alt="Apples"><strong data-cart-field="apples">6</strong></li>
+            <li><img src="../../carts/stall-swap/assets/strawberry.png" alt="Strawberries"><strong data-cart-field="strawberries">6</strong></li>
+          </ul>
+        </section>
+        <section class="order" aria-labelledby="market-order">
+          <h2 id="market-order">Market box</h2>
+          <ul>
+            <li><img src="../../carts/stall-swap/assets/carrot.png" alt="Carrots"><strong data-cart-field="carrots">6</strong></li>
+            <li><img src="../../carts/stall-swap/assets/blueberries.png" alt="Blueberries"><strong data-cart-field="blueberries">6</strong></li>
+          </ul>
+        </section>
+      </div>
+      <canvas id="surface" aria-label="Eight-by-eight produce board" aria-describedby="cart-status"></canvas>
+      <p id="cart-status" role="status"></p>
+    </section>
+    <div id="controls" hidden aria-label="Session controls">
+      <button type="button" id="live" data-reset disabled>Retry</button>
+      <button type="button" id="record" disabled>Record</button>
+      <button type="button" id="replay" disabled>Replay</button>
+    </div>
+    <p id="feedback" role="status"></p>
+  </main>
+  <div id="safe-area" aria-hidden="true"></div>
+  <script type="module" src="../../src/player.mjs"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@ const byId = id => document.getElementById(id);
 const { cart } = document.body.dataset;
 const canvas = byId('surface');
 const safeArea = byId('safe-area');
+const cartFields = document.querySelectorAll('[data-cart-field]');
 const resetInLive = byId('live').hasAttribute('data-reset');
 const maxTicks = 60 * 60;
 const clock = createClock();
@@ -44,6 +45,13 @@ function describe(view, state) {
     setText('interaction', 'Button clicks ' + state.buttonClicks + ' · Valid drops ' + state.drops);
   }
   if (typeof state?.status === 'string') setText('cart-status', state.status);
+  for (const field of cartFields) {
+    const value = state?.readout?.[field.dataset.cartField];
+    if (typeof value === 'number' || typeof value === 'string') {
+      const text = String(value);
+      if (field.textContent !== text) field.textContent = text;
+    }
+  }
 }
 
 function fail(error) {
