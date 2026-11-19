@@ -38,6 +38,9 @@ function describe(view, state) {
     Object.values(view.safe).map(value => Math.round(value)).join(' / '));
   if (state) setText('gesture', state.event +
     (state.event === 'Ready' ? '' : ' · ' + Math.round(state.x) + ', ' + Math.round(state.y) + ' pts'));
+  if (state?.buttonClicks !== undefined) {
+    setText('interaction', 'Button clicks ' + state.buttonClicks + ' · Valid drops ' + state.drops);
+  }
 }
 
 function fail(error) {

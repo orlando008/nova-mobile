@@ -47,7 +47,69 @@ test('the diagnostic cart reproduces the same state hashes on every recorded tic
   const live = play(frames, 1);
   assert.deepEqual(play(JSON.parse(JSON.stringify(frames)), 0), live);
   assert.deepEqual(play(JSON.parse(JSON.stringify(frames)), 3), live);
-  assert.deepEqual(live.state, { event: 'Ready', x: 0, y: 0, count: 7 });
+  assert.deepEqual(live.state, { event: 'Ready', x: 0, y: 0, count: 7,
+    buttonStatus: null, buttonClicks: 0, drops: 0, position: 'home', drag: null });
+});
+
+test('button clicks, canceled presses and piece drops replay through a resize', () => {
+  const resized = { ...screen, h: 860, scale: 1.8 };
+  const frames = [
+    { touches: [input('down', 258, 940), input('up', 258, 940)] },
+    { touches: [input('down', 258, 940)] },
+    { touches: [input('move', 258, 840), input('move', 258, 940), input('up', 258, 940)] },
+    { touches: [input('down', 360, 940), input('move', 462, 940)] },
+    { touches: [input('up', 462, 940)] },
+    { touches: [input('down', 462, 940), input('up', 550, 840)] },
+    { touches: [input('down', 462, 940), input('move', 360, 940)] },
+    { touches: [], lifecycle: 'resize', screen: resized },
+    { touches: [input('up', 360, 800)] },
+    { touches: [input('down', 462, 800), input('up', 360, 800)] },
+    { touches: [input('down', 360, 800), input('move', 385, 800), input('up', 360, 800)] },
+  ].map((frame, index) => ({ ...frame, now: index * TICK_MS }));
+
+  function run(recording) {
+    const runtime = createRuntime(createCart, screen);
+    return recording.map(frame => {
+      runtime.tick(frame);
+      return runtime.state();
+    });
+  }
+
+  const states = run(frames);
+  assert.equal(states[0].buttonClicks, 1);
+  assert.equal(states[0].count, 0);
+  assert.equal(states[1].buttonStatus, 'pressed');
+  assert.equal(states[2].buttonStatus, null);
+  assert.equal(states[2].buttonClicks, 1);
+  assert.equal(states[2].count, 0);
+  assert.ok(states[3].drag);
+  assert.equal(states[4].position, 'slot');
+  assert.equal(states[4].drops, 1);
+  assert.equal(states[5].position, 'slot');
+  assert.equal(states[5].drops, 1);
+  assert.ok(states[6].drag);
+  assert.equal(states[7].drag, null);
+  assert.equal(states[8].position, 'slot');
+  assert.equal(states[8].drops, 1);
+  assert.equal(states[9].position, 'home');
+  assert.equal(states[9].drops, 2);
+  assert.equal(states[10].position, 'home');
+  assert.equal(states[10].drops, 2);
+  assert.deepEqual(run(JSON.parse(JSON.stringify(frames))).map(digest), states.map(digest));
+});
+
+test('the runtime clears button capture on pause and resize even at the same coordinates', () => {
+  const history = [];
+  const runtime = createRuntime(api => ({
+    update: () => history.push(api.button('test', { x: 10, y: 10, w: 88, h: 88 })),
+    draw() {},
+  }), screen);
+  for (const lifecycle of ['pause', 'resize']) {
+    runtime.tick({ touches: [input('down', 20, 20)], now: 100 });
+    runtime.tick({ lifecycle, screen, touches: [], now: 117 });
+    runtime.tick({ touches: [input('up', 20, 20)], now: 134 });
+  }
+  assert.deepEqual(history, ['pressed', null, null, 'pressed', null, null]);
 });
 
 test('resize and pause clear pending gestures and expose recorded inputs and the clock', () => {

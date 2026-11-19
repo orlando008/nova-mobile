@@ -24,9 +24,12 @@
       <button type="button" id="play">Play</button>
     </section>
     <section id="board" hidden>
-      <canvas id="surface" aria-label="Touch diagnostic grid with 88-point targets"></canvas>
+      <canvas id="surface" aria-label="Touch diagnostic grid with 88-point targets"
+        aria-describedby="controls-guide"></canvas>
       <div class="readout">
         <strong id="gesture">Ready</strong>
+        <p id="interaction"></p>
+        <p id="controls-guide">Tap the cyan plus. Drag the amber piece to the other slot.</p>
         <p id="screen"></p>
         <p id="insets"></p>
       </div>

@@ -1,4 +1,5 @@
 import { createGestureInput } from './input/gestures.mjs';
+import { createButtonInput, hit } from './input/buttons.mjs';
 
 export const TICK_MS = 1000 / 60;
 const MAX_TICKS = 4;
@@ -25,6 +26,7 @@ export function createClock() {
 
 export function createRuntime(createCart, initialScreen, assets = []) {
   const input = createGestureInput();
+  const buttons = createButtonInput();
   const freezeScreen = screen => Object.freeze({ ...screen, safe: Object.freeze({ ...screen.safe }) });
   let screen = freezeScreen(initialScreen);
   let touches = Object.freeze([]);
@@ -33,6 +35,9 @@ export function createRuntime(createCart, initialScreen, assets = []) {
   const bytesByPath = new Map(assets.map(({ path, bytes }) => [path, bytes]));
   const cart = createCart(Object.freeze({
     gesture: input.gesture,
+    hit,
+    button: buttons.button,
+    consumed: buttons.consumed,
     screen: () => screen,
     touches: () => touches,
     now: () => now,
@@ -52,14 +57,21 @@ export function createRuntime(createCart, initialScreen, assets = []) {
     touches = Object.freeze(frame.touches.map(sample => Object.freeze({ ...sample })));
     if (frame.lifecycle === 'resize') {
       input.reset();
+      buttons.reset();
       screen = freezeScreen(frame.screen);
       cart.resize?.(screen.w, screen.h);
     } else if (frame.lifecycle === 'pause') {
       input.reset();
+      buttons.reset();
       cart.pause?.();
     }
     input.step({ touches, scale: screen.scale, wheel: frame.wheel });
-    cart.update();
+    buttons.begin(touches);
+    try {
+      cart.update();
+    } finally {
+      buttons.end();
+    }
   }
 
   function draw(alpha) {
