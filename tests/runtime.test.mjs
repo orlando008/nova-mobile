@@ -4,8 +4,10 @@ import { test } from 'node:test';
 import { createClock, createRuntime, TICK_MS } from '../src/runtime.mjs';
 import { createCart } from '../carts/diag/code.js';
 import { validateIndex, validateManifest } from '../src/cart.mjs';
+import { DRAW_STRIDE } from '../src/draw-list.mjs';
 
 const screen = { w: 720, h: 1000, scale: 2, dpr: 2, safe: { top: 0, right: 0, bottom: 0, left: 0 } };
+const pictures = [{ path: 'assets/crate.png', width: 160, height: 160 }];
 const input = (phase, x, y) => ({ id: 1, phase, x, y });
 const digest = state => createHash('sha256').update(JSON.stringify(state)).digest('hex');
 
@@ -34,11 +36,11 @@ test('the diagnostic cart reproduces the same state hashes on every recorded tic
     { touches: [], lifecycle: 'pause', now: 1117 },
   ];
   const play = (recording, draws) => {
-    const runtime = createRuntime(createCart, screen);
+    const runtime = createRuntime(createCart, screen, [], pictures);
     const hashes = recording.map(frame => {
       runtime.tick(frame);
       const state = digest(runtime.state());
-      for (let i = 0; i < draws; i += 1) assert.equal(runtime.draw(i / draws).length % 8, 0);
+      for (let i = 0; i < draws; i += 1) assert.equal(runtime.draw(i / draws).length % DRAW_STRIDE, 0);
       assert.equal(digest(runtime.state()), state);
       return state;
     });

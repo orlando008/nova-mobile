@@ -3,6 +3,7 @@ import { bindPointers, measureScreen } from './input/pointers.mjs';
 import { createClock } from './runtime.mjs';
 import { createRenderer } from './webgl/rects.mjs';
 import { createCanvasRenderer } from './canvas/rects.mjs';
+import { decodePictures } from './pictures.mjs';
 
 const byId = id => document.getElementById(id);
 const { cart } = document.body.dataset;
@@ -68,7 +69,8 @@ function start(next, loaded) {
   byId('live').disabled = next === 'live';
   message({ live: 'Live input', record: 'Recording…', replay: 'Replaying…' }[next]);
   if (loaded) {
-    worker.postMessage({ type: 'load', session, screen: initial, code: loaded.code, assets: loaded.assets },
+    worker.postMessage({ type: 'load', session, screen: initial, code: loaded.code,
+      assets: loaded.assets, pictures: loaded.pictures },
       [loaded.code, ...loaded.assets.map(asset => asset.bytes)]);
   } else {
     worker.postMessage({ type: 'restart', session, screen: initial });
@@ -158,13 +160,17 @@ const refresh = () => {
 byId('play').addEventListener('click', async () => {
   byId('play').disabled = true;
   message('Loading the diagnostic cart…');
+  let pictures = [];
   try {
     const loaded = await loadCart(cart, new URL('../', import.meta.url));
     if (!loaded.manifest.fixture) throw new Error('Expected a diagnostic fixture');
+    pictures = await decodePictures(loaded.assets);
+    loaded.pictures = pictures.map(({ path, bitmap }) => ({ path, width: bitmap.width, height: bitmap.height }));
+    const bitmaps = pictures.map(({ bitmap }) => bitmap);
     byId('intro').hidden = true;
     byId('controls').hidden = false;
     byId('board').hidden = false;
-    renderer = createRenderer(canvas) ?? createCanvasRenderer(canvas);
+    renderer = createRenderer(canvas, bitmaps) ?? createCanvasRenderer(canvas, bitmaps);
     screen = measureScreen(canvas, safeArea);
     pointers = bindPointers(canvas, () => screen);
     worker = new Worker(new URL('./worker.mjs', import.meta.url), { type: 'module' });
@@ -182,6 +188,7 @@ byId('play').addEventListener('click', async () => {
     start('live', loaded);
     requestAnimationFrame(animate);
   } catch (error) {
+    for (const { bitmap } of pictures) bitmap.close();
     fail(error);
   }
 });
