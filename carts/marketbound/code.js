@@ -1,7 +1,25 @@
 const WIDTH = 8;
 const CELL_COUNT = WIDTH * WIDTH;
 const TYPES = ['apple', 'bananas', 'strawberry', 'blueberries', 'carrot', 'broccoli'];
-const GOALS = { apples: [0, 6], strawberries: [2, 6], blueberries: [3, 6], carrots: [4, 6] };
+export const PRODUCE = ['Apples', 'Bananas', 'Strawberries', 'Blueberries', 'Carrots', 'Broccoli']
+  .map((label, type) => ({ label, file: TYPES[type] + '.png' }));
+export const LEVELS = [
+  { name: 'First Delivery', moves: 18, seed: 0x5a170001, orders: [[0, 6], [2, 6], [4, 6], [3, 6]],
+    tip: 'Tap neighboring pieces or swipe to match three.' },
+  { name: 'Berry Stand', moves: 16, seed: 0x3f1280d1, orders: [[2, 12], [3, 12]],
+    tip: 'Match four or more to sweep the entire row or column.', sweeps: true },
+  { name: 'Lunch Rush', moves: 15, seed: 0x4af806eb, orders: [[1, 12], [4, 12], [5, 12]], sweeps: true },
+  { name: 'Garden Beds', moves: 18, seed: 0x24180af5, orders: [[4, 12], [5, 12]],
+    soil: [18, 21, 26, 29, 34, 37, 42, 45], tip: 'Clear produce over brown plots to dig them up.', sweeps: true },
+  { name: 'Corner Plots', moves: 20, seed: 0x16ec02df, orders: [[0, 14], [1, 14]],
+    soil: [0, 1, 6, 7, 8, 15, 48, 55, 56, 57, 62, 63], sweeps: true },
+  { name: 'Orchard Route', moves: 16, seed: 0x97a42f29, orders: [[0, 16], [2, 16], [3, 16]],
+    soil: [9, 14, 27, 28, 35, 36, 49, 54], sweeps: true },
+  { name: 'Last Crates', moves: 19, seed: 0x5f7c20b1, orders: [[1, 16], [3, 16], [5, 16]],
+    soil: [0, 3, 4, 7, 18, 21, 24, 31, 32, 39, 42, 45, 56, 59, 60, 63], sweeps: true },
+  { name: 'Market Festival', moves: 21, seed: 0x790adda3, orders: [[0, 18], [2, 18], [4, 18], [5, 18]],
+    soil: [0, 7, 9, 14, 18, 21, 24, 27, 28, 31, 32, 35, 36, 39, 42, 45, 49, 54, 56, 63], sweeps: true },
+];
 const START_BOARD = [
   5, 0, 0, 1, 0, 2, 3, 1,
   0, 5, 5, 0, 2, 1, 5, 5,
@@ -18,6 +36,8 @@ const COLORS = {
   dark: [0.19, 0.25, 0.18, 1],
   active: [0.37, 0.42, 0.24, 1],
   gold: [1, 0.78, 0.39, 1],
+  soil: [0.46, 0.26, 0.16, 1],
+  soilRim: [0.79, 0.52, 0.29, 1],
 };
 const row = i => Math.floor(i / WIDTH);
 const col = i => i % WIDTH;
@@ -27,7 +47,7 @@ function exchange(board, a, b) {
   [board[a], board[b]] = [board[b], board[a]];
 }
 
-export function findMatches(board) {
+export function findMatches(board, sweep = false) {
   const matched = new Set();
   for (const across of [true, false]) {
     for (let line = 0; line < WIDTH; line++) {
@@ -36,7 +56,8 @@ export function findMatches(board) {
       for (let end = 1; end <= WIDTH; end++) {
         if (end < WIDTH && board[slot(start)] === board[slot(end)]) continue;
         if (end - start >= 3) {
-          for (let i = start; i < end; i++) matched.add(slot(i));
+          const fullLane = sweep && end - start >= 4;
+          for (let i = fullLane ? 0 : start; i < (fullLane ? WIDTH : end); i++) matched.add(slot(i));
         }
         start = end;
       }
@@ -79,17 +100,25 @@ function swipeNeighbor(event, from, cell) {
   return c >= 0 && c < WIDTH && r >= 0 && r < WIDTH ? r * WIDTH + c : -1;
 }
 
-export function createCart({ gesture, screen, rect, spr }) {
-  let board = START_BOARD.slice();
-  const remaining = Object.fromEntries(Object.entries(GOALS).map(([key, [, count]]) => [key, count]));
-  const goalNames = Object.keys(GOALS);
-  let seed = 0x5a170001;
-  let moves = 18;
+export function createCart({ gesture, screen, rect, spr, options }) {
+  const requested = options?.level;
+  const levelIndex = Number.isInteger(requested) && LEVELS[requested] ? requested : 0;
+  const level = LEVELS[levelIndex];
+  let seed = level.seed;
+  let board = levelIndex === 0 ? START_BOARD.slice() : newBoard();
+  const remaining = level.orders.map(([, count]) => count);
+  const soil = new Set(level.soil);
+  let moves = level.moves;
   let selected = -1;
   let combo = 0;
   let phase = null;
   let outcome = 'playing';
-  let status = 'Swap two neighbors to make a line of three.';
+  let status = level.tip ?? 'Match produce to pack your order.';
+  let audio = { id: 0, name: '', combo: 0 };
+
+  function cue(name) {
+    audio = { id: audio.id + 1, name, combo };
+  }
 
   function nextProduce() {
     seed ^= seed << 13;
@@ -106,6 +135,7 @@ export function createCart({ gesture, screen, rect, spr }) {
     if (from < 0 || to < 0 || !adjacent(from, to)) return;
     selected = -1;
     begin('swap', 8, { from, to });
+    cue('swap');
   }
 
   function refill(matches) {
@@ -131,10 +161,11 @@ export function createCart({ gesture, screen, rect, spr }) {
   }
 
   function newBoard() {
+    const types = TYPES.map((_, i) => i);
     for (let attempt = 0; attempt < 12; attempt++) {
       const next = [];
       for (let slot = 0; slot < CELL_COUNT; slot++) {
-        const choices = TYPES.map((_, i) => i).filter(type =>
+        const choices = types.filter(type =>
           !(col(slot) >= 2 && next[slot - 1] === type && next[slot - 2] === type) &&
           !(row(slot) >= 2 && next[slot - WIDTH] === type && next[slot - 2 * WIDTH] === type));
         next.push(choices[nextProduce() % choices.length]);
@@ -145,17 +176,19 @@ export function createCart({ gesture, screen, rect, spr }) {
   }
 
   function settle() {
-    if (goalNames.every(key => remaining[key] === 0)) {
+    if (remaining.every(count => count === 0) && soil.size === 0) {
       outcome = 'won';
-      status = 'Both orders packed. Nice work!';
+      status = 'Delivery complete!';
+      cue('win');
     } else if (moves === 0) {
       outcome = 'lost';
       status = 'Out of moves. Tap Retry for a fresh board.';
+      cue('lose');
     } else if (!legalSwaps(board).length) {
       board = newBoard();
-      status = 'Board reshuffled. Your orders and moves are unchanged.';
+      status = 'Board reshuffled. Your goals and moves are unchanged.';
     } else {
-      status = combo > 1 ? 'Cascade ×' + combo + '. Keep packing!' : 'Match produce to fill your orders.';
+      status = combo > 1 ? 'Cascade ×' + combo + '. Keep packing!' : 'Match produce to pack your order.';
     }
   }
 
@@ -165,14 +198,16 @@ export function createCart({ gesture, screen, rect, spr }) {
     switch (finished.kind) {
       case 'swap': {
         exchange(board, finished.from, finished.to);
-        const matches = findMatches(board);
+        const matches = findMatches(board, level.sweeps);
         if (matches.length) {
           moves--;
           combo = 1;
           begin('clear', 10, { matches });
+          cue('match');
         } else {
           status = 'That swap makes no match. Try another.';
           begin('undo', 7, { from: finished.from, to: finished.to });
+          cue('miss');
         }
         break;
       }
@@ -181,17 +216,18 @@ export function createCart({ gesture, screen, rect, spr }) {
         break;
       case 'clear':
         for (const slot of finished.matches) {
-          for (const key of goalNames) {
-            if (board[slot] === GOALS[key][0] && remaining[key] > 0) remaining[key]--;
-          }
+          const target = level.orders.findIndex(([type]) => type === board[slot]);
+          if (target >= 0 && remaining[target] > 0) remaining[target]--;
+          soil.delete(slot);
         }
         refill(finished.matches);
         break;
       case 'fall': {
-        const matches = findMatches(board);
+        const matches = findMatches(board, level.sweeps);
         if (matches.length) {
           combo++;
           begin('clear', 10, { matches });
+          cue('match');
         } else {
           settle();
         }
@@ -213,7 +249,10 @@ export function createCart({ gesture, screen, rect, spr }) {
         const slot = slotAt(event.position, box);
         if (slot < 0) continue;
         if (selected >= 0 && adjacent(selected, slot)) attempt(selected, slot);
-        else selected = selected === slot ? -1 : slot;
+        else {
+          selected = selected === slot ? -1 : slot;
+          if (selected >= 0) cue('select');
+        }
       } else if (event.type === 'drop') {
         const from = slotAt(event.start, box);
         if (from >= 0) attempt(from, swipeNeighbor(event, from, box.cell));
@@ -234,7 +273,13 @@ export function createCart({ gesture, screen, rect, spr }) {
       if (marked) rect(left + 1.5, top + 1.5, cell - 3, cell - 3, COLORS.gold);
       const inset = marked ? 4.5 : 2;
       rect(left + inset, top + inset, cell - inset * 2, cell - inset * 2,
-        marked ? COLORS.active : (row(slot) + col(slot)) % 2 ? COLORS.light : COLORS.dark);
+        soil.has(slot) ? COLORS.soil : marked ? COLORS.active : (row(slot) + col(slot)) % 2 ? COLORS.light : COLORS.dark);
+      if (soil.has(slot)) {
+        const mark = cell * .075;
+        for (const offset of [.15, .28, .41]) {
+          rect(left + offset * cell, top + .81 * cell, mark, mark, COLORS.soilRim);
+        }
+      }
     }
     for (let slot = 0; slot < CELL_COUNT; slot++) {
       let px = x + (col(slot) + 0.5) * cell;
@@ -261,8 +306,8 @@ export function createCart({ gesture, screen, rect, spr }) {
     resize: () => { selected = -1; },
     pause: () => { selected = -1; },
     state: () => ({
-      board: board.slice(), seed, moves, selected, combo, phase, outcome, status,
-      readout: { ...remaining, moves },
+      board: board.slice(), seed, moves, selected, combo, phase, outcome, status, audio,
+      level: levelIndex, remaining: remaining.slice(), soil: [...soil], readout: { moves },
     }),
   };
 }

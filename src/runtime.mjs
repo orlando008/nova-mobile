@@ -24,7 +24,7 @@ export function createClock() {
   return { frame, reset };
 }
 
-export function createRuntime(createCart, initialScreen, assets = [], pictures = []) {
+export function createRuntime(createCart, initialScreen, assets = [], pictures = [], options = {}) {
   const input = createGestureInput();
   const buttons = createButtonInput();
   const freezeScreen = screen => Object.freeze({ ...screen, safe: Object.freeze({ ...screen.safe }) });
@@ -37,6 +37,7 @@ export function createRuntime(createCart, initialScreen, assets = [], pictures =
     width, height, index: index + 1,
   }]));
   const cart = createCart(Object.freeze({
+    options: Object.freeze({ ...options }),
     gesture: input.gesture,
     hit,
     button: buttons.button,

@@ -6,9 +6,9 @@ let assets;
 let pictures;
 let runtime;
 
-function start(id, screen) {
+function start(id, screen, options) {
   session = id;
-  runtime = createRuntime(createCart, screen, assets, pictures);
+  runtime = createRuntime(createCart, screen, assets, pictures, options);
   self.postMessage({ type: 'ready', session });
 }
 
@@ -28,9 +28,9 @@ self.addEventListener('message', async ({ data }) => {
       if (typeof createCart !== 'function') throw new Error('Cart code must export createCart()');
       assets = data.assets;
       pictures = data.pictures;
-      start(data.session, data.screen);
+      start(data.session, data.screen, data.options);
     } else if (data.type === 'restart') {
-      start(data.session, data.screen);
+      start(data.session, data.screen, data.options);
     } else if (data.type === 'frame' && data.session === session) {
       const states = [];
       for (const frame of data.frames) {

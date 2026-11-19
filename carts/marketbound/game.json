@@ -1,10 +1,10 @@
 {
   "format": 1,
-  "name": "stall-swap",
-  "title": "Stall Swap",
-  "version": "0.1.0",
+  "name": "marketbound",
+  "title": "Marketbound",
+  "version": "0.2.0",
   "console": "0.1",
-  "description": "Swap produce to pack two market orders before your moves run out.",
+  "description": "Match produce, pack orders, and clear the fields across eight market puzzles.",
   "shelf": "Puzzle",
   "poster": "assets/poster.png",
   "icon": "assets/icon.png",
@@ -50,5 +50,5 @@
       "sha256": "889bec096e2ecdb2d527b13139d5726353415d93984b37e5277dd12d5d658ead"
     }
   ],
-  "contentVersion": "ce8899a5eba699130a29dcfc831e75cff09ef48c9130e97a661f37ce6a97c140"
+  "contentVersion": "f3b67b31b23b01e34168793f9e422d64c6c04a1336127ac57d91758389565ba7"
 }
