@@ -1,8 +1,8 @@
 # nova-mobile: Platform Specification
 
-**Status:** Draft 1 (November 18, 2026). The Library lists playable carts from the cart index. [Sprite Yard](carts/sprite-yard.md)
-uses the shared console worker, touch controls, picture sprites, and replay. The [input diagnostic](carts/diag.md) remains
-available by direct link. Phone verification and the remaining runtime work are pending.
+**Status:** Draft 1 (November 18, 2026). The Library lists public carts from the cart index. The [Sprite Yard test fixture](carts/sprite-yard.md)
+and [input diagnostic](carts/diag.md) exercise the shared console worker, touch controls, picture sprites, and replay.
+Both fixtures are available by direct link. Phone verification and the remaining runtime work are pending.
 **Name:** nova-mobile (written **NOVA MOBILE** in the logo).
 **Family:** one of the NOVA platforms, beside NOVA-16 (`orlando008/fanstasy-console`). The website follows
 `docs/BRAND.md`; the games do not.

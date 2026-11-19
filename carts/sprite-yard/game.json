@@ -6,6 +6,7 @@
   "console": "0.1",
   "description": "Arrange a tray of shared sprites on a small board.",
   "shelf": "Build",
+  "fixture": true,
   "poster": "assets/poster.png",
   "icon": "assets/icon.png",
   "assets": [
