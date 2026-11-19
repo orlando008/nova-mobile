@@ -218,14 +218,23 @@ pauses, or a resize invalidates the current pointer coordinates.
 
 `hit(x, y, shape)` uses points and includes the shape's edges. A rectangle is `{x, y, w, h}`, an octagon adds
 `type: 'octagon'` to those bounds, and a circle is `{type: 'circle', x, y, r}` with `x` and `y` at its center.
+An octagon uses 45° chamfers. Its optional `cut` is the length in points of each chamfer's horizontal and vertical
+legs, between zero and half the shorter side. The default is about 29.3% of that side, which gives a regular
+octagon for square bounds. Use the same `cut` as your drawing, such as 12% for the website brand.
 
 Call `button(id, box, opts)` from `update()` with a stable ID. It reads the tick's ordered pointer samples and
 returns `'pressed'` on capture, `'held'` while the pointer stays inside, `'clicked'` on release inside, or `null`
 when idle. A press and release in a single tick returns `'clicked'`. The cart draws its own treatment in `draw()`.
+If a click and a new press occur in the same tick, `'clicked'` takes priority and the new press reports `'held'`
+on the next tick if it is still down. Calling the same ID again in a tick returns the first call's result.
 
 Sliding outside or losing the pointer cancels the press, and the same finger must lift before it can register a new
-press. Setting `opts.disabled`, omitting the button for a tick, pausing, or resizing clears its capture. For overlapping
-buttons, the first one queried gets the press. Buttons and gestures read the same recorded samples.
+press. Setting `opts.disabled`, omitting the button for a tick, pausing, or resizing clears its capture. Query
+overlapping buttons front to back. A disabled button blocks presses in its hit area and returns `null`.
+
+Buttons and gestures read the same recorded samples. Query buttons before handling board input, and skip
+single-pointer gestures whose `consumed(gesture.id)` is true. A button consumes its pointer from down through
+the release or cancel tick, including after a slide-off or when the button disappears mid-press.
 
 ### 6.4 Haptics
 
@@ -385,7 +394,8 @@ function state() {}        // returns the gameplay state, for state hashes (10.1
   never waits on the renderer, and the renderer never changes the game.
 - The game's code is a module evaluated with the API in scope, as on NOVA-16.
 - The diagnostic worker loads the verified module and calls its exported `createCart(api)` factory. Each session
-  gets fresh lifecycle functions. The initial API provides `gesture()`, `touches()`, `hit()`, `button()`, `screen()`, `now()`,
+  gets fresh lifecycle functions. The initial API provides `gesture()`, `touches()`, `hit()`, `button()`, `consumed()`,
+  `screen()`, `now()`,
   `asset(path)` for an eager asset's bytes, and `rect(x, y, w, h, [r, g, b, a])` during `draw()`.
 - An uncaught error stops the game and shows an error screen (Bit, worried) with the message and the line.
 - `stat(key)`: `'fps'`, `'cpu'` (ms for update + draw), `'gpu'`, `'sprites'`, `'textures'` (MB), `'voices'`.

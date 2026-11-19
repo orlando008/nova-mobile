@@ -12,19 +12,26 @@ export function hit(x, y, shape) {
   if (!(w > 0 && h > 0 && dx >= 0 && dx <= w && dy >= 0 && dy <= h)) return false;
   if (type === 'rect') return true;
   if (type !== 'octagon') return false;
-  return Math.min(dx / w, 1 - dx / w) + Math.min(dy / h, 1 - dy / h) >= OCTAGON_CORNER;
+  const shortSide = Math.min(w, h);
+  const cut = shape.cut ?? shortSide * OCTAGON_CORNER;
+  return Number.isFinite(cut) && cut >= 0 && cut <= shortSide / 2 &&
+    Math.min(dx, w - dx) + Math.min(dy, h - dy) >= cut;
 }
 
 export function createButtonInput() {
   const captured = new Map();
   const results = new Map();
   const claimed = new Set();
+  const ownedPointers = new Set();
+  const consumedPointers = new Set();
   let touches = null;
 
   function begin(samples) {
     touches = samples;
     results.clear();
     claimed.clear();
+    consumedPointers.clear();
+    for (const id of ownedPointers) consumedPointers.add(id);
   }
 
   function button(id, box, { disabled = false } = {}) {
@@ -35,21 +42,22 @@ export function createButtonInput() {
     let pressed = false;
     let clicked = false;
 
-    if (!disabled) {
-      for (const sample of touches) {
-        if (!pointer) {
-          if (sample.phase === 'down' && !claimed.has(sample) && hit(sample.x, sample.y, box)) {
-            claimed.add(sample);
+    for (const sample of touches) {
+      if (!pointer) {
+        if (sample.phase === 'down' && !claimed.has(sample) && hit(sample.x, sample.y, box)) {
+          claimed.add(sample);
+          consumedPointers.add(sample.id);
+          if (!disabled) {
             pointer = sample;
             pressed = true;
           }
-          continue;
         }
-        if (sample.id !== pointer.id) continue;
-        const inside = sample.phase !== 'cancel' && hit(sample.x, sample.y, box);
-        if (sample.phase === 'up' && inside) clicked = true;
-        pointer = inside && sample.phase !== 'up' ? sample : undefined;
+        continue;
       }
+      if (sample.id !== pointer.id) continue;
+      const inside = sample.phase !== 'cancel' && hit(sample.x, sample.y, box);
+      if (sample.phase === 'up' && inside) clicked = true;
+      pointer = inside && sample.phase !== 'up' ? sample : undefined;
     }
 
     if (pointer) captured.set(id, pointer);
@@ -63,8 +71,18 @@ export function createButtonInput() {
     for (const id of captured.keys()) {
       if (!results.has(id)) captured.delete(id);
     }
+    for (const sample of touches) {
+      if (sample.phase === 'down' && claimed.has(sample)) ownedPointers.add(sample.id);
+      if (sample.phase === 'up' || sample.phase === 'cancel') ownedPointers.delete(sample.id);
+    }
     touches = null;
   }
 
-  return { begin, button, end, reset: () => captured.clear() };
+  function reset() {
+    captured.clear();
+    ownedPointers.clear();
+    consumedPointers.clear();
+  }
+
+  return { begin, button, consumed: id => consumedPointers.has(id), end, reset };
 }

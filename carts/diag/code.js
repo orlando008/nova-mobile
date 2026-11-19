@@ -14,7 +14,7 @@ function controls({ w, h, safe }) {
   return { button: box(-102), home: box(0), slot: box(102) };
 }
 
-export function createCart({ gesture, hit, button, rect, screen }) {
+export function createCart({ gesture, hit, button, consumed, rect, screen }) {
   let event = 'Ready';
   let x = 0;
   let y = 0;
@@ -41,12 +41,10 @@ export function createCart({ gesture, hit, button, rect, screen }) {
       drag = { id: item.id, x: origin.x + item.delta.x, y: origin.y + item.delta.y };
     } else if (drag && drag.id === item.id) {
       if (item.type === 'drop') {
-        for (const target of ['slot', 'home']) {
-          if (hit(item.current.x, item.current.y, boxes[target])) {
-            position = target;
-            drops += 1;
-            break;
-          }
+        const target = position === 'home' ? 'slot' : 'home';
+        if (hit(item.current.x, item.current.y, boxes[target])) {
+          position = target;
+          drops += 1;
         }
         drag = null;
       } else if (item.type === 'cancel') {
@@ -61,6 +59,7 @@ export function createCart({ gesture, hit, button, rect, screen }) {
       buttonStatus = button('counter', boxes.button);
       if (buttonStatus === 'clicked') buttonClicks += 1;
       for (const item of gesture()) {
+        if (consumed(item.id)) continue;
         const at = item.position ?? item.current ?? item.center;
         x = at.x;
         y = at.y;

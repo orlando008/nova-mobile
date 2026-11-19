@@ -64,6 +64,7 @@ test('button clicks, canceled presses and piece drops replay through a resize', 
     { touches: [], lifecycle: 'resize', screen: resized },
     { touches: [input('up', 360, 800)] },
     { touches: [input('down', 462, 800), input('up', 360, 800)] },
+    { touches: [input('down', 360, 800), input('move', 385, 800), input('up', 360, 800)] },
   ].map((frame, index) => ({ ...frame, now: index * TICK_MS }));
 
   function run(recording) {
@@ -76,9 +77,11 @@ test('button clicks, canceled presses and piece drops replay through a resize', 
 
   const states = run(frames);
   assert.equal(states[0].buttonClicks, 1);
+  assert.equal(states[0].count, 0);
   assert.equal(states[1].buttonStatus, 'pressed');
   assert.equal(states[2].buttonStatus, null);
   assert.equal(states[2].buttonClicks, 1);
+  assert.equal(states[2].count, 0);
   assert.ok(states[3].drag);
   assert.equal(states[4].position, 'slot');
   assert.equal(states[4].drops, 1);
@@ -90,6 +93,8 @@ test('button clicks, canceled presses and piece drops replay through a resize', 
   assert.equal(states[8].drops, 1);
   assert.equal(states[9].position, 'home');
   assert.equal(states[9].drops, 2);
+  assert.equal(states[10].position, 'home');
+  assert.equal(states[10].drops, 2);
   assert.deepEqual(run(JSON.parse(JSON.stringify(frames))).map(digest), states.map(digest));
 });
 

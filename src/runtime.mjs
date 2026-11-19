@@ -37,6 +37,7 @@ export function createRuntime(createCart, initialScreen, assets = []) {
     gesture: input.gesture,
     hit,
     button: buttons.button,
+    consumed: buttons.consumed,
     screen: () => screen,
     touches: () => touches,
     now: () => now,
