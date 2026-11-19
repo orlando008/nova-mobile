@@ -490,7 +490,9 @@ on phone sizes) run with `tools/devkit/` on a developer's machine and are not pa
   request is live as soon as Pages deploys it.
 - **Previews.** Each open pull request is also deployed by a workflow to `pr/<number>/` under the site
   (`https://orlando008.github.io/nova-mobile/pr/<number>/`), to try on a phone before approving; it is removed when the
-  pull request closes. Because every path is relative (9.6), the same files work there.
+  pull request closes. Because every path is relative (9.6), the same files work there. After each deploy, the
+  workflow keeps one comment on each previewed pull request with its preview link and the commit it was built from,
+  and marks the preview removed when the pull request closes.
 - **Branch protection.** `main` takes changes only through pull requests with one approval and the checks of 13.2
   passing (set by the owner in the repository's settings).
 

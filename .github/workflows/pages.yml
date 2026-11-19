@@ -21,6 +21,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+    outputs:
+      previews: ${{ steps.stage.outputs.previews }}
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +31,7 @@ jobs:
           persist-credentials: false
 
       - name: Package production and open PR previews
+        id: stage
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -65,9 +68,16 @@ jobs:
               continue
             fi
             stage_site "$sha" "$out/pr/$number"
+            printf '%s\t%s\n' "$number" "$sha" >> "$RUNNER_TEMP/staged-prs.tsv"
             printf -- '- PR #%s: https://orlando008.github.io/nova-mobile/pr/%s/\n' \
               "$number" "$number" >> "$GITHUB_STEP_SUMMARY"
           done < "$RUNNER_TEMP/preview-prs.tsv"
+
+          touch "$RUNNER_TEMP/staged-prs.tsv"
+          previews=$(jq -R -s -c \
+            'split("\n") | map(select(length > 0) | split("\t") | {number: (.[0] | tonumber), sha: .[1]})' \
+            "$RUNNER_TEMP/staged-prs.tsv")
+          echo "previews=$previews" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -82,7 +92,63 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.publish.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.publish.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: publish
         uses: actions/deploy-pages@v4
+
+  # Keeps one comment on each previewed pull request pointing at its preview. It runs only after a
+  # successful deploy, reads no pull request code, and edits a comment only when the preview's commit changed.
+  comment:
+    needs: [package, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Link each preview from its pull request
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEWS: ${{ needs.package.outputs.previews }}
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+          EVENT_ACTION: ${{ github.event.action }}
+          CLOSED_PR: ${{ github.event.pull_request.number }}
+          CLOSED_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          marker='<!-- nova-preview -->'
+          base="${PAGE_URL%/}/"
+
+          find_comment() {
+            gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$1/comments?per_page=100" \
+              --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" |
+              head -n 1
+          }
+
+          upsert() {
+            local number="$1" body="$2" sha="$3" id current
+            id=$(find_comment "$number")
+            if [ -z "$id" ]; then
+              [ -n "$sha" ] || return 0
+              gh api --silent -X POST "repos/$GITHUB_REPOSITORY/issues/$number/comments" -f body="$body"
+              return 0
+            fi
+            current=$(gh api "repos/$GITHUB_REPOSITORY/issues/comments/$id" --jq .body)
+            [ "$current" = "$body" ] && return 0
+            gh api --silent -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -f body="$body"
+          }
+
+          jq -r '.[] | [.number, .sha] | @tsv' <<< "$PREVIEWS" |
+          while IFS=$'\t' read -r number sha; do
+            url="${base}pr/${number}/"
+            body=$(printf '%s\n**Preview:** %s\n\nBuilt from `%s`. It updates on every push and is removed when this pull request closes.' \
+              "$marker" "$url" "${sha:0:7}")
+            upsert "$number" "$body" "$sha"
+            echo "Linked PR #$number to $url"
+          done
+
+          if [ "$EVENT_ACTION" = closed ] && [ "$CLOSED_REPO" = "$GITHUB_REPOSITORY" ]; then
+            body=$(printf '%s\n**Preview removed:** this pull request is closed.' "$marker")
+            upsert "$CLOSED_PR" "$body" ""
+          fi
