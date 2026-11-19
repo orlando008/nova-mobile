@@ -1,0 +1,64 @@
+{
+  "format": 1,
+  "name": "sprite-yard",
+  "title": "Sprite Yard",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Arrange a tray of shared sprites on a small board.",
+  "shelf": "Build",
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/apple.png",
+      "bytes": 25913,
+      "sha256": "8b28bea248725fe3332c341090061ca091a3c5fd85ec7a79897a634d875d736b"
+    },
+    {
+      "path": "assets/coin.png",
+      "bytes": 29004,
+      "sha256": "3a88391add11dbe783f081dfd0c9d0fb04cfc4d74f89274cbf44fadfd8bfcff4"
+    },
+    {
+      "path": "assets/crate.png",
+      "bytes": 33458,
+      "sha256": "25145ccd94a1ca3ad36ebdb5e171d8d70a37f16a619315caed41c096e527e849"
+    },
+    {
+      "path": "assets/flame.png",
+      "bytes": 23579,
+      "sha256": "aaf20745002e23487ab8c9c997330f29f96c856b4177147a68f68ec55e27a59e"
+    },
+    {
+      "path": "assets/heart-full.png",
+      "bytes": 27262,
+      "sha256": "ec2c782c527fcda207fdbc186973edfb0b702d2649a3704b2f9a7abd045a9ca1"
+    },
+    {
+      "path": "assets/icon.png",
+      "bytes": 50144,
+      "sha256": "881478e875ccf9d3e7d89f22ed53eee658771e035605633f3df8cdb42f00feaf"
+    },
+    {
+      "path": "assets/lantern.png",
+      "bytes": 24824,
+      "sha256": "937edd1e50308bc757fe27402382139af6bca74eee154707c7951bec4a9bf4f6"
+    },
+    {
+      "path": "assets/poster.png",
+      "bytes": 40847,
+      "sha256": "015e221256c7027a2eedfb18e8230098d1506b34d2788b4dbe11100a0605c473"
+    },
+    {
+      "path": "assets/sapphire.png",
+      "bytes": 17887,
+      "sha256": "a8bdbc77441a0fcbd4b359fdf6c518d917e99e08d00d836b49c199af7fdec031"
+    },
+    {
+      "path": "assets/star.png",
+      "bytes": 21604,
+      "sha256": "650bc4d4e60c643fe95a0aacc0cdf0766fc421545337250667bf557db39f4347"
+    }
+  ],
+  "contentVersion": "a8284695310b59c12fad9f01cbfc701987ee5987e30ff198bb6629565b46af35"
+}

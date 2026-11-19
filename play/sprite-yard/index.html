@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#142421">
+  <meta name="description" content="Arrange a tray of shared sprites on a small board.">
+  <meta property="og:title" content="Sprite Yard">
+  <meta property="og:description" content="Arrange a tray of shared sprites on a small board.">
+  <meta property="og:image" content="../../carts/sprite-yard/assets/poster.png">
+  <title>Sprite Yard</title>
+  <link rel="icon" href="../../carts/sprite-yard/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./yard.css">
+</head>
+<body data-cart="sprite-yard">
+  <main>
+    <header>
+      <a href="../../">Library</a>
+      <h1>Sprite Yard</h1>
+    </header>
+    <section id="intro" aria-label="About Sprite Yard">
+      <img src="../../carts/sprite-yard/assets/poster.png" width="1200" height="630" alt="">
+      <p>Arrange a tray of shared sprites on a small board.</p>
+      <button id="play" class="primary" type="button">Play</button>
+    </section>
+    <section id="board" hidden aria-label="Sprite board">
+      <p id="guide">Drag sprites into empty slots, or tap a sprite in the tray and then tap a slot.</p>
+      <canvas id="surface" aria-label="Sprite Yard board and tray" aria-describedby="guide"></canvas>
+      <p id="cart-status" role="status"></p>
+    </section>
+    <div id="controls" hidden aria-label="Session controls">
+      <button type="button" id="live" data-reset disabled>Reset</button>
+      <button type="button" id="record" disabled>Record</button>
+      <button type="button" id="replay" disabled>Replay</button>
+    </div>
+    <p id="feedback" role="status"></p>
+  </main>
+  <div id="safe-area" aria-hidden="true"></div>
+  <script type="module" src="../../src/player.mjs"></script>
+</body>
+</html>
