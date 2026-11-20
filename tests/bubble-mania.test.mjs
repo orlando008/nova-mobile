@@ -35,9 +35,10 @@ test('a shot hits the first object on the way even if its landing point would be
   assert.equal(longer.impact, 'bubble');
   assert.equal(longer.victim, 0);
   assert.ok(longer.distance < 80);
-  const blocked = traceShot(0, .81, [{ x: 151, y: 384, size: 16 }], [bubble]);
-  assert.equal(blocked.impact, 'brick');
-  assert.ok(blocked.distance < longer.distance);
+  const blocked = traceShot(0, .81, [{ x: 151, y: 370, size: 16 }], [bubble]);
+  assert.equal(blocked.impact, 'land');
+  assert.ok(blocked.segments[0].end < longer.distance);
+  assert.equal(blocked.segments[1].dy, 1);
   assert.equal(longer.segments.length, 1);
 });
 
@@ -72,7 +73,7 @@ test('a shot can bank twice and an exact corner reverses both directions', () =>
   assert.equal(corner.segments[1].dy, -corner.segments[0].dy);
 });
 
-test('a banked bead still stops at a bubble or a firebrick', () => {
+test('a bead that banks off the frame or a firebrick still shatters a bubble', () => {
   const bank = traceShot(.84, 1, [], []);
   const { origin, dx, dy } = bank.segments[1];
   const bubble = { x: origin.x + dx * 65, y: origin.y + dy * 65, radius: 16 };
@@ -82,14 +83,42 @@ test('a banked bead still stops at a bubble or a firebrick', () => {
   assert.equal(shattered.victim, 0);
   assert.ok(shattered.distance < bank.distance);
 
-  // An angled shot returns down from the ceiling onto the top of this brick.
-  const ceilingBank = traceShot(.13, 1, [], []);
-  const afterCeiling = ceilingBank.segments[1];
-  const brick = { x: afterCeiling.origin.x + 4, y: 52, size: 18 };
-  const blocked = traceShot(.13, 1, [brick], []);
-  assert.equal(blocked.segments.length, 2);
-  assert.equal(blocked.impact, 'brick');
-  assert.ok(blocked.distance < ceilingBank.distance);
+  const brick = { x: 212, y: 250, size: 32 };
+  const fromBrick = traceShot(.3, .75, [brick], []);
+  const reflected = fromBrick.segments[1];
+  const otherBubble = { x: reflected.origin.x + reflected.dx * 55, y: reflected.origin.y + reflected.dy * 55, radius: 9 };
+  const hitAfterBrick = traceShot(.3, .75, [brick], [otherBubble]);
+  assert.equal(hitAfterBrick.segments.length, 2);
+  assert.equal(hitAfterBrick.impact, 'bubble');
+  assert.equal(hitAfterBrick.victim, 0);
+  assert.ok(hitAfterBrick.distance < fromBrick.distance);
+});
+
+test('brick faces and corners reflect the appropriate axis and preserve travel distance', () => {
+  const angle = .5;
+  const dx = Math.sin(angle);
+  const dy = -Math.cos(angle);
+  const x = PIVOT.x + dx * 210;
+  const y = PIVOT.y + dy * 210;
+  const brick = { x: x + 2.4, y: y - 20, size: 32 };
+  const side = traceShot(angle, .6, [brick], []);
+  assert.equal(side.impact, 'land');
+  assert.equal(side.segments.length, 2);
+  assert.equal(side.segments[1].dx, -dx);
+  assert.equal(side.segments[1].dy, dy);
+  assert.equal(side.distance, traceShot(angle, .6, [], []).distance);
+
+  const corner = traceShot(angle, .6, [{ ...brick, y: y - brick.size - 2.4 }], []);
+  assert.equal(corner.segments.length, 2);
+  assert.equal(corner.segments[1].dx, -dx);
+  assert.equal(corner.segments[1].dy, -dy);
+
+  // An angled shot returns down from the ceiling onto the top of a brick.
+  const ceiling = traceShot(.13, 1, [], []).segments[1];
+  const doubleBank = traceShot(.13, 1, [{ x: ceiling.origin.x + 4, y: 52, size: 18 }], []);
+  assert.ok(doubleBank.segments.length >= 3);
+  assert.equal(doubleBank.segments[2].dx, ceiling.dx);
+  assert.equal(doubleBank.segments[2].dy, -ceiling.dy);
 });
 
 test('a charged bank shot signals the bounce and grows at the reflected landing point', () => {

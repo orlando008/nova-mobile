@@ -9,6 +9,7 @@ const CHARGE_TICKS = 71;
 const MAX_ANGLE = .84;
 const MIN_RADIUS = 3.5;
 const BEAD_RADIUS = 2.4;
+const CONTACT_TOLERANCE = 1e-7;
 const SHATTER_TICKS = 44;
 const AREA = (ARENA.right - ARENA.left) * (ARENA.bottom - ARENA.top);
 const inRange = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -52,13 +53,24 @@ function circleContact(origin, dx, dy, bubble) {
 }
 
 function brickContact(origin, dx, dy, brick) {
-  if (!dx && (origin.x < brick.x || origin.x > brick.x + brick.size)) return Infinity;
-  const sideA = dx ? (brick.x - origin.x) / dx : -Infinity;
-  const sideB = dx ? (brick.x + brick.size - origin.x) / dx : Infinity;
-  const top = (brick.y - origin.y) / dy;
-  const bottom = (brick.y + brick.size - origin.y) / dy;
-  const enter = Math.max(0, Math.min(sideA, sideB), Math.min(top, bottom));
-  return enter <= Math.min(Math.max(sideA, sideB), Math.max(top, bottom)) ? enter : Infinity;
+  const left = brick.x - BEAD_RADIUS;
+  const right = brick.x + brick.size + BEAD_RADIUS;
+  const top = brick.y - BEAD_RADIUS;
+  const bottom = brick.y + brick.size + BEAD_RADIUS;
+  if (dx === 0 && (origin.x <= left || origin.x >= right)) return null;
+  const enterX = dx === 0 ? -Infinity : ((dx > 0 ? left : right) - origin.x) / dx;
+  const exitX = dx === 0 ? Infinity : ((dx > 0 ? right : left) - origin.x) / dx;
+  const enterY = ((dy > 0 ? top : bottom) - origin.y) / dy;
+  const exitY = ((dy > 0 ? bottom : top) - origin.y) / dy;
+  const enter = Math.max(enterX, enterY);
+  const distance = Math.max(0, enter);
+  // The last contact can sit on the boundary, but an outgoing shot must not hit it again.
+  if (enter < -CONTACT_TOLERANCE || Math.min(exitX, exitY) <= distance + CONTACT_TOLERANCE) return null;
+  return {
+    distance,
+    flipX: enterX >= enter - CONTACT_TOLERANCE,
+    flipY: enterY >= enter - CONTACT_TOLERANCE,
+  };
 }
 
 export function traceShot(angle, power, bricks, bubbles) {
@@ -80,12 +92,14 @@ export function traceShot(angle, power, bricks, bubbles) {
     const remaining = range - traveled;
     let distance = Math.min(remaining, wall);
     let impact = wall < remaining ? 'bounce' : 'land';
+    let flipX = wallX <= wall + CONTACT_TOLERANCE;
+    let flipY = wallY <= wall + CONTACT_TOLERANCE;
     let victim = -1;
     for (const brick of bricks) {
       const contact = brickContact(origin, dx, dy, brick);
-      if (contact > distance) continue;
-      distance = contact;
-      impact = 'brick';
+      if (!contact || contact.distance >= distance) continue;
+      ({ distance, flipX, flipY } = contact);
+      impact = 'bounce';
     }
     for (const [i, bubble] of bubbles.entries()) {
       const contact = circleContact(origin, dx, dy, bubble);
@@ -100,9 +114,8 @@ export function traceShot(angle, power, bricks, bubbles) {
     if (impact !== 'bounce') return { segments, distance: end, impact, victim };
 
     origin = { x: origin.x + dx * distance, y: origin.y + dy * distance };
-    // A corner reverses both axes. Treat rounding error as the same contact.
-    if (wallX <= wall + 1e-7) dx = -dx;
-    if (wallY <= wall + 1e-7) dy = -dy;
+    if (flipX) dx = -dx;
+    if (flipY) dy = -dy;
     traveled = end;
   }
 }
@@ -210,12 +223,8 @@ export function createCart(api) {
       phase = 'shatter';
       status = 'Glass shattered';
       sound('shatter');
-    } else if (impact === 'land') {
-      land(x, y, color);
     } else {
-      phase = 'ready';
-      status = 'The bead struck a firebrick.';
-      sound('miss');
+      land(x, y, color);
     }
   }
 
