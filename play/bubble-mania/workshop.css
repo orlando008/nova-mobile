@@ -72,6 +72,7 @@ button:disabled { opacity: .55; cursor: default; }
   box-shadow: 0 20px 65px #0008;
 }
 #play { width: min(100%, 20rem); }
+.challenge-intro { color: var(--gold); margin: 0 0 .85rem; font-weight: 650; }
 .instructions {
   width: min(100%, 31rem);
   margin: 1.3rem auto 0;
@@ -106,7 +107,8 @@ button:disabled { opacity: .55; cursor: default; }
 .scorecard strong { line-height: 1.05; font-family: Georgia, serif; }
 .score strong { font-size: clamp(1.8rem, 5vw, 2.7rem); }
 .best { text-align: right; }
-.best strong { font-size: 1.25rem; }
+.best strong, .target strong { font-size: 1.25rem; }
+.target { text-align: center; }
 .surface-frame {
   position: relative;
   container-type: inline-size;
@@ -263,3 +265,16 @@ summary { cursor: pointer; padding: .55rem 0; color: var(--muted); }
   pointer-events: none;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
+
+#share-link {
+  width: 100%;
+  padding: .7rem;
+  margin-bottom: .7rem;
+  border: 1px solid #806041;
+  border-radius: .45rem;
+  background: #101a24;
+  color: var(--cream);
+  font: inherit;
+}
+#share form button { width: 100%; }
+#share-status:empty { display: none; }

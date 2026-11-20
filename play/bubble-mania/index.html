@@ -10,7 +10,7 @@
   <meta property="og:image" content="../../carts/bubble-mania/assets/poster.png">
   <title>Bubble Mania</title>
   <link rel="icon" href="../../carts/bubble-mania/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./workshop.css?v=2">
+  <link rel="stylesheet" href="./workshop.css?v=3">
 </head>
 <body data-cart="bubble-mania">
   <main>
@@ -21,6 +21,7 @@
     <section id="intro" aria-labelledby="title">
       <h1 class="sr-only" id="title">Bubble Mania</h1>
       <img class="poster" src="../../carts/bubble-mania/assets/poster.png" width="1200" height="630" alt="">
+      <p class="challenge-intro" id="challenge-intro" hidden></p>
       <button class="primary" type="button" id="play">Play Bubble Mania</button>
       <ul class="instructions">
         <li>Hold below the frame to charge, drag left or right to aim, and release to fire.</li>
@@ -31,6 +32,7 @@
     <section id="board" aria-label="Bubble Mania game" hidden>
       <div class="scorecard">
         <div class="score"><span>Coverage</span><strong data-cart-field="coverage">0.0%</strong></div>
+        <div class="target" id="target" hidden><span>To beat</span><strong id="target-score"></strong></div>
         <div class="best"><span>Best</span><strong id="best">0.0%</strong></div>
       </div>
       <div class="surface-frame" id="surface-frame">
@@ -56,6 +58,7 @@
     <h2 id="pause-title">Workshop</h2>
     <div class="actions">
       <button type="button" class="primary" id="resume">Resume</button>
+      <button type="button" id="share-board">Share board</button>
       <button type="button" data-new>New board</button>
       <label class="setting">Sound effects <input type="checkbox" id="sound" checked></label>
     </div>
@@ -73,10 +76,23 @@
     <p id="result-detail"></p>
     <div class="actions">
       <button type="button" class="primary" id="retry">Retry board</button>
+      <button type="button" id="share-result">Share challenge</button>
       <button type="button" data-new>New board</button>
     </div>
   </dialog>
+  <dialog id="share" aria-labelledby="share-title">
+    <h2 id="share-title">Share board</h2>
+    <p id="share-detail"></p>
+    <label class="sr-only" for="share-link">Share link</label>
+    <input id="share-link" type="url" readonly>
+    <div class="actions">
+      <button class="primary" type="button" id="copy-link">Copy link</button>
+      <button type="button" id="share-native" hidden>Share via…</button>
+      <form method="dialog"><button type="submit">Back</button></form>
+    </div>
+    <p id="share-status" role="status"></p>
+  </dialog>
   <div id="safe-area" aria-hidden="true"></div>
-  <script type="module" src="./workshop.mjs"></script>
+  <script type="module" src="./workshop.mjs?v=3"></script>
 </body>
 </html>

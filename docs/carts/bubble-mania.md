@@ -14,6 +14,10 @@ Press anywhere in the launcher area and hold to charge. Drag left or right to tu
 - The score is the sum of the bubble areas divided by the playfield's full area. The final score uses the coverage at the instant before the shatter. The best score is stored locally.
 - Retry board reuses the firebrick pattern. New board selects a new seed. Colors cycle through five distinct hues, and the bead takes on the next bubble's hue.
 
+## Challenges
+
+Share board in the Workshop menu makes a link to the current seed. Share challenge on the result screen adds that run's coverage as the score to beat. The link opens the same brick layout and shows the target during play. A challenge is beaten only by a higher displayed score. Retry board keeps the challenge target, and New board starts a fresh board. Challenge links use the site that generated them, so preview links last while the preview is published.
+
 ## Presentation
 
 Backlit sapphire, amethyst, emerald, ruby, and gold stained glass sits in a bronze-framed kiln. The launcher is a brass-mounted blowpipe with a molten-glass charge column. An expanding glass swell rises in pitch, finished glass rings softly, and a shatter breaks into the tinkle of falling shards. Sound effects can be muted from the workshop menu.

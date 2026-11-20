@@ -1,6 +1,7 @@
 import { HEIGHT, PIPE_LENGTH, PIVOT, WIDTH } from '../../carts/bubble-mania/code.js';
 import { chooseCartOptions, pausePlayer, restartPlayer } from '../../src/player.mjs';
 import { createGlassAudio } from './audio.mjs';
+import { challengeUrl, readChallenge } from './challenge.mjs';
 
 const byId = id => document.getElementById(id);
 const storageKey = 'bubble-mania:' + new URL('../../', import.meta.url).pathname;
@@ -12,12 +13,17 @@ const feedback = byId('feedback');
 const sound = byId('sound');
 const menu = byId('pause-menu');
 const result = byId('result');
+const share = byId('share');
+const link = byId('share-link');
+const shareStatus = byId('share-status');
 const labels = [];
 let best = 0;
 let session;
 let cueId = 0;
 let resultShown = false;
+let challenge = readChallenge(location.href);
 let seed;
+let resultScore;
 
 try {
   const saved = JSON.parse(localStorage.getItem(storageKey));
@@ -36,8 +42,42 @@ function save() {
 }
 
 function startBoard(newBoard) {
-  if (newBoard) seed = crypto.getRandomValues(new Uint32Array(1))[0];
+  if (newBoard) {
+    seed = undefined;
+    if (challenge) {
+      challenge = null;
+      history.replaceState(history.state, '', challengeUrl(location.href));
+      showChallenge();
+    }
+  }
+  seed ??= challenge?.seed ?? crypto.getRandomValues(new Uint32Array(1))[0];
   chooseCartOptions({ seed });
+}
+
+function showChallenge() {
+  const intro = byId('challenge-intro');
+  const target = challenge?.target ?? null;
+  intro.hidden = !challenge;
+  intro.textContent = target === null ? 'Play the shared board.' : 'Can you beat ' + target.toFixed(1) + '% coverage?';
+  byId('target').hidden = target === null;
+  byId('target-score').textContent = target === null ? '' : target.toFixed(1) + '%';
+}
+
+function openShare(score) {
+  const hasScore = score !== undefined;
+  byId('share-title').textContent = hasScore ? 'Share challenge' : 'Share board';
+  byId('share-detail').textContent = hasScore
+    ? 'Send this board with your ' + score.toFixed(1) + '% coverage to beat.'
+    : 'Anyone with this link can play the same board.';
+  link.value = challengeUrl(location.href, seed, score).href;
+  shareStatus.textContent = '';
+  share.showModal();
+}
+
+function selectLink() {
+  link.focus();
+  link.select();
+  shareStatus.textContent = 'Select and copy the link to share it.';
 }
 
 function showBest() {
@@ -76,13 +116,14 @@ function restart(newBoard) {
 }
 
 showBest();
+showChallenge();
 launcher.style.left = 100 * PIVOT.x / WIDTH + '%';
 launcher.style.top = 100 * PIVOT.y / HEIGHT + '%';
 launcher.style.setProperty('--pipe-length', 100 * PIPE_LENGTH / WIDTH + 'cqw');
 audio.setEnabled(sound.checked);
 
 byId('play').addEventListener('click', () => {
-  startBoard(true);
+  startBoard();
   void audio.unlock();
 }, { capture: true });
 
@@ -101,6 +142,26 @@ for (const button of document.querySelectorAll('[data-new]')) {
   button.addEventListener('click', () => restart(true));
 }
 for (const id of ['record', 'replay', 'live']) byId(id).addEventListener('click', closeMenu);
+
+byId('share-board').addEventListener('click', () => openShare());
+byId('share-result').addEventListener('click', () => openShare(resultScore));
+byId('copy-link').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(link.value);
+    shareStatus.textContent = 'Link copied.';
+  } catch {
+    selectLink();
+  }
+});
+const nativeShare = byId('share-native');
+nativeShare.hidden = typeof navigator.share !== 'function';
+nativeShare.addEventListener('click', async () => {
+  try {
+    await navigator.share({ title: 'Bubble Mania', text: byId('share-detail').textContent, url: link.value });
+  } catch (error) {
+    if (error.name !== 'AbortError') selectLink();
+  }
+});
 
 sound.addEventListener('change', () => {
   audio.setEnabled(sound.checked);
@@ -138,7 +199,13 @@ byId('surface').addEventListener('cartframe', ({ detail }) => {
   }
   if (state.phase === 'lost' && !resultShown) {
     resultShown = true;
-    byId('result-detail').textContent = 'You covered ' + state.readout.coverage + ' of the playfield.';
+    resultScore = Number(state.coverage.toFixed(1));
+    const target = challenge?.target ?? null;
+    byId('result-title').textContent = target === null ? 'Glass shattered'
+      : resultScore > target ? 'Challenge beaten'
+      : resultScore === target ? 'Challenge tied' : 'Challenge missed';
+    const coverage = 'You covered ' + state.readout.coverage + ' of the playfield.';
+    byId('result-detail').textContent = target === null ? coverage : coverage + ' The score to beat was ' + target.toFixed(1) + '%.';
     pausePlayer(true);
     result.showModal();
   }
