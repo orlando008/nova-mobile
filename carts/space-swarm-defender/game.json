@@ -1,0 +1,89 @@
+{
+  "format": 1,
+  "name": "space-swarm-defender",
+  "title": "Space Swarm Defender",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Build and upgrade orbital defenses to hold three sectors against an alien swarm.",
+  "shelf": "Arcade",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/burst.png",
+      "bytes": 19595,
+      "sha256": "56ccd6284ffe7750f56859da99cad2a55364d795509c1b5a5af1b5276e9236ad"
+    },
+    {
+      "path": "assets/core.png",
+      "bytes": 14523,
+      "sha256": "136dc402d5da1aead770cf525690aa26ec144507cb303ec43c648a4f6096a184"
+    },
+    {
+      "path": "assets/cryo.png",
+      "bytes": 10230,
+      "sha256": "5fc82ed2ad2af3353e49fc0a8ef36b058c5159a7e4c8adda07cd3dbc79d444a3"
+    },
+    {
+      "path": "assets/guard.png",
+      "bytes": 14467,
+      "sha256": "b20c1f44d88af233225e3f5291100cbf6d88e7cc7150bba96ac19ca5f59813ee"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 184657,
+      "sha256": "c0e120f5c938aba15bf8cb69cf8762e2d148424d8ffa689636e619aff9ccca5c"
+    },
+    {
+      "path": "assets/nova.png",
+      "bytes": 8204,
+      "sha256": "744936804e2be4236f5e9573f387e7e8f05861ad93c5d68e7dcc8071c9b375e1"
+    },
+    {
+      "path": "assets/pad.png",
+      "bytes": 6158,
+      "sha256": "d92a81089bc7f7049abb9aea641726009cb2804382e8136347f9b2cb592594e8"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 427647,
+      "sha256": "9cf61eb539b529a13b93afe5ff3fe8c356fc8a8e47fee9d8ffea9b6791b87fbc"
+    },
+    {
+      "path": "assets/pulse.png",
+      "bytes": 7812,
+      "sha256": "87426136bf18613436a4d17e0d2f3f6178ada36cea5c92f149dee11203bbd3b6"
+    },
+    {
+      "path": "assets/queen.png",
+      "bytes": 15131,
+      "sha256": "98bf88ed864e0aafe75c16f5bf710e6769749c0676e2c82f31df80a19213e15f"
+    },
+    {
+      "path": "assets/range.png",
+      "bytes": 7226,
+      "sha256": "ab7c00280f3cf6479730d6c804507d8640bbcd5459369fc7c319ba67d6eee710"
+    },
+    {
+      "path": "assets/runner.png",
+      "bytes": 13202,
+      "sha256": "58222eb80fab3a320b52b946cc9c5fbdb781a3f71ed014e06677ea4d4ac8c255"
+    },
+    {
+      "path": "assets/scout.png",
+      "bytes": 13779,
+      "sha256": "5e284a7b5137936e8dfb60198edd7d3bf23290bc77950e3f8d3a3a15a4f2288b"
+    },
+    {
+      "path": "assets/space.png",
+      "bytes": 62668,
+      "sha256": "c7e0dc2f48df36ba46d05689ef3fdbd91bef593abecbc12594a10634018ddcf7"
+    }
+  ],
+  "contentVersion": "8ae377c3220d1c4d990f60b5fc63dd035dbbbe3f70bfb52572dfba35c4b3d096"
+}

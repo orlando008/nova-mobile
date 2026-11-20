@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071220">
+  <meta name="description" content="Build and upgrade orbital defenses to hold three sectors against an alien swarm.">
+  <meta property="og:title" content="Space Swarm Defender">
+  <meta property="og:description" content="Build and upgrade orbital defenses to hold three sectors against an alien swarm.">
+  <meta property="og:image" content="../../carts/space-swarm-defender/assets/poster.png">
+  <title>Space Swarm Defender</title>
+  <link rel="icon" href="../../carts/space-swarm-defender/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./defense.css">
+</head>
+<body data-cart="space-swarm-defender">
+  <main>
+    <header class="topbar">
+      <a href="../../">&#8592; Library</a>
+      <button type="button" id="menu" hidden>Pause</button>
+    </header>
+    <section id="intro" aria-labelledby="title">
+      <div class="hero">
+        <img src="../../carts/space-swarm-defender/assets/poster.png" width="1200" height="630" alt="">
+        <h1 id="title">Space Swarm <span>Defender</span></h1>
+      </div>
+      <div class="brief">
+        <h2>Choose a sector</h2>
+        <div id="sectors" class="sectors" role="group" aria-label="Sectors"></div>
+        <button class="primary" type="button" id="play">Deploy</button>
+      </div>
+      <details class="instructions">
+        <summary>How to play</summary>
+        <ol>
+          <li>Choose a tower at the bottom, then tap an empty hex pad. Pulse hits single targets, Nova hits groups, and Cryo slows the swarm.</li>
+          <li>Tap an installed tower to see its range, upgrade it, or salvage it for credits.</li>
+          <li>Launch each wave when your defenses are ready. Survive eight waves, including the queen’s assault, to secure the sector.</li>
+        </ol>
+      </details>
+    </section>
+    <section id="board" aria-label="Space Swarm Defender game" hidden>
+      <div class="hud">
+        <div><span>Sector</span><strong data-cart-field="sector">Kepler Gate</strong></div>
+        <div><span>Core</span><strong data-cart-field="core">15/15</strong></div>
+        <div><span>Credits</span><strong data-cart-field="credits">150</strong></div>
+        <div><span>Wave</span><strong data-cart-field="wave">1/8</strong></div>
+      </div>
+      <div class="surface-frame">
+        <canvas id="surface" data-cart-events aria-label="Tower defense board and touch controls" aria-describedby="cart-status"></canvas>
+        <div id="dock" aria-hidden="true"></div>
+      </div>
+      <p id="cart-status" role="status"></p>
+    </section>
+    <p id="feedback" role="status"></p>
+  </main>
+
+  <dialog id="pause-menu" aria-labelledby="pause-title">
+    <h2 id="pause-title">Sector paused</h2>
+    <div class="actions">
+      <button type="button" class="primary" id="resume">Resume</button>
+      <button type="button" data-restart>Restart sector</button>
+      <button type="button" data-choose>Choose a sector</button>
+      <label class="setting">Sound effects <input type="checkbox" id="sound" checked></label>
+    </div>
+    <details id="controls" hidden>
+      <summary>Replay tools</summary>
+      <div class="actions">
+        <button type="button" id="record" disabled>Record</button>
+        <button type="button" id="replay" disabled>Replay</button>
+        <button type="button" id="live" data-reset disabled>Return to live play</button>
+      </div>
+    </details>
+  </dialog>
+  <dialog id="sector-menu" aria-labelledby="sector-title">
+    <h2 id="sector-title">Choose a sector</h2>
+    <div id="other-sectors" class="sectors"></div>
+    <button type="button" id="back">Back</button>
+  </dialog>
+  <dialog id="result" aria-labelledby="result-title">
+    <h2 id="result-title"></h2>
+    <p id="result-detail"></p>
+    <div class="actions">
+      <button type="button" class="primary" id="next-sector" hidden>Next sector</button>
+      <button type="button" data-restart>Retry sector</button>
+      <button type="button" data-choose>Choose a sector</button>
+    </div>
+  </dialog>
+  <div id="safe-area" aria-hidden="true"></div>
+  <script type="module" src="./defense.mjs"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 {
   "format": 1,
   "carts": [
+    { "name": "space-swarm-defender", "path": "carts/space-swarm-defender/" },
     { "name": "bubble-mania", "path": "carts/bubble-mania/" },
     { "name": "marketbound", "path": "carts/marketbound/" },
     { "name": "sprite-yard", "path": "carts/sprite-yard/" },
