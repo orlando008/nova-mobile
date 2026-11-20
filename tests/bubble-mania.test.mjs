@@ -124,7 +124,7 @@ test('brick faces and corners reflect the appropriate axis and preserve travel d
 test('a charged bank shot signals the bounce and grows at the reflected landing point', () => {
   const game = make(1);
   game.tick(frame(press('down')));
-  for (let i = 0; i < 71; i++) game.tick(frame());
+  for (let i = 1; i < 71; i++) game.tick(frame());
   game.tick(frame(press('up', 90)));
   const cues = [];
   while (game.state().phase === 'flight' && cues.length < 90) {
@@ -162,6 +162,39 @@ test('the label radius grows to its exact limit and a repeat shot shatters the b
   assert.deepEqual(after.bubbles, []);
   assert.equal(after.cue.name, 'shatter');
   assert.equal(after.coverage, before.coverage);
+});
+
+test('holding cycles the power meter from empty to full and back without firing', () => {
+  const game = make();
+  game.tick(frame(press('down')));
+  let held = 0;
+  for (const [elapsed, expected] of [[0, 0], [36, 36 / 71], [71, 1], [106, 36 / 71], [142, 0], [178, 36 / 71], [213, 1]]) {
+    while (held < elapsed) {
+      game.tick(frame());
+      held++;
+    }
+    const { power, charging, phase } = game.state();
+    assert.equal(power, expected);
+    assert.equal(charging, true);
+    assert.equal(phase, 'ready');
+  }
+});
+
+test('releasing on the way down or in another cycle fires at the same selected power', () => {
+  function fireAfter(held) {
+    const game = make();
+    game.tick(frame(press('down')));
+    for (let i = 1; i < held; i++) game.tick(frame());
+    game.tick(frame(press('up')));
+    assert.equal(game.state().phase, 'flight');
+    assert.equal(game.state().charging, false);
+    return settle(game).bubbles;
+  }
+
+  const rising = fireAfter(28);
+  assert.equal(rising.length, 1);
+  assert.deepEqual(fireAfter(114), rising);
+  assert.deepEqual(fireAfter(170), rising);
 });
 
 test('presses inside the arena, second fingers and canceled charges cannot fire', () => {

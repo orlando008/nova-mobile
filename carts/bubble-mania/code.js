@@ -14,6 +14,12 @@ const SHATTER_TICKS = 44;
 const AREA = (ARENA.right - ARENA.left) * (ARENA.bottom - ARENA.top);
 const inRange = (value, min, max) => Math.max(min, Math.min(max, value));
 
+function chargePower(heldTicks) {
+  const cycleTicks = CHARGE_TICKS * 2;
+  const cyclePosition = heldTicks % cycleTicks;
+  return Math.min(cyclePosition, cycleTicks - cyclePosition) / CHARGE_TICKS;
+}
+
 export function makeBricks(seed) {
   let state = seed >>> 0;
   function random() {
@@ -183,11 +189,11 @@ export function createCart(api) {
       }
       angle = inRange(gesture.angle + (x - gesture.x) * .012, -MAX_ANGLE, MAX_ANGLE);
       if (sample.phase === 'up') {
-        power = Math.min(1, (tick - gesture.tick) / CHARGE_TICKS);
+        power = chargePower(tick - gesture.tick);
         fire();
       }
     }
-    if (gesture) power = Math.min(1, (tick - gesture.tick) / CHARGE_TICKS);
+    if (gesture) power = chargePower(tick - gesture.tick);
   }
 
   function land(x, y, color) {

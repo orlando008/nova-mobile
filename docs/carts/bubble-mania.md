@@ -4,7 +4,7 @@ Bubble Mania is a portrait score-attack puzzle set in a glassblower's workshop. 
 
 ## Controls
 
-Press anywhere in the launcher area and hold to charge. Drag left or right to turn the blowpipe, then release to fire. The glowing blowpipe muzzle shows the angle, and the far-left gauge shows the charge. The player judges the bead's path and landing point by feel. A canceled touch or a pause clears the charge.
+Press anywhere in the launcher area and hold to charge. Drag left or right to turn the blowpipe, then release to fire. The glowing blowpipe muzzle shows the angle. The far-left gauge cycles from empty to full and back while you hold. Releasing uses the power at that point in the cycle. The player judges the bead's path and landing point by feel. A canceled touch or a pause clears the charge.
 
 ## Rules
 
