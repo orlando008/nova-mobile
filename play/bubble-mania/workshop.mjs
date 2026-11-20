@@ -1,4 +1,4 @@
-import { HEIGHT, PIVOT, WIDTH } from '../../carts/bubble-mania/code.js';
+import { HEIGHT, PIPE_LENGTH, PIVOT, WIDTH } from '../../carts/bubble-mania/code.js';
 import { chooseCartOptions, pausePlayer, restartPlayer } from '../../src/player.mjs';
 import { createGlassAudio } from './audio.mjs';
 
@@ -78,6 +78,7 @@ function restart(newBoard) {
 showBest();
 launcher.style.left = 100 * PIVOT.x / WIDTH + '%';
 launcher.style.top = 100 * PIVOT.y / HEIGHT + '%';
+launcher.style.setProperty('--pipe-length', 100 * PIPE_LENGTH / WIDTH + 'cqw');
 audio.setEnabled(sound.checked);
 
 byId('play').addEventListener('click', () => {
@@ -121,6 +122,7 @@ byId('surface').addEventListener('cartframe', ({ detail }) => {
     resultShown = false;
   }
   launcher.style.setProperty('--angle', state.angle + 'rad');
+  launcher.classList.toggle('charging', state.charging);
   gauge.style.setProperty('--power', state.power);
   gauge.setAttribute('aria-valuenow', String(Math.round(state.power * 100)));
   renderLabels(state.bubbles);

@@ -2,7 +2,7 @@ export const WIDTH = 360;
 export const HEIGHT = 510;
 export const ARENA = { left: 8, right: 352, top: 8, bottom: 406 };
 export const PIVOT = { x: 160, y: 477 };
-export const PIPE_LENGTH = 55;
+export const PIPE_LENGTH = 68;
 export const COLORS = ['sapphire', 'amethyst', 'emerald', 'ruby', 'gold'];
 const LIGHTS = [[.31, .68, 1], [.81, .42, 1], [.37, 1, .59], [1, .33, .44], [1, .73, .27]];
 const CHARGE_TICKS = 71;
@@ -57,34 +57,59 @@ function brickContact(origin, dx, dy, brick) {
   const sideB = dx ? (brick.x + brick.size - origin.x) / dx : Infinity;
   const top = (brick.y - origin.y) / dy;
   const bottom = (brick.y + brick.size - origin.y) / dy;
-  const enter = Math.max(0, Math.min(sideA, sideB), bottom);
-  return enter <= Math.min(Math.max(sideA, sideB), top) ? enter : Infinity;
+  const enter = Math.max(0, Math.min(sideA, sideB), Math.min(top, bottom));
+  return enter <= Math.min(Math.max(sideA, sideB), Math.max(top, bottom)) ? enter : Infinity;
 }
 
 export function traceShot(angle, power, bricks, bubbles) {
-  const dx = Math.sin(angle);
-  const dy = -Math.cos(angle);
-  const origin = { x: PIVOT.x + dx * PIPE_LENGTH, y: PIVOT.y + dy * PIPE_LENGTH };
-  const range = 113 + power * 351 - PIPE_LENGTH;
-  const wallX = dx === 0 ? Infinity : ((dx < 0 ? ARENA.left : ARENA.right) - origin.x) / dx;
-  const wallY = (ARENA.top - origin.y) / dy;
-  let distance = Math.min(range, wallX, wallY);
-  let impact = distance < range ? 'wall' : 'land';
-  let victim = -1;
-  for (const brick of bricks) {
-    const contact = brickContact(origin, dx, dy, brick);
-    if (contact > distance) continue;
-    distance = contact;
-    impact = 'brick';
+  let dx = Math.sin(angle);
+  let dy = -Math.cos(angle);
+  let origin = { x: PIVOT.x + dx * PIPE_LENGTH, y: PIVOT.y + dy * PIPE_LENGTH };
+  // Extra range near full charge makes the ceiling reachable without rescaling short shots.
+  const range = 113 + power * 351 + 96 * power ** 8 - PIPE_LENGTH;
+  const { left, right, top, bottom } = ARENA;
+  const segments = [];
+  let traveled = 0;
+
+  while (true) {
+    const side = dx < 0 ? left + BEAD_RADIUS : right - BEAD_RADIUS;
+    const edge = dy < 0 ? top + BEAD_RADIUS : bottom - BEAD_RADIUS;
+    const wallX = dx === 0 ? Infinity : (side - origin.x) / dx;
+    const wallY = (edge - origin.y) / dy;
+    const wall = Math.min(wallX, wallY);
+    const remaining = range - traveled;
+    let distance = Math.min(remaining, wall);
+    let impact = wall < remaining ? 'bounce' : 'land';
+    let victim = -1;
+    for (const brick of bricks) {
+      const contact = brickContact(origin, dx, dy, brick);
+      if (contact > distance) continue;
+      distance = contact;
+      impact = 'brick';
+    }
+    for (const [i, bubble] of bubbles.entries()) {
+      const contact = circleContact(origin, dx, dy, bubble);
+      if (contact > distance) continue;
+      distance = contact;
+      impact = 'bubble';
+      victim = i;
+    }
+
+    const end = traveled + distance;
+    segments.push({ origin, dx, dy, start: traveled, end });
+    if (impact !== 'bounce') return { segments, distance: end, impact, victim };
+
+    origin = { x: origin.x + dx * distance, y: origin.y + dy * distance };
+    // A corner reverses both axes. Treat rounding error as the same contact.
+    if (wallX <= wall + 1e-7) dx = -dx;
+    if (wallY <= wall + 1e-7) dy = -dy;
+    traveled = end;
   }
-  bubbles.forEach((bubble, i) => {
-    const contact = circleContact(origin, dx, dy, bubble);
-    if (contact > distance) return;
-    distance = contact;
-    impact = 'bubble';
-    victim = i;
-  });
-  return { origin, dx, dy, distance, impact, victim };
+}
+
+function shotPosition(shot, distance) {
+  const { origin, dx, dy, start } = shot.segments.find(segment => distance <= segment.end);
+  return { x: origin.x + dx * (distance - start), y: origin.y + dy * (distance - start) };
 }
 
 function coverageOf(bubbles, active) {
@@ -169,11 +194,14 @@ export function createCart(api) {
   }
 
   function advanceShot() {
+    const previous = shot.traveled;
     shot.traveled = Math.min(shot.distance, shot.traveled + shot.speed);
-    if (shot.traveled < shot.distance) return;
-    const { origin, dx, dy, distance, impact, victim, color } = shot;
-    const x = origin.x + dx * distance;
-    const y = origin.y + dy * distance;
+    if (shot.traveled < shot.distance) {
+      if (shot.segments.some(({ end }) => previous < end && end <= shot.traveled)) sound('bounce');
+      return;
+    }
+    const { distance, impact, victim, color } = shot;
+    const { x, y } = shotPosition(shot, distance);
     shot = undefined;
     if (impact === 'bubble') {
       finalCoverage = coverageOf(bubbles);
@@ -186,7 +214,7 @@ export function createCart(api) {
       land(x, y, color);
     } else {
       phase = 'ready';
-      status = impact === 'brick' ? 'The bead struck a firebrick.' : 'The bead struck the frame.';
+      status = 'The bead struck a firebrick.';
       sound('miss');
     }
   }
@@ -236,9 +264,8 @@ export function createCart(api) {
       sprite(COLORS[color], x, y, radius * 2, radius * 2);
     }
     if (shot) {
-      const pos = Math.min(shot.distance, shot.traveled + shot.speed * alpha);
-      const x = shot.origin.x + shot.dx * pos;
-      const y = shot.origin.y + shot.dy * pos;
+      const distance = Math.min(shot.distance, shot.traveled + shot.speed * alpha);
+      const { x, y } = shotPosition(shot, distance);
       sprite('ember-' + COLORS[shot.color], x, y, 15, 15);
     }
     if (phase === 'shatter') {

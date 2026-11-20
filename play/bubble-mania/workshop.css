@@ -159,7 +159,7 @@ button:disabled { opacity: .55; cursor: default; }
   left: -1.6cqw;
   bottom: -4.7cqw;
   width: 3.2cqw;
-  height: 20cqw;
+  height: calc(var(--pipe-length) + 4.7cqw);
   border: 1px solid #a78b6b;
   border-radius: 25% 25% 42% 42%;
   background: linear-gradient(90deg, #211e1c, #9f9382 22%, #eac398 35%, #544238 44%, #202427 78%, #795538);
@@ -176,6 +176,18 @@ button:disabled { opacity: .55; cursor: default; }
   background: radial-gradient(ellipse at 50% 15%, #421d12 17%, #a84b25 34%, #ffe1a1 48%, #ad6f40 54%, #5a341b 84%);
   box-shadow: 0 -.5cqw 2cqw #ff8d2d65;
 }
+.mouth::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 68%;
+  width: 6cqw;
+  height: 7cqw;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 100%, #ffe6a0bb, #ff962e56 36%, transparent 72%);
+  opacity: .6;
+}
+.charging .mouth::before { opacity: 1; }
 .hinge {
   position: absolute;
   width: 7.4cqw;
@@ -189,7 +201,7 @@ button:disabled { opacity: .55; cursor: default; }
 .power {
   position: absolute;
   top: 83.5%;
-  left: 60%;
+  left: 4%;
   width: 6cqw;
   display: grid;
   justify-items: center;

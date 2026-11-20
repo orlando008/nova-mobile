@@ -90,6 +90,10 @@ export function createGlassAudio() {
         resonance(time, .26, 1202, 1191, .037);
         resonance(time + .011, .31, 1747, 1740, .021);
         break;
+      case 'bounce':
+        resonance(time, .14, 925, 872, .057);
+        resonance(time + .004, .11, 1467, 1432, .026);
+        break;
       case 'miss':
         texture(time, .13, 840, 350, .13, .004, 'bandpass');
         resonance(time, .11, 205, 160, .051);
