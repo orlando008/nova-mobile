@@ -69,8 +69,11 @@ export async function contentVersion(code, art, assets) {
   return sha256(new TextEncoder().encode(JSON.stringify(data)));
 }
 
-async function get(base, path, optional = false) {
-  const response = await fetch(new URL(path, base));
+async function get(base, path, { optional = false, version } = {}) {
+  const url = new URL(path, base);
+  // Pages can keep files from the previous deployment in a browser cache.
+  if (version) url.searchParams.set('version', version);
+  const response = await fetch(url, { cache: version ? 'default' : 'no-cache' });
   if (optional && response.status === 404) return null;
   if (!response.ok) throw new Error('Could not load ' + path + ' (' + response.status + ')');
   return response;
@@ -89,11 +92,12 @@ export async function loadCart(name, base) {
   const entry = index.carts.find(cart => cart.name === name);
   if (!entry) throw new Error('This cart is missing from the index');
   const manifest = await loadManifest(base, entry);
+  const version = manifest.contentVersion;
   const [code, art, ...assets] = await Promise.all([
-    get(base, entry.path + 'code.js').then(response => response.arrayBuffer()),
-    get(base, entry.path + 'art.js', true).then(response => response?.arrayBuffer() ?? null),
+    get(base, entry.path + 'code.js', { version }).then(response => response.arrayBuffer()),
+    get(base, entry.path + 'art.js', { version, optional: true }).then(response => response?.arrayBuffer() ?? null),
     ...manifest.assets.filter(asset => !asset.lazy).map(async asset => {
-      const bytes = await (await get(base, entry.path + asset.path)).arrayBuffer();
+      const bytes = await (await get(base, entry.path + asset.path, { version })).arrayBuffer();
       if (bytes.byteLength !== asset.bytes || await sha256(bytes) !== asset.sha256) {
         throw new Error('Integrity check failed for ' + asset.path);
       }
