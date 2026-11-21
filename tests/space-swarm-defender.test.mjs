@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { ART_SIZE, CONTROLS, FIELD, HEIGHT, SECTORS, START_CORE, TOWERS, WAVE_COUNT, WIDTH, createCart } from '../carts/space-swarm-defender/code.js';
+import { loadRatings, planetUnlocked, recordWin, STARS_PER_ZONE, zoneUnlocked } from '../play/space-swarm-defender/campaign.mjs';
 import { createRuntime } from '../src/runtime.mjs';
 
 const screen = { w: 720, h: HEIGHT * 2, scale: 2, dpr: 1, safe: {} };
@@ -53,14 +54,26 @@ test('an undefended core takes damage and loses on wave two', () => {
   assert.equal(game.state().phase, 'lost');
 });
 
-test('all three sectors can clear eight waves through touch controls', () => {
+test('all twelve zones can earn three stars and unlock the full campaign through touch controls', () => {
   const strategies = [
     [1, 2, 10, 6, 5, 0, 13, 9, 3, 7, 11, 12, 4, 8],
     [2, 7, 11, 3, 9, 8, 12, 14, 0, 10, 6, 13, 1, 4, 15, 5],
     [8, 9, 14, 3, 1, 4, 11, 13, 15, 0, 2, 10, 12, 6, 5, 7],
+    [2, 7, 3, 11, 9, 8, 14, 12, 0, 10, 4, 6, 13, 1, 15, 5],
+    [1, 2, 6, 10, 5, 13, 0, 9, 3, 7, 11, 12, 4, 8],
+    [8, 9, 14, 3, 1, 4, 11, 15, 0, 2, 10, 13, 12, 6, 5, 7],
+    [1, 2, 10, 6, 5, 0, 13, 9, 3, 11, 7, 12, 4, 8],
+    [8, 9, 14, 3, 1, 4, 11, 13, 0, 10, 2, 15, 12, 6, 5, 7],
+    [2, 7, 3, 11, 9, 8, 14, 0, 12, 4, 10, 1, 13, 15, 6, 5],
+    [8, 9, 14, 1, 4, 3, 10, 11, 13, 6, 15, 2, 12, 0, 5, 7],
+    [2, 7, 11, 3, 9, 8, 12, 0, 14, 13, 1, 10, 4, 6, 15, 5],
+    [1, 2, 6, 10, 5, 13, 0, 9, 7, 3, 11, 12, 8, 4],
   ];
   const rotation = ['pulse', 'nova', 'cryo', 'nova', 'pulse', 'nova', 'pulse', 'cryo'];
+  assert.equal(strategies.length, SECTORS.length);
+  const ratings = loadRatings();
   for (const [sector, strategy] of strategies.entries()) {
+    assert.equal(zoneUnlocked(Math.floor(sector / 3), sector, ratings), true);
     const game = make(sector);
     let built = 0;
     game.tick(command('speed'));
@@ -83,8 +96,10 @@ test('all three sectors can clear eight waves through touch controls', () => {
     }
     assert.equal(game.state().phase, 'won', SECTORS[sector].name);
     assert.equal(game.state().wave, WAVE_COUNT);
-    assert.ok(game.state().core > 0);
+    assert.equal(recordWin(ratings, sector, game.state().core), STARS_PER_ZONE, SECTORS[sector].name);
   }
+  assert.ok(ratings.every(stars => stars === STARS_PER_ZONE));
+  assert.equal(planetUnlocked(3, ratings), true);
 });
 
 test('identical input streams replay the wave tick for tick', () => {

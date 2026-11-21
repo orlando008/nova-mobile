@@ -62,51 +62,174 @@ button:disabled { opacity: .55; cursor: default; }
 }
 .topbar a { color: var(--muted); font-size: .88rem; padding: .4rem .2rem; text-decoration: none; }
 .topbar a:hover { color: var(--cream); text-decoration: underline; }
-.hero {
+h1, h2 { font-family: 'Space Grotesk', Inter, sans-serif; }
+.campaign, .topbar { width: min(100%, 29rem); margin-inline: auto; }
+.map-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: 0 0 .65rem;
+}
+.map-heading p { margin: 0 0 .16rem; color: var(--muted); font-size: .76rem; }
+.map-heading h1 {
+  font-size: clamp(1.8rem, 7vw, 2.55rem);
+  line-height: .98;
+  margin: .18rem 0 0;
+  letter-spacing: -.035em;
+}
+#map-back {
+  min-height: 36px;
+  padding: 0 .32rem 0 0;
+  border: 0;
+  color: var(--cyan);
+  background: none;
+  text-align: left;
+}
+.map-viewport {
   position: relative;
-  aspect-ratio: 1.87;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid #34677a;
-  border-radius: .8rem;
-  background: #12283a;
+  container-type: inline-size;
+  border: 1px solid #3f6e83;
+  border-radius: .72rem .72rem 0 0;
+  background: #0a1928 center / 100% 100% no-repeat;
 }
-.hero img { position: absolute; inset: 0; height: 100%; width: 100%; object-fit: cover; z-index: -2; }
-.hero::after {
+.galaxy {
+  aspect-ratio: 2 / 3;
+  background-image: url('../../carts/space-swarm-defender/assets/constellation.webp');
+}
+.terrain { aspect-ratio: 1; }
+.flight-path {
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+  height: 0;
+  opacity: .9;
+  border-top: 2px dashed #b0cbdf8a;
+  transform-origin: left center;
+}
+.flight-path.open { border-color: #71edf0; filter: drop-shadow(0 0 4px #05d0d5); }
+.planet-node, .zone-node {
+  position: absolute;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  min-height: 0;
+  transform: translate(-50%, -50%);
+}
+.planet-node:hover, .zone-node:hover { background: none; }
+.planet-node {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+.planet-node[aria-pressed="true"] {
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 14px #3be5f299, inset 0 0 13px #39e5f255;
+}
+.planet-node.locked {
+  background: #08112250;
+  color: #c3d1e0;
+}
+.planet-name {
+  position: absolute;
+  left: calc(100% + 3px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: .24em .34em;
+  font: 700 clamp(.73rem, 4cqw, 1.1rem)/1.1 'Space Grotesk', Inter, sans-serif;
+  background: #071321ed;
+  border-radius: .27rem;
+}
+.padlock {
+  display: inline-block;
+  width: .67em;
+  height: .52em;
+  border-radius: .12em;
+  background: currentColor;
+  position: relative;
+  margin-top: .17em;
+}
+.padlock::before {
+  content: '';
+  position: absolute;
+  left: .13em;
+  top: -.31em;
+  width: .41em;
+  height: .36em;
+  border: .10em solid currentColor;
+  border-radius: .22em .22em 0 0;
+}
+.zone-node { display: grid; justify-items: center; gap: .08rem; min-width: 29cqw; }
+.zone-marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(2.75rem, 16cqw, 4.5rem);
+  aspect-ratio: 1.06;
+  color: #d5e0e8;
+  filter: drop-shadow(0 3px 6px #000b);
+}
+.zone-marker::before, .zone-marker::after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background: linear-gradient(80deg, #061427 0%, #061427db 28%, #0614274b 58%, transparent 76%);
+  clip-path: polygon(50% 0, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+  background: #6f9fab;
 }
-h1, h2 { font-family: 'Space Grotesk', Inter, sans-serif; }
-h1 {
-  position: absolute;
-  left: 5%;
-  bottom: 12%;
-  margin: 0;
-  line-height: .89;
-  font-size: clamp(1.85rem, 7.7vw, 4.1rem);
-  max-width: 74%;
-  letter-spacing: -.052em;
+.zone-marker::after { inset: 2px; background: #092330; }
+.zone-marker img, .zone-marker .padlock { width: 76%; position: relative; z-index: 1; }
+.zone-marker .padlock { width: .67em; font-size: 1.55em; }
+.zone-node.locked .zone-marker::before { background: #83909c; }
+.zone-node.locked .zone-marker::after { background: #1e2734; }
+.zone-node[aria-pressed="true"] .zone-marker {
+  filter: drop-shadow(0 0 6px #59edf6) drop-shadow(0 3px 6px #000a);
 }
-h1 span { display: block; color: var(--cyan); }
-.brief { padding: .9rem 0 0; }
-h2 { margin: 0 0 .65rem; font-size: 1.24rem; }
-.sectors { display: grid; gap: .45rem; }
-.sector-option {
-  min-height: 55px;
-  text-align: left;
+.zone-node[aria-pressed="true"] .zone-marker::before { background: var(--cyan); }
+.zone-name {
+  background: #071623f2;
+  border: 1px solid #608997;
+  border-radius: .25rem;
+  padding: .26rem .44rem;
+  min-width: 100%;
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: .28rem .6rem;
-  align-items: baseline;
+  gap: .16rem;
+  font: 700 clamp(.71rem, 3.35cqw, .99rem)/1.1 'Space Grotesk', Inter, sans-serif;
+  white-space: nowrap;
 }
-.sector-option[aria-pressed="true"] { border-color: #67d8e4; background: #14374a; }
-.sector-option strong { font: 700 1rem/1.1 'Space Grotesk', Inter, sans-serif; }
-.sector-option small { display: block; grid-column: 1 / -1; color: var(--muted); font-weight: 400; line-height: 1.3; }
-.sector-mark { font-size: .78rem; color: #9df0c0; }
-#play, #back { width: 100%; margin-top: .75rem; }
+.zone-node.locked .zone-name { color: #ccd5df; border-color: #6b7b89; }
+.map-panel {
+  padding: .77rem .85rem .85rem;
+  background: #102739;
+  border: 1px solid #3f6e83;
+  border-top: 0;
+  border-radius: 0 0 .72rem .72rem;
+}
+.map-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .6rem;
+}
+.map-summary h2 { margin: 0; font-size: 1.2rem; }
+.map-panel p {
+  margin: .34rem 0 .6rem;
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.32;
+}
+.map-panel .primary { width: 100%; }
+.map-panel .rating-guide { margin-bottom: .65rem; color: #d5e5ec; }
+.progress, .stars { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.progress { color: #fce6b3; font-size: .86rem; font-weight: 650; }
+.star-earned { color: #ffc967; }
+.star-open { color: #b2c5d3; }
+.stars { letter-spacing: .08em; font-size: 1em; }
+#result-stars { font-size: 1.45rem; }
 .instructions { color: var(--muted); line-height: 1.55; font-size: .87rem; }
 .instructions ol { padding-left: 1.3rem; margin-top: .2rem; }
 .instructions li + li { margin-top: .28rem; }

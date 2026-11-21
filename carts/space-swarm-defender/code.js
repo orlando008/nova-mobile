@@ -21,7 +21,7 @@ export const CONTROLS = {
   speed: { x: 302, y: 515, w: 50, h: 47 },
 };
 
-export const SECTORS = [
+const KEPLER = [
   {
     name: 'Kepler Gate',
     description: 'A long approach and tight turns give you space to learn.',
@@ -55,6 +55,37 @@ export const SECTORS = [
     credits: 210,
     pressure: 1.25,
   },
+];
+
+// Later sectors reshape Kepler's three route families while keeping their build pads aligned.
+function variant(template, name, description, color, pressure, credits, flip, bendX, bendY, cadence) {
+  const base = KEPLER[template];
+  function project([x, y]) {
+    const column = flip ? WIDTH - x : x;
+    return [
+      Math.round(column + bendX * Math.sin(Math.PI * column / WIDTH)),
+      Math.round(y + bendY * Math.sin(Math.PI * y / FIELD)),
+    ];
+  }
+  return { name, description, color, pressure, credits, cadence,
+    routes: base.routes.map(route => route.map(project)), pads: base.pads.map(project) };
+}
+
+const VESPER = [.76, .58, 1];
+const CALDERA = [1, .48, .24];
+const NACRE = [.34, .92, .75];
+
+export const SECTORS = [
+  ...KEPLER,
+  variant(1, 'Cloudbreak', 'Defend the upper causeway against quick strikes.', VESPER, 1.16, 205, true, 13, -18, 1.06),
+  variant(0, 'Storm Span', 'Cover the bends where runners bunch up.', VESPER, 1.25, 215, true, -14, 17, 1.1),
+  variant(2, 'Violet Reach', 'Two attack lanes converge above the clouds.', VESPER, 1.31, 235, true, 10, -14, 1.12),
+  variant(0, 'Ash Rampart', 'Stack coverage on the outer turns of the lava channel.', CALDERA, 1.31, 225, false, 22, -15, 1.13),
+  variant(2, 'Kiln Divide', 'Slow both fronts as they cross the volcanic divide.', CALDERA, 1.37, 250, false, -12, 16, 1.15),
+  variant(1, 'Ember Vault', 'Wide bends make overlapping defenses valuable.', CALDERA, 1.43, 245, false, 16, -21, 1.17),
+  variant(2, 'Pearl Basin', 'Cover the shared descent to the reactor.', NACRE, 1.40, 260, true, -17, 19, 1.18),
+  variant(1, 'Crown Shelf', 'Intercept dense waves along the terraced approach.', NACRE, 1.50, 260, true, -20, 13, 1.19),
+  variant(0, 'Last Beacon', 'Hold the final relay against the strongest assault.', NACRE, 1.51, 280, true, 22, 21, 1.22),
 ];
 
 const ENEMIES = {
@@ -105,13 +136,13 @@ function placeEnemy(enemy, route) {
   enemy.y = leg.y + leg.dy * position;
 }
 
-function waveQueue(number) {
+function waveQueue(number, cadence) {
   let time = 10;
   const queue = [];
   for (const [type, count, gap] of WAVES[number - 1]) {
     for (let i = 0; i < count; i++) {
       queue.push({ type, time });
-      time += gap;
+      time += Math.round(gap / cadence);
     }
   }
   return queue;
@@ -146,7 +177,7 @@ export function createCart(api) {
   function startWave() {
     wave++;
     waveTick = 0;
-    queue = waveQueue(wave);
+    queue = waveQueue(wave, sector.cadence ?? 1);
     cursor = 0;
     phase = 'wave';
     status = wave === WAVE_COUNT ? 'The queen has entered the sector.' : 'Wave ' + wave + ' incoming.';
