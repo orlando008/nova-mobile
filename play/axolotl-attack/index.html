@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#092c43">
+  <meta name="description" content="Recruit axolotls, chase smaller schools, and dodge bigger rivals in the reefs of Sandcastle Bay.">
+  <meta property="og:title" content="Axolotl Attack">
+  <meta property="og:description" content="Recruit axolotls, chase smaller schools, and dodge bigger rivals in the reefs of Sandcastle Bay.">
+  <meta property="og:image" content="../../carts/axolotl-attack/assets/poster.png">
+  <title>Axolotl Attack</title>
+  <link rel="icon" href="../../carts/axolotl-attack/assets/icon.png" type="image/png">
+  <link rel="stylesheet" href="./bay.css">
+</head>
+<body data-cart="axolotl-attack">
+  <main>
+    <header class="topbar">
+      <a href="../../">← Library</a>
+      <span id="location" hidden>Sandcastle Bay</span>
+      <button type="button" id="menu" hidden>Pause</button>
+    </header>
+
+    <section id="intro" aria-labelledby="title">
+      <h1 class="sr-only" id="title">Axolotl Attack</h1>
+      <img class="cover" src="../../carts/axolotl-attack/assets/cover.webp" alt="The Axolotl Attack logo above three schools swimming through Sandcastle Bay">
+      <div class="briefing">
+        <div class="intro-text">
+          <div>
+            <h2>Sandcastle Bay</h2>
+            <p>Lead the biggest school in a 60-second scramble.</p>
+          </div>
+          <p id="record-value" class="best" hidden></p>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary" id="play">Dive in</button>
+          <button type="button" class="primary" id="dive-again" hidden>Dive in</button>
+        </div>
+        <details>
+          <summary>How to swim</summary>
+          <ul>
+            <li>Drag anywhere on the reef to steer your pink leader. Release to stop.</li>
+            <li>Swim close to solo axolotls to recruit them. Catch members of smaller schools to win them over.</li>
+            <li>Keep clear of larger schools. Use the reef grooves and the gap in the castle wall to get away.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <section id="board" aria-label="Sandcastle Bay match" hidden>
+      <div class="hud">
+        <div><span>Your school</span><strong class="pink" data-cart-field="school">1</strong></div>
+        <div><span>Time left</span><strong id="timer" data-cart-field="time">1:00</strong></div>
+        <div><span>Place</span><strong data-cart-field="rank">#1</strong></div>
+      </div>
+      <div class="arena">
+        <canvas id="surface" data-cart-events aria-label="Sandcastle Bay. Drag to steer the pink axolotl." aria-describedby="swim-tip"></canvas>
+        <div id="markers" aria-hidden="true"></div>
+        <p id="swim-tip">Drag anywhere to swim</p>
+      </div>
+      <ul class="standings" id="schools" aria-label="School sizes"></ul>
+    </section>
+    <p id="feedback" role="status"></p>
+  </main>
+
+  <dialog id="pause-menu" aria-labelledby="pause-title">
+    <h2 id="pause-title">Taking a breather</h2>
+    <div class="actions">
+      <button type="button" class="primary" id="resume">Resume</button>
+      <button type="button" data-restart>New match</button>
+      <button type="button" data-home>Back to title</button>
+    </div>
+    <label class="setting">Sound effects <input type="checkbox" id="sound" checked></label>
+    <details id="controls" hidden>
+      <summary>Replay tools</summary>
+      <div class="actions">
+        <button type="button" id="record" disabled>Record</button>
+        <button type="button" id="replay" disabled>Replay</button>
+        <button type="button" id="live" data-reset disabled>Return to live play</button>
+      </div>
+    </details>
+  </dialog>
+
+  <dialog id="result" aria-labelledby="result-title">
+    <h2 id="result-title"></h2>
+    <p id="result-detail"></p>
+    <ol class="results" id="results"></ol>
+    <div class="actions">
+      <button type="button" class="primary" data-restart>Play again</button>
+      <button type="button" data-home>Back to title</button>
+    </div>
+  </dialog>
+  <div id="safe-area" aria-hidden="true"></div>
+  <script type="module" src="./bay.mjs"></script>
+</body>
+</html>

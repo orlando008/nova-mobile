@@ -1,6 +1,7 @@
 {
   "format": 1,
   "carts": [
+    { "name": "axolotl-attack", "path": "carts/axolotl-attack/" },
     { "name": "maestro", "path": "carts/maestro/" },
     { "name": "space-swarm-defender", "path": "carts/space-swarm-defender/" },
     { "name": "bubble-mania", "path": "carts/bubble-mania/" },
