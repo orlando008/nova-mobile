@@ -145,7 +145,7 @@ function render(position) {
   const now = position - offset;
   const cueStart = APPROACH;
   const lead = from - position;
-  byId('progress').value = Math.max(0, position / chart.end);
+  byId('progress').value = Math.max(from, position) / chart.end;
   setText('score', number.format(game.score));
   setText('combo', game.combo);
 

@@ -35,6 +35,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
   outline-offset: 3px;
 }
 h1, h2, p, dl, dd { margin: 0; }
+h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 
 .theater {
   position: relative;
