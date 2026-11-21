@@ -245,7 +245,7 @@ async function startPiece(button) {
         if (!response.ok) throw new Error('The beat chart could not load.');
         return response.json();
       }),
-      piano.load(asset(song.id + '.mp3').href),
+      piano.load(asset(song.id + '-piano.mp3').href),
     ]);
     charts = data;
     const chart = data[song.id];

@@ -2,7 +2,7 @@
   "format": 1,
   "name": "maestro",
   "title": "Maestro",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "console": "0.1",
   "description": "Tap to the rhythm of classic piano in a one-thumb recital.",
   "shelf": "Arcade",
@@ -25,10 +25,10 @@
       "sha256": "92d388c34a4c0cc18bc0f6476a2b008e0b8d578ded67bb81156026f80ee0204f"
     },
     {
-      "path": "assets/clair.mp3",
+      "path": "assets/clair-piano.mp3",
       "lazy": true,
-      "bytes": 1825676,
-      "sha256": "a6b95f871bfa87029985e55a5969d38f8771add5f85813220cbe33665a8a7cb3"
+      "bytes": 3042526,
+      "sha256": "c6fd7a614c675d67876d3e11ed8dc59c5219c866ba4fd4a4987c897e581d08ed"
     },
     {
       "path": "assets/clair.webp",
@@ -37,10 +37,10 @@
       "sha256": "975528cb912f51c8c9e41309034a0408c6a206ead9ad1207dcd7ad0dc6f2334f"
     },
     {
-      "path": "assets/elise.mp3",
+      "path": "assets/elise-piano.mp3",
       "lazy": true,
-      "bytes": 698804,
-      "sha256": "765a9194e3c61d03ef7237123eaa5aca95207cb473544a0bdc0128cf2372556d"
+      "bytes": 1164322,
+      "sha256": "969a8d05c29d3d2e0436e87076840c7f852c64a1dc9b28e9d192c41b39031b07"
     },
     {
       "path": "assets/elise.webp",
@@ -49,10 +49,10 @@
       "sha256": "7df8ca5f97a72f3114f683a62af258fba075351fd32b53c8bbf4e89255b1e935"
     },
     {
-      "path": "assets/entertainer.mp3",
+      "path": "assets/entertainer-piano.mp3",
       "lazy": true,
-      "bytes": 1082852,
-      "sha256": "57b2339d77127fae760addf04de0c3953cb72299f53327b7d55aa07210e9a930"
+      "bytes": 1804583,
+      "sha256": "e3d4201c56844160abea21ea4ac1ed1514cbde499f680f24613de583c1d00fa3"
     },
     {
       "path": "assets/entertainer.webp",
@@ -85,5 +85,5 @@
       "sha256": "2370012835e8ec3f330f338b5d0e5caefe3851093d41656df86f402e49213d93"
     }
   ],
-  "contentVersion": "f33bb2b94b2763c525dd892ccf2875f66215839ed923b835a6e41705725925b1"
+  "contentVersion": "133204eb3001af8fd5377fbf3565284c05bdde74a4eecc5eaf33c7ed3981c37b"
 }
