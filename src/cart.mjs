@@ -93,9 +93,8 @@ export async function loadCart(name, base) {
   if (!entry) throw new Error('This cart is missing from the index');
   const manifest = await loadManifest(base, entry);
   const version = manifest.contentVersion;
-  const [code, art, ...assets] = await Promise.all([
+  const [code, ...assets] = await Promise.all([
     get(base, entry.path + 'code.js', { version }).then(response => response.arrayBuffer()),
-    get(base, entry.path + 'art.js', { version, optional: true }).then(response => response?.arrayBuffer() ?? null),
     ...manifest.assets.filter(asset => !asset.lazy).map(async asset => {
       const bytes = await (await get(base, entry.path + asset.path, { version })).arrayBuffer();
       if (bytes.byteLength !== asset.bytes || await sha256(bytes) !== asset.sha256) {
@@ -104,8 +103,12 @@ export async function loadCart(name, base) {
       return { path: asset.path, bytes };
     }),
   ]);
-  if (await contentVersion(code, art, manifest.assets) !== manifest.contentVersion) {
-    throw new Error('Cart content version did not match ' + name);
+  // A matching version already proves the cart has no separate vector art.
+  if (await contentVersion(code, null, manifest.assets) !== version) {
+    const response = await get(base, entry.path + 'art.js', { version, optional: true });
+    if (!response || await contentVersion(code, await response.arrayBuffer(), manifest.assets) !== version) {
+      throw new Error('Cart content version did not match ' + name);
+    }
   }
   return { manifest, code, assets };
 }
