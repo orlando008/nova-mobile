@@ -1,0 +1,95 @@
+{
+  "format": 1,
+  "name": "maestro",
+  "title": "Maestro",
+  "version": "0.4.0",
+  "console": "0.1",
+  "description": "Play the rhythm of classic piano across three lanes.",
+  "shelf": "Arcade",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/BodoniModa-OFL.txt",
+      "lazy": true,
+      "bytes": 4399,
+      "sha256": "97e32fdfa86a9aa79b85ce20b63b8618a8bf3e1110a0e631fac7f73983417b55"
+    },
+    {
+      "path": "assets/clair-piano.mp3",
+      "lazy": true,
+      "bytes": 3042526,
+      "sha256": "c6fd7a614c675d67876d3e11ed8dc59c5219c866ba4fd4a4987c897e581d08ed"
+    },
+    {
+      "path": "assets/clair.webp",
+      "lazy": true,
+      "bytes": 5246,
+      "sha256": "975528cb912f51c8c9e41309034a0408c6a206ead9ad1207dcd7ad0dc6f2334f"
+    },
+    {
+      "path": "assets/elise-piano.mp3",
+      "lazy": true,
+      "bytes": 1164322,
+      "sha256": "969a8d05c29d3d2e0436e87076840c7f852c64a1dc9b28e9d192c41b39031b07"
+    },
+    {
+      "path": "assets/elise.webp",
+      "lazy": true,
+      "bytes": 5456,
+      "sha256": "7df8ca5f97a72f3114f683a62af258fba075351fd32b53c8bbf4e89255b1e935"
+    },
+    {
+      "path": "assets/entertainer-piano.mp3",
+      "lazy": true,
+      "bytes": 1804583,
+      "sha256": "e3d4201c56844160abea21ea4ac1ed1514cbde499f680f24613de583c1d00fa3"
+    },
+    {
+      "path": "assets/entertainer.webp",
+      "lazy": true,
+      "bytes": 5484,
+      "sha256": "5d26abc66b8344132a118d0c1f2aed6247cd0518153ffca229351bbc9c39c6ed"
+    },
+    {
+      "path": "assets/extreme.json",
+      "lazy": true,
+      "bytes": 24679,
+      "sha256": "b5f15e387791de3a740063626dc00298f64a32999a6102a5cd780c02adaf8046"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 135713,
+      "sha256": "4e6108fe1e9348e4d6f888596b1b248ed2c0245f5ac5158df77fb1af48d964d1"
+    },
+    {
+      "path": "assets/lanes.json",
+      "lazy": true,
+      "bytes": 7272,
+      "sha256": "33f34bb100eb98b838da874a40454ef3112b68521ba00bb9f8f0acbe676a89de"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 248047,
+      "sha256": "ba43e0293de34d2d1d2a4e67dc56ac2aaef153cb761b7434115cd4589b9c6f62"
+    },
+    {
+      "path": "assets/recital.webp",
+      "lazy": true,
+      "bytes": 89484,
+      "sha256": "ce84e1e91ab77fa47547d275a1d3155a067611a4d08562f88a3978c472ee8b05"
+    },
+    {
+      "path": "assets/recital.woff2",
+      "lazy": true,
+      "bytes": 42056,
+      "sha256": "2370012835e8ec3f330f338b5d0e5caefe3851093d41656df86f402e49213d93"
+    }
+  ],
+  "contentVersion": "4a9c2fbcc53b08429fa6f35322a457f8457beb4a4eb66f0bd749ce4bb453ebe1"
+}

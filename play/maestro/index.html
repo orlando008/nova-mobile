@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b111e">
+  <meta name="description" content="Play the rhythm of classic piano across three lanes.">
+  <meta property="og:title" content="Maestro">
+  <meta property="og:description" content="Play the rhythm of classic piano across three lanes.">
+  <meta property="og:image" content="../../carts/maestro/assets/poster.png">
+  <title>Maestro</title>
+  <link rel="icon" href="../../carts/maestro/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./maestro.css?v=bass">
+</head>
+<body>
+  <main class="theater">
+    <header class="topbar">
+      <a href="../../" id="library" class="top-link">‹ Library</a>
+      <span class="wordmark" id="wordmark" hidden>Maestro</span>
+      <button type="button" class="top-link" id="settings">Settings</button>
+      <button type="button" class="top-link" id="pause" hidden>Pause</button>
+    </header>
+
+    <section id="recital" aria-labelledby="maestro-title">
+      <div class="hero">
+        <div class="hero-title">
+          <span class="eyebrow">Nova Mobile</span>
+          <h1 id="maestro-title" tabindex="-1">Maestro</h1>
+          <p>Three lanes. One piano.</p>
+        </div>
+      </div>
+      <div class="program">
+        <div class="ornament" aria-hidden="true"><span></span></div>
+        <h2>Recital</h2>
+        <fieldset id="songs" aria-label="Choose a piano piece"></fieldset>
+        <fieldset id="difficulty" class="difficulty">
+          <legend>Difficulty</legend>
+          <div class="difficulty-options">
+            <label><input type="radio" name="difficulty" value="standard" checked><span>Standard</span></label>
+            <label><input type="radio" name="difficulty" value="extreme"><span>Extreme</span></label>
+          </div>
+        </fieldset>
+        <button type="button" class="primary" id="play">Play</button>
+        <p class="recital-hint">Left thumb for bass. Right thumb for treble.</p>
+        <p id="notice" class="notice" role="status" hidden></p>
+      </div>
+    </section>
+
+    <section id="performance" aria-label="Performance" hidden>
+      <div class="scoreboard">
+        <h2 id="piece-title"></h2>
+        <p id="piece-difficulty" class="eyebrow"></p>
+        <div class="metrics">
+          <span><strong id="score">0</strong> Score</span>
+          <span><strong id="combo">0</strong> Combo</span>
+        </div>
+        <progress id="progress" max="1" value="0" aria-label="Song progress"></progress>
+      </div>
+      <div class="hand-labels" aria-hidden="true"><span>Bass</span><span>Treble</span></div>
+      <div class="stage">
+        <div id="highway" class="highway" role="group" aria-describedby="timing-help" aria-label="Bass and treble lanes">
+          <button type="button" class="lane" aria-label="Bass lane" aria-keyshortcuts="A ArrowLeft">
+            <span class="lane-key" aria-hidden="true"><span class="keyboard-hint">A</span></span>
+          </button>
+          <button type="button" class="lane" aria-label="Treble middle lane" aria-keyshortcuts="S ArrowDown">
+            <span class="lane-key" aria-hidden="true"><span class="keyboard-hint">S</span></span>
+          </button>
+          <button type="button" class="lane" aria-label="Treble right lane" aria-keyshortcuts="D ArrowRight">
+            <span class="lane-key" aria-hidden="true"><span class="keyboard-hint">D</span></span>
+          </button>
+          <div class="strike-line" aria-hidden="true"></div>
+          <div id="blocks" class="blocks" aria-hidden="true"></div>
+        </div>
+        <div class="judgement" aria-hidden="true">
+          <strong id="judgement"></strong>
+          <span id="deviation"></span>
+        </div>
+      </div>
+      <p id="timing-help">Tap at the gold line · Linked blocks go together<span class="keyboard-hint"> · A S D</span></p>
+    </section>
+
+    <section id="results" aria-labelledby="result-title" hidden>
+      <div class="result-card">
+        <div class="ornament" aria-hidden="true"><span></span></div>
+        <p class="eyebrow" id="result-difficulty"></p>
+        <h2 id="result-title" tabindex="-1"></h2>
+        <div class="stars large-stars" id="result-stars" role="img"></div>
+        <dl class="totals">
+          <div><dt>Accuracy</dt><dd id="accuracy"></dd></div>
+          <div><dt>Best combo</dt><dd id="best-combo"></dd></div>
+          <div><dt>Score</dt><dd id="final-score"></dd></div>
+        </dl>
+        <dl id="breakdown" class="breakdown"></dl>
+        <p class="eyebrow" id="new-best" hidden>New personal best</p>
+        <p id="result-notice" class="notice" role="status" hidden></p>
+        <button type="button" class="primary" id="replay">Play again</button>
+        <button type="button" class="secondary" data-recital>Song select</button>
+        <div class="ornament" aria-hidden="true"><span></span></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="pause-menu" aria-labelledby="pause-title">
+    <h2 id="pause-title">Intermission</h2>
+    <button type="button" class="primary" id="resume" autofocus>Resume</button>
+    <button type="button" class="secondary" id="restart">Restart piece</button>
+    <button type="button" class="secondary" data-recital>Song select</button>
+    <p id="pause-notice" class="notice" role="status" hidden></p>
+  </dialog>
+
+  <dialog id="settings-menu" aria-labelledby="settings-title">
+    <h2 id="settings-title">Settings</h2>
+    <label for="volume">Piano volume <output id="volume-value"></output></label>
+    <input type="range" id="volume" min="0" max="100" step="5">
+    <label for="timing">Tap offset <output id="timing-value"></output></label>
+    <input type="range" id="timing" min="-200" max="200" step="10" aria-describedby="offset-help">
+    <p id="offset-help">If you hear the beat after the block reaches the line, raise the tap offset.</p>
+    <details>
+      <summary>Music credits</summary>
+      <p>Piano renditions from public-domain scores at the Mutopia Project. Piano samples from Alexander Holm’s
+        <a href="https://github.com/sfzinstruments/SalamanderGrandPiano">Salamander Grand Piano V3</a>,
+        <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+        The stereo samples were sequenced with adjusted dynamics and encoded as MP3.</p>
+    </details>
+    <form method="dialog"><button type="submit" class="primary">Done</button></form>
+  </dialog>
+  <script type="module" src="./maestro.mjs?v=bass"></script>
+</body>
+</html>
