@@ -2,7 +2,7 @@
   "format": 1,
   "name": "axolotl-attack",
   "title": "Axolotl Attack",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "console": "0.1",
   "description": "Recruit axolotls, chase smaller schools, and dodge bigger rivals in the reefs of Sandcastle Bay.",
   "shelf": "Arcade",
@@ -49,16 +49,6 @@
       "path": "assets/spark.png",
       "bytes": 822,
       "sha256": "bb2ccdc7767f5e7bb3089873992a35431cac537fb7f50ed8350e9d63bbb7ddbd"
-    },
-    {
-      "path": "assets/stick-base.png",
-      "bytes": 6829,
-      "sha256": "7893197c342734cf1bc8de02eca3948fc60fcd635ba71cc7b4be61367e6e2f00"
-    },
-    {
-      "path": "assets/stick-thumb.png",
-      "bytes": 2363,
-      "sha256": "8fe79c895d0f4cb0078f0125c24ff2eb7591eb3788a434fe21ca47248cf15e24"
     },
     {
       "path": "assets/swimmer-0-0.webp",
@@ -261,5 +251,5 @@
       "sha256": "98ba24f5a48df684a1c9605e6aee2fb791ccdaf09d7fde555de5d0481b12b135"
     }
   ],
-  "contentVersion": "bd62dcd4aa94af2f4a8665a36a5a06b54a368d56dff30e7fa169d027ef65bef3"
+  "contentVersion": "4209f0878b76679c06aa82e9ee6b9597824c6d4dd09b8af84669114316a75f44"
 }

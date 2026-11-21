@@ -71,7 +71,13 @@ details li + li { margin-top: .35rem; }
 summary { padding: .4rem 0; font-weight: 750; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-#board { display: grid; gap: .4rem; width: min(100%, 37rem); align-self: center; }
+#board {
+  --pad-height: clamp(4.5rem, 12dvh, 5.5rem);
+  display: grid;
+  gap: .4rem;
+  width: min(100%, 37rem);
+  align-self: center;
+}
 .hud {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -88,12 +94,12 @@ summary { padding: .4rem 0; font-weight: 750; }
 .arena {
   position: relative;
   overflow: hidden;
-  height: max(13rem, calc(100dvh - 10.6rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  height: max(11rem, calc(100dvh - 11rem - var(--pad-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
   border: 1px solid var(--line);
   border-radius: .92rem;
   background: #092e46;
 }
-canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+canvas { display: block; width: 100%; height: 100%; }
 #markers { position: absolute; inset: 0; pointer-events: none; }
 .marker {
   position: absolute;
@@ -108,18 +114,47 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   padding: .23rem .4rem;
   white-space: nowrap;
 }
+#swim-pad {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: var(--pad-height);
+  border: 1px solid var(--line);
+  border-radius: .85rem;
+  background: linear-gradient(#11435a, #0a2e45);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+#swim-pad:active { cursor: grabbing; }
+.stick {
+  display: grid;
+  place-items: center;
+  width: 3.7rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid #9ae4e0a0;
+  box-shadow: inset 0 2px 6px #04172980;
+  background: #092c43;
+  pointer-events: none;
+}
+#stick-thumb {
+  width: 1.55rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid #ffdee6;
+  background: linear-gradient(#ffc3db, #e282ad);
+  box-shadow: 0 2px 4px #041729a0;
+}
 #swim-tip {
   position: absolute;
-  bottom: .65rem;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 2rem;
-  background: #09283bea;
-  color: var(--ink);
-  padding: .42rem .85rem;
-  white-space: nowrap;
+  inset-inline-start: calc(50% + 2.45rem);
+  inset-inline-end: .25rem;
+  color: var(--water);
   pointer-events: none;
   font-size: .78rem;
+  font-weight: 700;
 }
 .standings {
   display: grid;

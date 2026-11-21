@@ -38,7 +38,7 @@
         <details>
           <summary>How to swim</summary>
           <ul>
-            <li>Drag anywhere on the reef to steer your pink leader. Release to stop.</li>
+            <li>Drag on the swim pad below the reef to steer your pink leader. Release to stop.</li>
             <li>Swim close to solo axolotls to recruit them. Catch members of smaller schools to win them over.</li>
             <li>Keep clear of larger schools. Use the reef grooves and the gap in the castle wall to get away.</li>
           </ul>
@@ -53,11 +53,14 @@
         <div><span>Place</span><strong data-cart-field="rank">#1</strong></div>
       </div>
       <div class="arena">
-        <canvas id="surface" data-cart-events aria-label="Sandcastle Bay. Drag to steer the pink axolotl." aria-describedby="swim-tip"></canvas>
+        <canvas id="surface" data-cart-events aria-label="Sandcastle Bay" aria-describedby="swim-tip"></canvas>
         <div id="markers" aria-hidden="true"></div>
-        <p id="swim-tip">Drag anywhere to swim</p>
       </div>
       <ul class="standings" id="schools" aria-label="School sizes"></ul>
+      <div id="swim-pad" data-cart-input role="group" aria-label="Swim pad">
+        <div class="stick" aria-hidden="true"><span id="stick-thumb"></span></div>
+        <span id="swim-tip">Drag to swim</span>
+      </div>
     </section>
     <p id="feedback" role="status"></p>
   </main>

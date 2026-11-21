@@ -50,18 +50,21 @@ test('the cart repeats seeded pointer input and clears steering on pause', () =>
   const first = newRun();
   const replay = newRun();
   const originalY = first.state().leaders[0].y;
-  const origin = { id: 1, x: 360, y: 730 };
+  const origin = { id: 1, x: 360, y: 75 };
   for (let i = 0; i < 190; i++) {
     const touches = i === 0 ? [{ ...origin, phase: 'down' }]
-      : i === 1 ? [{ ...origin, y: 520, phase: 'move' }] : [];
+      : i === 1 ? [{ ...origin, y: 12, phase: 'move' }] : [];
     const frame = { touches, now: i * 1000 / 60 };
     if (i === 52) frame.lifecycle = 'pause';
     first.tick(frame);
     replay.tick(frame);
     assert.deepEqual(first.state(), replay.state());
+    if (i === 0) assert.deepEqual(first.state().steering, { x: 0, y: 0 });
+    if (i === 1) assert.deepEqual(first.state().steering, { x: 0, y: -1 });
+    if (i === 52) assert.equal(first.state().steering, null);
   }
   assert.ok(first.state().leaders[0].y < originalY);
   const afterPause = first.state().leaders[0];
-  first.tick({ touches: [{ ...origin, y: 700, phase: 'move' }], now: 3200 });
+  first.tick({ touches: [{ ...origin, y: 25, phase: 'move' }], now: 3200 });
   assert.equal(first.state().leaders[0].y, afterPause.y);
 });

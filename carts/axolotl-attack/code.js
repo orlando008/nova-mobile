@@ -29,7 +29,7 @@ export const TEAMS = [
   { name: 'Sun', color: '#ffd486', x: 13, y: 2 },
 ];
 const TAU = 2 * Math.PI;
-const STEERING_RANGE = 80;
+const STEERING_RANGE = 54;
 const LEADER_RADIUS = 16;
 const FOLLOWER_RADIUS = 11;
 const CENTER = [0.5, 0.5];
@@ -323,6 +323,7 @@ export function createCart({ options, touches, screen, spr }) {
   const match = createMatch(options.seed ?? 837545);
   const player = match.teams[0];
   let stick = null;
+  let steering = null;
 
   function update() {
     for (const { id, phase, x, y } of touches()) {
@@ -331,10 +332,14 @@ export function createCart({ options, touches, screen, spr }) {
       if (phase === 'move') Object.assign(stick, { x, y });
       if (phase === 'up' || phase === 'cancel') stick = null;
     }
-    const dx = stick ? stick.x - stick.originX : 0;
-    const dy = stick ? stick.y - stick.originY : 0;
-    const divisor = Math.max(STEERING_RANGE, Math.hypot(dx, dy));
-    match.step(dx / divisor, dy / divisor);
+    steering = null;
+    if (stick) {
+      const dx = stick.x - stick.originX;
+      const dy = stick.y - stick.originY;
+      const divisor = Math.max(STEERING_RANGE, Math.hypot(dx, dy));
+      steering = { x: dx / divisor, y: dy / divisor };
+    }
+    match.step(steering?.x, steering?.y);
   }
 
   function view() {
@@ -373,14 +378,6 @@ export function createCart({ options, touches, screen, spr }) {
           anchor: CENTER, alpha: 1 - progress });
       }
     }
-    if (stick) {
-      const dx = stick.x - stick.originX;
-      const dy = stick.y - stick.originY;
-      const damping = STEERING_RANGE / Math.max(STEERING_RANGE, Math.hypot(dx, dy));
-      spr(ASSETS + 'stick-base.png', stick.originX, stick.originY, { anchor: CENTER, alpha: 0.78 });
-      spr(ASSETS + 'stick-thumb.png', stick.originX + dx * damping, stick.originY + dy * damping,
-        { anchor: CENTER, alpha: 0.92 });
-    }
   }
 
   function state() {
@@ -398,13 +395,16 @@ export function createCart({ options, touches, screen, spr }) {
       signature = Math.imul(signature ^ unit.owner, 16777619);
     }
     return { phase: match.phase, tick: match.tick, peak: match.peak, leaders, standings, cue: match.cue,
-      signature, readout: {
+      signature, steering, readout: {
         school: player.count,
         rank: '#' + (standings.filter(team => team.count > player.count).length + 1),
         time: Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0'),
       },
     };
   }
-  function clear() { stick = null; }
+  function clear() {
+    stick = null;
+    steering = null;
+  }
   return { update, draw, state, pause: clear, resize: clear };
 }

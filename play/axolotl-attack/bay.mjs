@@ -7,7 +7,7 @@ const canvas = byId('surface');
 const pause = byId('pause-menu');
 const result = byId('result');
 const sound = byId('sound');
-const tip = byId('swim-tip');
+const thumb = byId('stick-thumb');
 const feedback = byId('feedback');
 const key = 'axolotl-attack:' + new URL('../../', import.meta.url).pathname;
 let best = 0;
@@ -58,8 +58,13 @@ function save() {
 
 function chooseMatch() {
   chooseCartOptions({ seed: crypto.getRandomValues(new Uint32Array(1))[0] });
-  tip.hidden = false;
+  drawSteering(null);
   void audio.unlock();
+}
+
+function drawSteering(steering) {
+  thumb.style.transform = 'translate(' + ((steering?.x ?? 0) * 15) + 'px, ' +
+    ((steering?.y ?? 0) * 15) + 'px)';
 }
 
 function resume() {
@@ -145,11 +150,6 @@ document.addEventListener('visibilitychange', () => {
 new MutationObserver(() => {
   feedback.classList.toggle('quiet', feedback.textContent === 'Live input');
 }).observe(feedback, { childList: true });
-canvas.addEventListener('pointermove', event => {
-  if (!(event.buttons & 1)) return;
-  tip.hidden = true;
-});
-
 canvas.addEventListener('cartframe', ({ detail }) => {
   const { state, mode } = detail;
   if (!state || byId('board').hidden) return;
@@ -160,7 +160,7 @@ canvas.addEventListener('cartframe', ({ detail }) => {
     session = detail.session;
     cue = 0;
   }
-  if (state.tick > 360) tip.hidden = true;
+  drawSteering(state.phase === 'swimming' ? state.steering : null);
   byId('timer').classList.toggle('urgent', state.tick >= ROUND_TICKS - 600);
   for (const { id, count } of state.standings) {
     const label = labels[id];
