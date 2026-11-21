@@ -33,9 +33,16 @@ export function createPerformance(cues) {
     cursor++;
   }
 
+  function deadline(index) {
+    const beat = cues[index][0];
+    const next = cues[index + 1]?.[0] ?? Infinity;
+    // Adjacent cues share the space between them without blocking a hit on the next beat.
+    return Math.min(beat + HIT_WINDOW, (beat + next) / 2);
+  }
+
   function advance(time) {
-    while (cursor < cues.length && cues[cursor][0] + HIT_WINDOW < time) {
-      finish('Miss', cues[cursor][0] + HIT_WINDOW);
+    while (cursor < cues.length && deadline(cursor) < time) {
+      finish('Miss', deadline(cursor));
     }
   }
 
@@ -46,7 +53,9 @@ export function createPerformance(cues) {
     const [beat, required] = cue;
     const laneMask = 1 << lane;
     const offset = time - beat;
-    if (Math.abs(offset) > HIT_WINDOW || !(required & laneMask) || firstHit?.laneMask === laneMask) {
+    const previous = cues[cursor - 1]?.[0] ?? -Infinity;
+    const opens = Math.max(beat - HIT_WINDOW, (previous + beat) / 2);
+    if (time < opens || !(required & laneMask) || firstHit?.laneMask === laneMask) {
       strayTaps++;
       record('Off beat', time, offset);
       return 'Off beat';

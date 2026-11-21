@@ -91,6 +91,9 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   background: linear-gradient(0deg, var(--night), #090e1900 27%, #080e1950 62%, #080e19bd 100%),
     url('../../carts/maestro/assets/recital.webp') center 47% / cover;
 }
+@media (max-height: 700px) {
+  .hero { min-height: clamp(156px, 29dvh, 210px); }
+}
 .hero-title { text-shadow: 0 2px 14px #000, 0 2px 8px #000; }
 .eyebrow {
   color: var(--gold);
@@ -158,6 +161,46 @@ fieldset { min-inline-size: 0; display: grid; gap: 8px; margin: 0 0 14px; paddin
 .stars { color: #b5a08b; letter-spacing: .13em; }
 .stars .earned { color: #ffda8d; text-shadow: 0 0 18px #f0a94080; }
 
+.difficulty { gap: 0; }
+.difficulty legend {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: .75rem;
+}
+.difficulty-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid #b7895458;
+  border-radius: 8px;
+  background: #0b111d;
+}
+.difficulty-options label { position: relative; cursor: pointer; }
+.difficulty-options input { position: absolute; opacity: 0; }
+.difficulty-options span {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: .85rem;
+  font-weight: 600;
+}
+.difficulty-options input:checked + span {
+  border-color: #c9a265a6;
+  background: #242a3b;
+  color: var(--ivory);
+}
+.difficulty-options input[value="extreme"]:checked + span {
+  border-color: #ce7d65a6;
+  background: #382536;
+  color: #ffe2d3;
+}
+.difficulty-options input:focus-visible + span { outline: 2px solid var(--cyan); }
+.difficulty-options input:disabled + span { cursor: wait; }
+
 .primary, .secondary {
   width: 100%;
   min-height: 46px;
@@ -189,6 +232,7 @@ fieldset { min-inline-size: 0; display: grid; gap: 8px; margin: 0 0 14px; paddin
     url('../../carts/maestro/assets/recital.webp') center 35% / cover;
 }
 .scoreboard { z-index: 1; padding: 19px 23px 0; text-align: center; }
+#piece-difficulty { margin-top: 5px; letter-spacing: .14em; }
 .scoreboard h2, .result-card h2, dialog h2 { font: 400 2.5rem/1 var(--display); }
 .metrics {
   display: flex;
@@ -298,6 +342,7 @@ progress::-moz-progress-bar { background: #f2c777; border-radius: 8px; }
   box-shadow: 0 2px 12px #0009, 0 0 12px #eaaa524d, inset 0 0 0 2px #ffeeaf45;
   background: linear-gradient(175deg, #ffe3a7, #cc9450);
 }
+[data-difficulty="extreme"] .block { height: clamp(12px, 2.5dvh, 22px); }
 .block.paired {
   background: linear-gradient(175deg, #fff5d0, #ffca74);
   box-shadow: 0 2px 12px #0009, 0 0 14px #ffce72a3, inset 0 0 0 2px #fff4cd9a;

@@ -1,4 +1,4 @@
-import { APPROACH, COUNT_IN, createPerformance } from '../../carts/maestro/code.js?v=lanes';
+import { APPROACH, COUNT_IN, createPerformance } from '../../carts/maestro/code.js?v=extreme';
 import { createPiano } from './audio.mjs';
 
 const SONGS = [
@@ -14,6 +14,10 @@ const RESUME_LEAD = 1200;
 const INPUT_GRACE = 32;
 const STRIKE = .86;
 const KEYS = { KeyA: 0, KeyS: 1, KeyD: 2, ArrowLeft: 0, ArrowDown: 1, ArrowRight: 2 };
+const DIFFICULTIES = {
+  standard: { name: 'Standard', asset: 'lanes.json', approach: APPROACH },
+  extreme: { name: 'Extreme', asset: 'extreme.json', approach: 1100 },
+};
 const piano = createPiano();
 
 function readSave() {
@@ -25,20 +29,29 @@ function readSave() {
 }
 
 function writeSave() {
-  try { localStorage.setItem(STORAGE, JSON.stringify({ selected: song.id, records: saved.records, laneRecords: records, volume, offset })); } catch {}
+  try {
+    localStorage.setItem(STORAGE, JSON.stringify({
+      selected: song.id, difficulty, records: saved.records,
+      laneRecords: records.standard, extremeRecords: records.extreme, volume, offset,
+    }));
+  } catch {}
 }
 
 function bounded(value, minimum, maximum, fallback) {
   return Number.isFinite(value) ? Math.max(minimum, Math.min(maximum, value)) : fallback;
 }
 
+function recordMap(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
 const saved = readSave();
-const records = saved.laneRecords && typeof saved.laneRecords === 'object' && !Array.isArray(saved.laneRecords)
-  ? saved.laneRecords : {};
+const records = { standard: recordMap(saved.laneRecords), extreme: recordMap(saved.extremeRecords) };
+let difficulty = saved.difficulty === 'extreme' ? 'extreme' : 'standard';
 let volume = bounded(saved.volume, 0, 100, 85);
 let offset = bounded(saved.offset, -200, 200, 0);
 let song = SONGS.find(item => item.id === saved.selected) ?? SONGS[0];
-let charts;
+const charts = new Map();
 let run;
 let pending = false;
 let watchingAudio = false;
@@ -104,7 +117,17 @@ for (const piece of SONGS) {
 }
 
 function updateRecords() {
-  for (const [id, element] of songRows) stars(element, records[id]?.stars);
+  for (const [id, element] of songRows) stars(element, records[difficulty][id]?.stars);
+}
+
+for (const radio of byId('difficulty').querySelectorAll('input')) {
+  radio.checked = radio.value === difficulty;
+  radio.addEventListener('change', () => {
+    difficulty = radio.value;
+    writeSave();
+    updateRecords();
+    showNotice('notice');
+  });
 }
 
 function updateSettings() {
@@ -161,15 +184,16 @@ function placeMarker(index, type, left, y, width = '') {
 }
 
 function renderCues(now) {
-  const { chart, game } = run;
+  const { chart, game, mode } = run;
+  const { approach } = DIFFICULTIES[mode];
   const strikeY = highway.clientHeight * STRIKE;
   const center = lane => (lane + .5) * 100 / lanes.length;
   let marker = 0;
   for (let index = game.cursor; index < chart.cues.length; index++) {
     const [beat, required] = chart.cues[index];
     const remaining = beat - now;
-    if (remaining > APPROACH) break;
-    const y = strikeY * (1 - remaining / APPROACH);
+    if (remaining > approach) break;
+    const y = strikeY * (1 - remaining / approach);
     const paired = (required & (required - 1)) !== 0;
     const open = index === game.cursor ? required & ~game.hitLanes : required;
     if (paired && open === required) {
@@ -209,19 +233,20 @@ function render(position) {
 }
 
 function complete() {
-  const { game } = run;
+  const { game, mode } = run;
   game.advance(Infinity);
   stop();
   const result = game.result();
-  const previous = records[song.id];
+  const previous = records[mode][song.id];
   const newBest = result.score > (previous?.score ?? 0);
   const bestStars = Math.max(previous?.stars ?? 0, result.stars);
   if (newBest || bestStars > (previous?.stars ?? 0)) {
-    records[song.id] = { score: Math.max(previous?.score ?? 0, result.score), stars: bestStars };
+    records[mode][song.id] = { score: Math.max(previous?.score ?? 0, result.score), stars: bestStars };
     writeSave();
     updateRecords();
   }
   setText('result-title', song.name);
+  setText('result-difficulty', DIFFICULTIES[mode].name + ' results');
   stars(byId('result-stars'), result.stars);
   setText('accuracy', (Math.floor(result.accuracy * 10) / 10) + '%');
   setText('best-combo', result.bestCombo);
@@ -268,6 +293,9 @@ async function startPiece(button) {
   pending = true;
   button.disabled = true;
   byId('songs').disabled = true;
+  byId('difficulty').disabled = true;
+  const mode = difficulty;
+  const settings = DIFFICULTIES[mode];
   const notice = pauseMenu.open ? 'pause-notice' : phase === 'results' ? 'result-notice' : 'notice';
   showNotice(notice, 'Preparing the piano…');
   try {
@@ -279,20 +307,22 @@ async function startPiece(button) {
       });
     }
     const [data, buffer] = await Promise.all([
-      charts ?? fetch(asset('lanes.json')).then(response => {
+      charts.get(mode) ?? fetch(asset(settings.asset)).then(response => {
         if (!response.ok) throw new Error('The beat chart could not load.');
         return response.json();
       }),
       piano.load(asset(song.id + '-piano.mp3').href),
     ]);
-    charts = data;
+    charts.set(mode, data);
     const chart = data[song.id];
     if (!chart?.cues.length || Math.abs(buffer.duration * 1000 - chart.end) > 250) {
       throw new Error('The track and beat chart do not match.');
     }
     stop();
-    run = { chart, buffer, game: createPerformance(chart.cues), pausedAt: 0, flashes: [] };
+    run = { chart, buffer, game: createPerformance(chart.cues), mode, pausedAt: 0, flashes: [] };
+    byId('performance').dataset.difficulty = mode;
     setText('piece-title', song.name);
+    setText('piece-difficulty', settings.name);
     if (document.hidden) {
       show('performance');
       run.from = 0;
@@ -308,6 +338,7 @@ async function startPiece(button) {
     pending = false;
     button.disabled = false;
     byId('songs').disabled = false;
+    byId('difficulty').disabled = false;
   }
 }
 

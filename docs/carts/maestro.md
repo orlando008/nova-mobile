@@ -1,14 +1,16 @@
 # Maestro
 
-Maestro is a portrait rhythm game with three lanes. Choose a piano piece in the recital program and tap the lane as its block reaches the gold line. Linked blocks share a beat and need two taps together. Use A, S, and D or the left, down, and right arrow keys on a keyboard. All three pieces are available from the start.
+Maestro is a portrait rhythm game with three lanes. Choose a piano piece and difficulty in the recital program, then tap the lane as its block reaches the gold line. Linked blocks share a beat and need two taps together. Use A, S, and D or the left, down, and right arrow keys on a keyboard. All three pieces are available from the start.
 
-| Piece | Composer | Chart |
-| --- | --- | --- |
-| Clair de lune | Claude Debussy | A gentle pulse on the dotted-quarter beats and nearby note attacks |
-| Für Elise | Ludwig van Beethoven | The opening pickup and the main pulse of each 3/8 measure, with extra cues in the busier section |
-| The Entertainer | Scott Joplin | Quarter-note beats with occasional eighth-note cues |
+| Piece | Composer | Standard rows | Extreme rows |
+| --- | --- | ---: | ---: |
+| Clair de lune | Claude Debussy | 204 | 763 |
+| Für Elise | Ludwig van Beethoven | 120 | 625 |
+| The Entertainer | Scott Joplin | 362 | 972 |
 
-A row scores once. For linked blocks, both lanes must land within 85 ms of each other and within the usual timing window. The less accurate tap determines the grade. Perfect hits within 44 ms earn 1,000 points, Great hits within 85 ms earn 800, and Good hits within 135 ms earn 500. A miss or an offbeat tap breaks the combo. Accuracy measures points earned against the maximum, with offbeat taps counted as extra misses. Three stars require 95% accuracy, two require 80%, and one requires 60%. The result screen includes each judgment count. The recital saves the best score and highest star rating per song in local storage, along with the selected song, volume, and tap offset. Three-lane personal bests start fresh, with prior single-pad records retained in storage.
+Extreme adds melody runs, accompaniment, and more linked blocks at audible note attacks in each piece. It uses the same recordings and includes every Standard cue. Adjacent hits split the timing window at the midpoint when they are too close for separate 135 ms windows.
+
+A row scores once. For linked blocks, both lanes must land within 85 ms of each other and within the usual timing window. The less accurate tap determines the grade. Perfect hits within 44 ms earn 1,000 points, Great hits within 85 ms earn 800, and Good hits within 135 ms earn 500. A miss or an offbeat tap breaks the combo. Accuracy measures points earned against the maximum, with offbeat taps counted as extra misses. Three stars require 95% accuracy, two require 80%, and one requires 60%. The result screen includes each judgment count. The recital saves the best score and highest star rating per song and difficulty in local storage, along with the selected song, difficulty, volume, and tap offset. Existing three-lane personal bests carry over to Standard, with prior single-pad records retained in storage.
 
 The static player schedules the piano on the Web Audio clock. It maps display frames and input timestamps to the same audio position using the output timestamp when available. Pause and interruptions stop playback. Resuming gives a short visual count-in before the audio continues. The scoring module accepts timestamped taps independently of the browser clock, so the same chart and tap times produce the same result.
 

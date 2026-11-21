@@ -10,7 +10,7 @@
   <meta property="og:image" content="../../carts/maestro/assets/poster.png">
   <title>Maestro</title>
   <link rel="icon" href="../../carts/maestro/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./maestro.css?v=lanes">
+  <link rel="stylesheet" href="./maestro.css?v=extreme">
 </head>
 <body>
   <main class="theater">
@@ -33,6 +33,13 @@
         <div class="ornament" aria-hidden="true"><span></span></div>
         <h2>Recital</h2>
         <fieldset id="songs" aria-label="Choose a piano piece"></fieldset>
+        <fieldset id="difficulty" class="difficulty">
+          <legend>Difficulty</legend>
+          <div class="difficulty-options">
+            <label><input type="radio" name="difficulty" value="standard" checked><span>Standard</span></label>
+            <label><input type="radio" name="difficulty" value="extreme"><span>Extreme</span></label>
+          </div>
+        </fieldset>
         <button type="button" class="primary" id="play">Play</button>
         <p class="recital-hint">Tap blocks at the line. Tap linked blocks together.</p>
         <p id="notice" class="notice" role="status" hidden></p>
@@ -42,6 +49,7 @@
     <section id="performance" aria-label="Performance" hidden>
       <div class="scoreboard">
         <h2 id="piece-title"></h2>
+        <p id="piece-difficulty" class="eyebrow"></p>
         <div class="metrics">
           <span><strong id="score">0</strong> Score</span>
           <span><strong id="combo">0</strong> Combo</span>
@@ -73,7 +81,7 @@
     <section id="results" aria-labelledby="result-title" hidden>
       <div class="result-card">
         <div class="ornament" aria-hidden="true"><span></span></div>
-        <p class="eyebrow">Performance results</p>
+        <p class="eyebrow" id="result-difficulty"></p>
         <h2 id="result-title" tabindex="-1"></h2>
         <div class="stars large-stars" id="result-stars" role="img"></div>
         <dl class="totals">
@@ -115,6 +123,6 @@
     </details>
     <form method="dialog"><button type="submit" class="primary">Done</button></form>
   </dialog>
-  <script type="module" src="./maestro.mjs?v=lanes"></script>
+  <script type="module" src="./maestro.mjs?v=extreme"></script>
 </body>
 </html>
