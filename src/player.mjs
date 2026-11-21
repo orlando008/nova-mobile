@@ -8,6 +8,7 @@ import { decodePictures } from './pictures.mjs';
 const byId = id => document.getElementById(id);
 const { cart } = document.body.dataset;
 const canvas = byId('surface');
+const inputSurface = document.querySelector('[data-cart-input]') ?? canvas;
 const safeArea = byId('safe-area');
 const cartFields = document.querySelectorAll('[data-cart-field]');
 const resetInLive = byId('live').hasAttribute('data-reset');
@@ -202,7 +203,7 @@ byId('play').addEventListener('click', async () => {
     byId('board').hidden = false;
     renderer = createRenderer(canvas, bitmaps) ?? createCanvasRenderer(canvas, bitmaps);
     screen = measureScreen(canvas, safeArea);
-    pointers = bindPointers(canvas, () => screen);
+    pointers = bindPointers(inputSurface, () => screen);
     worker = new Worker(new URL('./worker.mjs', import.meta.url), { type: 'module' });
     worker.addEventListener('message', onMessage);
     worker.addEventListener('error', event => fail(event.message));
