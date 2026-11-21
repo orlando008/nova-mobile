@@ -256,12 +256,25 @@ progress {
 progress::-webkit-progress-bar { background: #0c1220; border-radius: 8px; }
 progress::-webkit-progress-value { background: #f2c777; border-radius: 8px; }
 progress::-moz-progress-bar { background: #f2c777; border-radius: 8px; }
+.hand-labels {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1px;
+  margin: 10px 16px 0;
+  color: var(--gold);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.hand-labels span:first-child { color: #b4dddd; }
 .stage {
   display: grid;
   grid-template-rows: minmax(0, 1fr) 49px;
   flex: 1;
   min-height: 300px;
-  margin: 12px 16px 0;
+  margin: 4px 16px 0;
 }
 .highway {
   --strike: 86%;
@@ -284,6 +297,11 @@ progress::-moz-progress-bar { background: #f2c777; border-radius: 8px; }
   touch-action: none;
   user-select: none;
 }
+.lane:first-child {
+  --key-border: #88c4c89c;
+  --key-surface: linear-gradient(180deg, #75b8be31, #18283e85);
+  background: linear-gradient(180deg, #8bbcc717, #0a192580);
+}
 .lane + .lane { border-left: 1px solid #e4ba7055; }
 .lane:nth-child(2) { background: linear-gradient(180deg, #f5c07810, #13192c6e); }
 .lane:focus-visible { z-index: 1; outline: 2px solid var(--cyan); outline-offset: -3px; }
@@ -292,9 +310,9 @@ progress::-moz-progress-bar { background: #f2c777; border-radius: 8px; }
   inset: var(--strike) 7px 7px;
   display: grid;
   place-items: center;
-  border: 1px solid #d6a86689;
+  border: 1px solid var(--key-border, #d6a86689);
   border-radius: 0 0 6px 6px;
-  background: linear-gradient(180deg, #a776382e, #18283e85);
+  background: var(--key-surface, linear-gradient(180deg, #a776382e, #18283e85));
   color: var(--ivory);
   font-size: 1rem;
   font-weight: 700;
@@ -346,6 +364,10 @@ progress::-moz-progress-bar { background: #f2c777; border-radius: 8px; }
 .block.paired {
   background: linear-gradient(175deg, #fff5d0, #ffca74);
   box-shadow: 0 2px 12px #0009, 0 0 14px #ffce72a3, inset 0 0 0 2px #fff4cd9a;
+}
+.block.bass-block {
+  border-color: #e6fff6;
+  background: linear-gradient(175deg, #d9f5e8, #81b6bb);
 }
 .block.paired::after {
   content: '';

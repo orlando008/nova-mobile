@@ -2,7 +2,7 @@
   "format": 1,
   "name": "maestro",
   "title": "Maestro",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "console": "0.1",
   "description": "Play the rhythm of classic piano across three lanes.",
   "shelf": "Arcade",
@@ -58,7 +58,7 @@
       "path": "assets/extreme.json",
       "lazy": true,
       "bytes": 24679,
-      "sha256": "53a6c724c6d7c03b0e6ff36274097cee555f47a8c22187255340413c6d0a5aed"
+      "sha256": "b5f15e387791de3a740063626dc00298f64a32999a6102a5cd780c02adaf8046"
     },
     {
       "path": "assets/icon.png",
@@ -70,7 +70,7 @@
       "path": "assets/lanes.json",
       "lazy": true,
       "bytes": 7272,
-      "sha256": "dd9c267aa6f72e06cd8edfed692bde4b531db22d2442d03dfc641a6d26e0ccc3"
+      "sha256": "33f34bb100eb98b838da874a40454ef3112b68521ba00bb9f8f0acbe676a89de"
     },
     {
       "path": "assets/poster.png",
@@ -91,5 +91,5 @@
       "sha256": "2370012835e8ec3f330f338b5d0e5caefe3851093d41656df86f402e49213d93"
     }
   ],
-  "contentVersion": "5d4c6606cb2c5a8a87453733798314b08037bcfbbc79e1582ecbd754fc0a9c52"
+  "contentVersion": "4a9c2fbcc53b08429fa6f35322a457f8457beb4a4eb66f0bd749ce4bb453ebe1"
 }

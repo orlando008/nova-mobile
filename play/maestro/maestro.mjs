@@ -1,4 +1,4 @@
-import { APPROACH, COUNT_IN, createPerformance } from '../../carts/maestro/code.js?v=extreme';
+import { APPROACH, COUNT_IN, createPerformance } from '../../carts/maestro/code.js?v=bass';
 import { createPiano } from './audio.mjs?v=clock';
 
 const SONGS = [
@@ -17,8 +17,8 @@ const AUDIO_INTERRUPTED = 'Playback was interrupted. Resume to continue.';
 const STRIKE = .86;
 const KEYS = { KeyA: 0, KeyS: 1, KeyD: 2, ArrowLeft: 0, ArrowDown: 1, ArrowRight: 2 };
 const DIFFICULTIES = {
-  standard: { name: 'Standard', asset: 'lanes.json', approach: APPROACH },
-  extreme: { name: 'Extreme', asset: 'extreme.json', approach: 1100 },
+  standard: { name: 'Standard', asset: 'lanes.json?v=bass', approach: APPROACH },
+  extreme: { name: 'Extreme', asset: 'extreme.json?v=bass', approach: 1100 },
 };
 const piano = createPiano();
 
@@ -199,12 +199,13 @@ function renderCues(now) {
     const paired = (required & (required - 1)) !== 0;
     const open = index === game.cursor ? required & ~game.hitLanes : required;
     if (paired && open === required) {
-      const left = center(required & 1 ? 0 : 1);
+      const left = center(0);
       const right = center(required & 4 ? 2 : 1);
       placeMarker(marker++, 'pair-link', left, y, (right - left) + '%');
     }
+    const type = paired ? 'block paired' : 'block';
     for (let lane = 0; lane < lanes.length; lane++) {
-      if (open & (1 << lane)) placeMarker(marker++, paired ? 'block paired' : 'block', center(lane), y);
+      if (open & (1 << lane)) placeMarker(marker++, lane === 0 ? type + ' bass-block' : type, center(lane), y);
     }
   }
   for (let index = marker; index < markers.length; index++) markers[index].hidden = true;

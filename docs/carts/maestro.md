@@ -1,6 +1,6 @@
 # Maestro
 
-Maestro is a portrait rhythm game with three lanes. Choose a piano piece and difficulty in the recital program, then tap the lane as its block reaches the gold line. Linked blocks share a beat and need two taps together. Use A, S, and D or the left, down, and right arrow keys on a keyboard. All three pieces are available from the start.
+Maestro is a portrait rhythm game with three lanes. Choose a piano piece and difficulty in the recital program, then tap the lane as its block reaches the gold line. The left lane plays bass with the left thumb. The middle and right lanes play treble with the right thumb. A linked hit uses bass and one treble lane at the same beat. Use A, S, and D or the left, down, and right arrow keys on a keyboard. All three pieces are available from the start.
 
 | Piece | Composer | Standard rows | Extreme rows |
 | --- | --- | ---: | ---: |
@@ -22,6 +22,6 @@ Piano renditions and beat charts are derived from these public-domain Mutopia Pr
 - [Für Elise](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931), typeset by Stelios Samelis from Breitkopf & Härtel (1888).
 - [The Entertainer](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=263), maintained by Chris Sawer from a reproduction of the 1902 edition.
 
-The MIDI tracks were sequenced at 64, 82, and 102 quarter notes per minute respectively, with adjusted dynamics. The tracks use the original stereo Yamaha C5 recordings from [Salamander Grand Piano V3](https://github.com/sfzinstruments/SalamanderGrandPiano) by Alexander Holm, licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). The samples were trimmed to align the hammer attacks with the score, pitched to the nearest notes, shaped with note releases, and mixed as stereo MP3s. Cue times are milliseconds from the start of each mix. Each cue pairs a time with a lane mask using 1 for left, 2 for center, and 4 for right. Melodic pitches guide single lanes, and selected simultaneous note attacks become linked blocks.
+The MIDI tracks were sequenced at 64, 82, and 102 quarter notes per minute respectively, with adjusted dynamics. The tracks use the original stereo Yamaha C5 recordings from [Salamander Grand Piano V3](https://github.com/sfzinstruments/SalamanderGrandPiano) by Alexander Holm, licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). The samples were trimmed to align the hammer attacks with the score, pitched to the nearest notes, shaped with note releases, and mixed as stereo MP3s. Cue times are milliseconds from the start of each mix. Each cue pairs a time with a lane mask using 1 for bass, 2 for middle treble, and 4 for right treble. Treble pitches and the spacing of nearby notes guide which treble lane plays. Selected simultaneous attacks in the bass and treble staves become linked hits.
 
 The recital hall and song illustrations are original generated game artwork. The display typeface is a subset of Bodoni Moda, distributed under the [SIL Open Font License](../../carts/maestro/assets/BodoniModa-OFL.txt).

@@ -10,7 +10,7 @@
   <meta property="og:image" content="../../carts/maestro/assets/poster.png">
   <title>Maestro</title>
   <link rel="icon" href="../../carts/maestro/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./maestro.css?v=extreme">
+  <link rel="stylesheet" href="./maestro.css?v=bass">
 </head>
 <body>
   <main class="theater">
@@ -41,7 +41,7 @@
           </div>
         </fieldset>
         <button type="button" class="primary" id="play">Play</button>
-        <p class="recital-hint">Tap blocks at the line. Tap linked blocks together.</p>
+        <p class="recital-hint">Left thumb for bass. Right thumb for treble.</p>
         <p id="notice" class="notice" role="status" hidden></p>
       </div>
     </section>
@@ -56,15 +56,16 @@
         </div>
         <progress id="progress" max="1" value="0" aria-label="Song progress"></progress>
       </div>
+      <div class="hand-labels" aria-hidden="true"><span>Bass</span><span>Treble</span></div>
       <div class="stage">
-        <div id="highway" class="highway" role="group" aria-describedby="timing-help" aria-label="Three piano lanes">
-          <button type="button" class="lane" aria-label="Left lane" aria-keyshortcuts="A ArrowLeft">
+        <div id="highway" class="highway" role="group" aria-describedby="timing-help" aria-label="Bass and treble lanes">
+          <button type="button" class="lane" aria-label="Bass lane" aria-keyshortcuts="A ArrowLeft">
             <span class="lane-key" aria-hidden="true"><span class="keyboard-hint">A</span></span>
           </button>
-          <button type="button" class="lane" aria-label="Center lane" aria-keyshortcuts="S ArrowDown">
+          <button type="button" class="lane" aria-label="Treble middle lane" aria-keyshortcuts="S ArrowDown">
             <span class="lane-key" aria-hidden="true"><span class="keyboard-hint">S</span></span>
           </button>
-          <button type="button" class="lane" aria-label="Right lane" aria-keyshortcuts="D ArrowRight">
+          <button type="button" class="lane" aria-label="Treble right lane" aria-keyshortcuts="D ArrowRight">
             <span class="lane-key" aria-hidden="true"><span class="keyboard-hint">D</span></span>
           </button>
           <div class="strike-line" aria-hidden="true"></div>
@@ -123,6 +124,6 @@
     </details>
     <form method="dialog"><button type="submit" class="primary">Done</button></form>
   </dialog>
-  <script type="module" src="./maestro.mjs?v=clock"></script>
+  <script type="module" src="./maestro.mjs?v=bass"></script>
 </body>
 </html>

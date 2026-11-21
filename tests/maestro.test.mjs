@@ -28,16 +28,21 @@ test('Maestro penalizes a wrong lane or extra tap and resets combos when a cue p
 });
 
 test('linked blocks accept distinct lanes in either order and grade the wider offset', () => {
-  const game = createPerformance([[500, 5], [1000, 6]]);
+  const game = createPerformance([[500, 5], [1000, 3]]);
   assert.equal(game.tap(2, 475), 'Together');
   assert.equal(game.hitLanes, 4);
   assert.equal(game.score, 0);
   assert.equal(game.tap(0, 529), 'Perfect');
   assert.equal(game.hitLanes, 0);
   assert.equal(game.tap(1, 1012), 'Together');
-  assert.equal(game.tap(2, 1075), 'Great');
+  assert.equal(game.tap(0, 1075), 'Great');
   assert.equal(game.combo, 2);
   assert.equal(game.score, 1800);
+});
+
+test('Maestro rejects a pair that requires two treble lanes', () => {
+  assert.throws(() => createPerformance([[500, 6]]), /bass and one treble lane/);
+  assert.throws(() => createPerformance([[500, 7]]), /bass and one treble lane/);
 });
 
 test('a repeated lane, a late second tap, and a partial chord do not score', () => {
@@ -86,10 +91,10 @@ test('all six charts are clearable and Extreme adds real cue rows to every Stand
       assert.ok(cues.at(-1)[0] + HIT_WINDOW < end);
       const masks = new Set(cues.map(([, mask]) => mask));
       for (const lane of [1, 2, 4]) assert.ok(masks.has(lane));
-      assert.ok([3, 5, 6].some(pair => masks.has(pair)));
+      assert.ok([3, 5].some(pair => masks.has(pair)));
       const game = createPerformance(cues);
       for (const [index, [time, mask]] of cues.entries()) {
-        assert.ok(Number.isInteger(mask) && mask >= 1 && mask <= 6);
+        assert.ok(Number.isInteger(mask) && mask >= 1 && mask <= 5);
         if (index) assert.ok(time - cues[index - 1][0] >= 115);
         for (let lane = 0; lane < 3; lane++) {
           if (mask & (1 << lane)) game.tap(lane, time);

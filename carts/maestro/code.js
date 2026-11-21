@@ -3,6 +3,8 @@ export const APPROACH = 1450;
 export const HIT_WINDOW = 135;
 export const TOGETHER_WINDOW = 85;
 
+const LANE_MASKS = new Set([1, 2, 3, 4, 5]);
+
 const RATINGS = [
   { name: 'Perfect', window: 44, points: 1000 },
   { name: 'Great', window: 85, points: 800 },
@@ -10,6 +12,9 @@ const RATINGS = [
 ];
 
 export function createPerformance(cues) {
+  if (cues.some(([, mask]) => !LANE_MASKS.has(mask))) {
+    throw new Error('Each cue needs one lane or bass and one treble lane.');
+  }
   let cursor = 0;
   let score = 0;
   let combo = 0;
