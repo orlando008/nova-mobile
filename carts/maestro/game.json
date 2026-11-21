@@ -2,9 +2,9 @@
   "format": 1,
   "name": "maestro",
   "title": "Maestro",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "console": "0.1",
-  "description": "Tap to the rhythm of classic piano in a one-thumb recital.",
+  "description": "Play the rhythm of classic piano across three lanes.",
   "shelf": "Arcade",
   "orientations": [
     "portrait"
@@ -19,10 +19,10 @@
       "sha256": "97e32fdfa86a9aa79b85ce20b63b8618a8bf3e1110a0e631fac7f73983417b55"
     },
     {
-      "path": "assets/charts.json",
+      "path": "assets/lanes.json",
       "lazy": true,
-      "bytes": 4531,
-      "sha256": "92d388c34a4c0cc18bc0f6476a2b008e0b8d578ded67bb81156026f80ee0204f"
+      "bytes": 7272,
+      "sha256": "dd9c267aa6f72e06cd8edfed692bde4b531db22d2442d03dfc641a6d26e0ccc3"
     },
     {
       "path": "assets/clair-piano.mp3",
@@ -85,5 +85,5 @@
       "sha256": "2370012835e8ec3f330f338b5d0e5caefe3851093d41656df86f402e49213d93"
     }
   ],
-  "contentVersion": "133204eb3001af8fd5377fbf3565284c05bdde74a4eecc5eaf33c7ed3981c37b"
+  "contentVersion": "fe6dfbf72700230d5d1dcce097d1a804db96dcd83f66f42062a1e682c74b225f"
 }

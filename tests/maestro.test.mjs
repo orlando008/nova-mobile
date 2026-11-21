@@ -3,44 +3,80 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { HIT_WINDOW, createPerformance } from '../carts/maestro/code.js';
 
-test('Maestro grades both sides of the timing window and consumes each beat once', () => {
-  const game = createPerformance([0, 500, 1000, 1500, 2000, 2500, 3000]);
-  for (const time of [-44, 544, 915, 1585, 1865, 2635, 3136]) game.tap(time);
+test('Maestro grades both sides of the timing window', () => {
+  const game = createPerformance([0, 500, 1000, 1500, 2000, 2500, 3000].map(beat => [beat, 1]));
+  for (const time of [-44, 544, 915, 1585, 1865, 2635, 3136]) game.tap(0, time);
   assert.deepEqual(game.result(), {
     score: 4600, accuracy: 4600 / 70, stars: 1, bestCombo: 6,
     counts: { Perfect: 2, Great: 2, Good: 2, Miss: 1 },
   });
 });
 
-test('Maestro penalizes extra taps and resets combos when a cue passes', () => {
-  const game = createPerformance([500, 1000, 1500, 2000]);
-  game.tap(0);
-  game.tap(500);
-  game.tap(510);
-  assert.equal(game.feedback.name, 'Off beat');
-  game.tap(1000);
+test('Maestro penalizes a wrong lane or extra tap and resets combos when a cue passes', () => {
+  const game = createPerformance([[500, 1], [1000, 2], [1500, 1], [2000, 4]]);
+  game.tap(0, 0);
+  game.tap(0, 500);
+  assert.equal(game.tap(2, 1000), 'Off beat');
+  assert.equal(game.tap(1, 1000), 'Perfect');
   game.advance(1500 + HIT_WINDOW + 1);
   assert.equal(game.combo, 0);
-  game.tap(2000);
+  game.tap(2, 2000);
   assert.deepEqual(game.result(), {
     score: 3000, accuracy: 60, stars: 1, bestCombo: 1,
     counts: { Perfect: 3, Great: 0, Good: 0, Miss: 1 },
   });
 });
 
-test('all shipped pieces allow every cue to score independently', async () => {
-  const charts = JSON.parse(await readFile(new URL('../carts/maestro/assets/charts.json', import.meta.url), 'utf8'));
+test('linked blocks accept distinct lanes in either order and grade the wider offset', () => {
+  const game = createPerformance([[500, 5], [1000, 6]]);
+  assert.equal(game.tap(2, 475), 'Together');
+  assert.equal(game.hitLanes, 4);
+  assert.equal(game.score, 0);
+  assert.equal(game.tap(0, 529), 'Perfect');
+  assert.equal(game.hitLanes, 0);
+  assert.equal(game.tap(1, 1012), 'Together');
+  assert.equal(game.tap(2, 1075), 'Great');
+  assert.equal(game.combo, 2);
+  assert.equal(game.score, 1800);
+});
+
+test('a repeated lane, a late second tap, and a partial chord do not score', () => {
+  const game = createPerformance([[500, 3], [1000, 3], [1500, 3]]);
+  game.tap(0, 450);
+  assert.equal(game.tap(0, 460), 'Off beat');
+  assert.equal(game.hitLanes, 1);
+  assert.equal(game.tap(1, 550), 'Miss');
+  game.tap(0, 1000);
+  game.advance(1000 + HIT_WINDOW + 1);
+  assert.equal(game.hitLanes, 0);
+  game.tap(0, 1490);
+  game.clearPartial();
+  assert.equal(game.tap(1, 1500), 'Together');
+  game.advance(Infinity);
+  assert.deepEqual(game.result().counts, { Perfect: 0, Great: 0, Good: 0, Miss: 3 });
+});
+
+test('all shipped pieces use three lanes, include linked blocks, and can earn three stars', async () => {
+  const charts = JSON.parse(await readFile(new URL('../carts/maestro/assets/lanes.json', import.meta.url), 'utf8'));
   assert.deepEqual(Object.keys(charts), ['clair', 'elise', 'entertainer']);
-  for (const { end, beats } of Object.values(charts)) {
-    assert.ok(beats.length > 100);
-    assert.ok(beats[0] >= 0);
-    assert.ok(beats.at(-1) + HIT_WINDOW < end);
-    for (let i = 1; i < beats.length; i++) assert.ok(beats[i] - beats[i - 1] > 2 * HIT_WINDOW);
-    const game = createPerformance(beats);
-    for (const beat of beats) game.tap(beat);
+  for (const { end, cues } of Object.values(charts)) {
+    assert.ok(cues.length > 100);
+    assert.ok(cues[0][0] >= 0);
+    assert.ok(cues.at(-1)[0] + HIT_WINDOW < end);
+    const masks = new Set(cues.map(([, mask]) => mask));
+    for (const lane of [1, 2, 4]) assert.ok(masks.has(lane));
+    assert.ok([3, 5, 6].some(pair => masks.has(pair)));
+    for (let i = 1; i < cues.length; i++) assert.ok(cues[i][0] - cues[i - 1][0] > 2 * HIT_WINDOW);
+    const game = createPerformance(cues);
+    for (const [time, mask] of cues) {
+      assert.ok(mask >= 1 && mask <= 6);
+      for (let lane = 0; lane < 3; lane++) {
+        if (mask & (1 << lane)) game.tap(lane, time);
+      }
+    }
     assert.deepEqual(game.result(), {
-      score: beats.length * 1000, accuracy: 100, stars: 3, bestCombo: beats.length,
-      counts: { Perfect: beats.length, Great: 0, Good: 0, Miss: 0 },
+      score: cues.length * 1000, accuracy: 100, stars: 3, bestCombo: cues.length,
+      counts: { Perfect: cues.length, Great: 0, Good: 0, Miss: 0 },
     });
   }
 });

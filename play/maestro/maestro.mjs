@@ -1,4 +1,4 @@
-import { APPROACH, COUNT_IN, createPerformance } from '../../carts/maestro/code.js';
+import { APPROACH, COUNT_IN, createPerformance } from '../../carts/maestro/code.js?v=lanes';
 import { createPiano } from './audio.mjs';
 
 const SONGS = [
@@ -12,6 +12,8 @@ const number = new Intl.NumberFormat(document.documentElement.lang);
 const STORAGE = 'nova-mobile:maestro';
 const RESUME_LEAD = 1200;
 const INPUT_GRACE = 32;
+const STRIKE = .86;
+const KEYS = { KeyA: 0, KeyS: 1, KeyD: 2, ArrowLeft: 0, ArrowDown: 1, ArrowRight: 2 };
 const piano = createPiano();
 
 function readSave() {
@@ -23,7 +25,7 @@ function readSave() {
 }
 
 function writeSave() {
-  try { localStorage.setItem(STORAGE, JSON.stringify({ selected: song.id, records, volume, offset })); } catch {}
+  try { localStorage.setItem(STORAGE, JSON.stringify({ selected: song.id, records: saved.records, laneRecords: records, volume, offset })); } catch {}
 }
 
 function bounded(value, minimum, maximum, fallback) {
@@ -31,7 +33,8 @@ function bounded(value, minimum, maximum, fallback) {
 }
 
 const saved = readSave();
-const records = saved.records && typeof saved.records === 'object' && !Array.isArray(saved.records) ? saved.records : {};
+const records = saved.laneRecords && typeof saved.laneRecords === 'object' && !Array.isArray(saved.laneRecords)
+  ? saved.laneRecords : {};
 let volume = bounded(saved.volume, 0, 100, 85);
 let offset = bounded(saved.offset, -200, 200, 0);
 let song = SONGS.find(item => item.id === saved.selected) ?? SONGS[0];
@@ -42,9 +45,12 @@ let watchingAudio = false;
 let phase = 'recital';
 let frameId;
 
-const pad = byId('pad');
-const rings = [...pad.querySelectorAll('.ring')];
-const stage = pad.parentElement;
+const highway = byId('highway');
+const lanes = [...highway.querySelectorAll('.lane')];
+const blocks = byId('blocks');
+const markers = [];
+const stage = highway.parentElement;
+highway.style.setProperty('--strike', 100 * STRIKE + '%');
 const pauseMenu = byId('pause-menu');
 const settingsMenu = byId('settings-menu');
 
@@ -140,28 +146,60 @@ function setText(id, text) {
   if (element.textContent !== text) element.textContent = text;
 }
 
+function placeMarker(index, type, left, y, width = '') {
+  let marker = markers[index];
+  if (!marker) {
+    marker = document.createElement('span');
+    blocks.append(marker);
+    markers[index] = marker;
+  }
+  marker.hidden = false;
+  marker.className = type;
+  marker.style.left = left + '%';
+  marker.style.width = width;
+  marker.style.setProperty('--y', y + 'px');
+}
+
+function renderCues(now) {
+  const { chart, game } = run;
+  const strikeY = highway.clientHeight * STRIKE;
+  const center = lane => (lane + .5) * 100 / lanes.length;
+  let marker = 0;
+  for (let index = game.cursor; index < chart.cues.length; index++) {
+    const [beat, required] = chart.cues[index];
+    const remaining = beat - now;
+    if (remaining > APPROACH) break;
+    const y = strikeY * (1 - remaining / APPROACH);
+    const paired = (required & (required - 1)) !== 0;
+    const open = index === game.cursor ? required & ~game.hitLanes : required;
+    if (paired && open === required) {
+      const left = center(required & 1 ? 0 : 1);
+      const right = center(required & 4 ? 2 : 1);
+      placeMarker(marker++, 'pair-link', left, y, (right - left) + '%');
+    }
+    for (let lane = 0; lane < lanes.length; lane++) {
+      if (open & (1 << lane)) placeMarker(marker++, paired ? 'block paired' : 'block', center(lane), y);
+    }
+  }
+  for (let index = marker; index < markers.length; index++) markers[index].hidden = true;
+}
+
 function render(position) {
   const { chart, game, from } = run;
   const now = position - offset;
-  const cueStart = APPROACH;
   const lead = from - position;
+  renderCues(now);
   byId('progress').value = Math.max(from, position) / chart.end;
   setText('score', number.format(game.score));
   setText('combo', game.combo);
 
-  let next = game.cursor;
-  for (const ring of rings) {
-    while (chart.beats[next] < now) next++;
-    const remaining = chart.beats[next++] - now;
-    ring.hidden = !(remaining <= cueStart);
-    if (ring.hidden) continue;
-    const progress = remaining / cueStart;
-    ring.style.transform = 'scale(' + (1 + 1.7 * progress) + ')';
-    ring.style.opacity = 1 - .7 * progress;
+  for (let lane = 0; lane < lanes.length; lane++) {
+    const flash = run.flashes[lane];
+    const active = flash && now >= flash.time && now - flash.time < 190;
+    lanes[lane].dataset.hit = active ? flash.name : '';
   }
-
   const feedback = game.feedback;
-  const fresh = feedback && now - feedback.time < 540;
+  const fresh = feedback && now >= feedback.time && now - feedback.time < 540;
   stage.dataset.hit = fresh ? feedback.name : '';
   const countdown = lead > 120 ? Math.ceil(lead / 1000) : '';
   setText('judgement', countdown || (fresh ? feedback.name : ''));
@@ -221,7 +259,7 @@ function launch(from, lead) {
   pauseMenu.close();
   show('performance');
   render(from - lead);
-  pad.focus({ preventScroll: true });
+  lanes[1].focus({ preventScroll: true });
   frameId = requestAnimationFrame(frame);
 }
 
@@ -241,7 +279,7 @@ async function startPiece(button) {
       });
     }
     const [data, buffer] = await Promise.all([
-      charts ?? fetch(asset('charts.json')).then(response => {
+      charts ?? fetch(asset('lanes.json')).then(response => {
         if (!response.ok) throw new Error('The beat chart could not load.');
         return response.json();
       }),
@@ -249,11 +287,11 @@ async function startPiece(button) {
     ]);
     charts = data;
     const chart = data[song.id];
-    if (!chart?.beats.length || Math.abs(buffer.duration * 1000 - chart.end) > 250) {
+    if (!chart?.cues.length || Math.abs(buffer.duration * 1000 - chart.end) > 250) {
       throw new Error('The track and beat chart do not match.');
     }
     stop();
-    run = { chart, buffer, game: createPerformance(chart.beats), pausedAt: 0 };
+    run = { chart, buffer, game: createPerformance(chart.cues), pausedAt: 0, flashes: [] };
     setText('piece-title', song.name);
     if (document.hidden) {
       show('performance');
@@ -276,6 +314,8 @@ async function startPiece(button) {
 function pauseRun() {
   if (pending || phase !== 'performance' || pauseMenu.open) return;
   run.pausedAt = Math.max(run.from, piano.positionAt(performance.now()));
+  run.game.clearPartial();
+  run.flashes = [];
   stop();
   showNotice('pause-notice');
   pauseMenu.showModal();
@@ -304,30 +344,35 @@ async function resumeRun() {
   }
 }
 
-function tap(event) {
+function tap(lane, event) {
   if (phase !== 'performance' || pauseMenu.open) return;
   const position = piano.positionAt(event.timeStamp);
   if (position < run.from - (run.from === 0 ? 275 : 0)) return;
-  run.game.tap(position - offset);
-  render(position);
+  const time = position - offset;
+  const name = run.game.tap(lane, time);
+  if (name) run.flashes[lane] = { time, name };
+  render(piano.positionAt(performance.now()));
 }
 
-pad.addEventListener('pointerdown', event => {
-  if (event.button === 0 && event.isPrimary) tap(event);
-});
-pad.addEventListener('click', event => {
-  if (event.detail === 0) tap(event);
+lanes.forEach((button, lane) => {
+  button.addEventListener('pointerdown', event => {
+    if (event.button === 0) tap(lane, event);
+  });
+  button.addEventListener('click', event => {
+    if (event.detail === 0) tap(lane, event);
+  });
 });
 document.addEventListener('keydown', event => {
   if (phase !== 'performance' || pauseMenu.open) return;
   if (event.code === 'Escape') {
     event.preventDefault();
     pauseRun();
+    return;
   }
-  if ((event.code === 'Space' && (event.target === pad || event.target === document.body)) ||
-    (event.code === 'Enter' && event.target === pad)) {
+  const lane = KEYS[event.code];
+  if (lane !== undefined) {
     event.preventDefault();
-    if (!event.repeat) tap(event);
+    if (!event.repeat) tap(lane, event);
   }
 });
 pauseMenu.addEventListener('cancel', event => {

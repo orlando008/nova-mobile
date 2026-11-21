@@ -1,6 +1,7 @@
 export const COUNT_IN = 2200;
-export const APPROACH = 1000;
+export const APPROACH = 1450;
 export const HIT_WINDOW = 135;
+export const TOGETHER_WINDOW = 85;
 
 const RATINGS = [
   { name: 'Perfect', window: 44, points: 1000 },
@@ -8,12 +9,13 @@ const RATINGS = [
   { name: 'Good', window: HIT_WINDOW, points: 500 },
 ];
 
-export function createPerformance(beats) {
+export function createPerformance(cues) {
   let cursor = 0;
   let score = 0;
   let combo = 0;
   let bestCombo = 0;
   let strayTaps = 0;
+  let firstHit;
   const counts = { Perfect: 0, Great: 0, Good: 0, Miss: 0 };
   let feedback;
 
@@ -24,39 +26,64 @@ export function createPerformance(beats) {
     bestCombo = Math.max(bestCombo, combo);
   }
 
+  function finish(name, time, offset, points) {
+    counts[name]++;
+    record(name, time, offset, points);
+    firstHit = undefined;
+    cursor++;
+  }
+
   function advance(time) {
-    while (beats[cursor] + HIT_WINDOW < time) {
-      counts.Miss++;
-      record('Miss', beats[cursor] + HIT_WINDOW);
-      cursor++;
+    while (cursor < cues.length && cues[cursor][0] + HIT_WINDOW < time) {
+      finish('Miss', cues[cursor][0] + HIT_WINDOW);
     }
   }
 
-  function tap(time) {
+  function tap(lane, time) {
     advance(time);
-    const beat = beats[cursor];
-    if (beat === undefined || time < beats[0] - HIT_WINDOW) return;
+    const cue = cues[cursor];
+    if (!cue || time < cues[0][0] - HIT_WINDOW) return;
+    const [beat, required] = cue;
+    const laneMask = 1 << lane;
     const offset = time - beat;
-    const rating = RATINGS.find(rating => Math.abs(offset) <= rating.window);
-    if (rating) {
-      counts[rating.name]++;
-      record(rating.name, time, offset, rating.points);
-      cursor++;
-    } else {
+    if (Math.abs(offset) > HIT_WINDOW || !(required & laneMask) || firstHit?.laneMask === laneMask) {
       strayTaps++;
       record('Off beat', time, offset);
+      return 'Off beat';
     }
+
+    if (firstHit && Math.abs(time - firstHit.time) > TOGETHER_WINDOW) {
+      finish('Miss', time);
+      return 'Miss';
+    }
+
+    if (((firstHit?.laneMask ?? 0) | laneMask) !== required) {
+      firstHit = { time, laneMask };
+      feedback = { name: 'Both together', time };
+      return 'Together';
+    }
+
+    const firstOffset = (firstHit?.time ?? time) - beat;
+    const worst = Math.abs(firstOffset) > Math.abs(offset) ? firstOffset : offset;
+    const rating = RATINGS.find(({ window }) => Math.abs(worst) <= window);
+    finish(rating.name, time, worst, rating.points);
+    return rating.name;
   }
 
   function result() {
-    const accuracy = score / (10 * (beats.length + strayTaps));
+    const accuracy = score / (10 * (cues.length + strayTaps));
     const stars = accuracy >= 95 ? 3 : accuracy >= 80 ? 2 : accuracy >= 60 ? 1 : 0;
     return { score, accuracy, stars, bestCombo, counts: { ...counts } };
   }
 
   return {
     advance, tap, result,
+    clearPartial() {
+      firstHit = undefined;
+      if (feedback?.name === 'Both together') feedback = undefined;
+    },
     get cursor() { return cursor; },
+    get hitLanes() { return firstHit?.laneMask ?? 0; },
     get score() { return score; },
     get combo() { return combo; },
     get feedback() { return feedback; },
