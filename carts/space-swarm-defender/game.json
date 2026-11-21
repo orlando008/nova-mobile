@@ -1,0 +1,124 @@
+{
+  "format": 1,
+  "name": "space-swarm-defender",
+  "title": "Space Swarm Defender",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Defend four planets against an alien swarm and earn stars to unlock the next world.",
+  "shelf": "Arcade",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/blocked.png",
+      "bytes": 6085,
+      "sha256": "7d900bf02f885a37ae1ec6c50bd1da40881482586cdd178d044ec3ac8089bddf"
+    },
+    {
+      "path": "assets/burst.png",
+      "bytes": 19595,
+      "sha256": "56ccd6284ffe7750f56859da99cad2a55364d795509c1b5a5af1b5276e9236ad"
+    },
+    {
+      "path": "assets/core.png",
+      "bytes": 14523,
+      "sha256": "136dc402d5da1aead770cf525690aa26ec144507cb303ec43c648a4f6096a184"
+    },
+    {
+      "path": "assets/cryo.png",
+      "bytes": 10230,
+      "sha256": "5fc82ed2ad2af3353e49fc0a8ef36b058c5159a7e4c8adda07cd3dbc79d444a3"
+    },
+    {
+      "path": "assets/guard.png",
+      "bytes": 14467,
+      "sha256": "b20c1f44d88af233225e3f5291100cbf6d88e7cc7150bba96ac19ca5f59813ee"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 184657,
+      "sha256": "c0e120f5c938aba15bf8cb69cf8762e2d148424d8ffa689636e619aff9ccca5c"
+    },
+    {
+      "path": "assets/nova.png",
+      "bytes": 8204,
+      "sha256": "744936804e2be4236f5e9573f387e7e8f05861ad93c5d68e7dcc8071c9b375e1"
+    },
+    {
+      "path": "assets/pad.png",
+      "bytes": 6158,
+      "sha256": "d92a81089bc7f7049abb9aea641726009cb2804382e8136347f9b2cb592594e8"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 427647,
+      "sha256": "9cf61eb539b529a13b93afe5ff3fe8c356fc8a8e47fee9d8ffea9b6791b87fbc"
+    },
+    {
+      "path": "assets/pulse.png",
+      "bytes": 7812,
+      "sha256": "87426136bf18613436a4d17e0d2f3f6178ada36cea5c92f149dee11203bbd3b6"
+    },
+    {
+      "path": "assets/queen.png",
+      "bytes": 15131,
+      "sha256": "98bf88ed864e0aafe75c16f5bf710e6769749c0676e2c82f31df80a19213e15f"
+    },
+    {
+      "path": "assets/range.png",
+      "bytes": 7226,
+      "sha256": "ab7c00280f3cf6479730d6c804507d8640bbcd5459369fc7c319ba67d6eee710"
+    },
+    {
+      "path": "assets/runner.png",
+      "bytes": 13202,
+      "sha256": "58222eb80fab3a320b52b946cc9c5fbdb781a3f71ed014e06677ea4d4ac8c255"
+    },
+    {
+      "path": "assets/scout.png",
+      "bytes": 13779,
+      "sha256": "5e284a7b5137936e8dfb60198edd7d3bf23290bc77950e3f8d3a3a15a4f2288b"
+    },
+    {
+      "path": "assets/space.png",
+      "bytes": 62668,
+      "sha256": "c7e0dc2f48df36ba46d05689ef3fdbd91bef593abecbc12594a10634018ddcf7"
+    },
+    {
+      "path": "assets/constellation.webp",
+      "lazy": true,
+      "bytes": 55902,
+      "sha256": "b36c1d006d272ed7cfbe54344dc1f9b86117da887175474ba076996312a5b62b"
+    },
+    {
+      "path": "assets/planet-caldera.webp",
+      "lazy": true,
+      "bytes": 90382,
+      "sha256": "fc47a7e4e34d09d798cee2438fe832eae9830cd0166d5c31b24a8e9762967a9b"
+    },
+    {
+      "path": "assets/planet-kepler.webp",
+      "lazy": true,
+      "bytes": 107424,
+      "sha256": "be1260d72d791b0d41b70353463f2261e0bc9aa03b20d08d2b0ffe9bf3271ed6"
+    },
+    {
+      "path": "assets/planet-nacre.webp",
+      "lazy": true,
+      "bytes": 107724,
+      "sha256": "f35fc7bf5e1d302b72288ab766afa46d16b45dc00eb18783139a2eaca450b6ec"
+    },
+    {
+      "path": "assets/planet-vesper.webp",
+      "lazy": true,
+      "bytes": 68142,
+      "sha256": "ff3bede2a54bf4ef31990fc70f6dfe567ca091048d185a6fbee13cec7bc8599a"
+    }
+  ],
+  "contentVersion": "41560549486ba8167a93d118f3d286fffc0d124693158ba26f639b117597d2b7"
+}

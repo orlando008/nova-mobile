@@ -178,6 +178,7 @@ function animate(timestamp) {
 }
 
 const refresh = () => {
+  if (!canvas.getClientRects().length) return;
   const next = measureScreen(canvas, safeArea);
   if (JSON.stringify(next) === JSON.stringify(screen)) return;
   screen = next;
@@ -228,6 +229,7 @@ byId('record').addEventListener('click', () => {
 });
 byId('replay').addEventListener('click', () => start('replay'));
 export function restartPlayer() {
+  refresh();
   start('live');
   if (record?.frames.length) byId('replay').disabled = false;
 }
