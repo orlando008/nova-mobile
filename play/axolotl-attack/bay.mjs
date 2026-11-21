@@ -8,6 +8,7 @@ const pause = byId('pause-menu');
 const result = byId('result');
 const sound = byId('sound');
 const thumb = byId('stick-thumb');
+const catchUp = byId('catch-up');
 const feedback = byId('feedback');
 const key = 'axolotl-attack:' + new URL('../../', import.meta.url).pathname;
 let best = 0;
@@ -59,6 +60,7 @@ function save() {
 function chooseMatch() {
   chooseCartOptions({ seed: crypto.getRandomValues(new Uint32Array(1))[0] });
   drawSteering(null);
+  setText(catchUp, '');
   void audio.unlock();
 }
 
@@ -161,6 +163,7 @@ canvas.addEventListener('cartframe', ({ detail }) => {
     cue = 0;
   }
   drawSteering(state.phase === 'swimming' ? state.steering : null);
+  setText(catchUp, state.catchUp ? 'Catch-up Boost' : '');
   byId('timer').classList.toggle('urgent', state.tick >= ROUND_TICKS - 600);
   for (const { id, count } of state.standings) {
     const label = labels[id];

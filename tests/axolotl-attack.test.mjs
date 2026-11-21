@@ -44,6 +44,57 @@ test('a tied match runs out at 3600 ticks and stops updating', () => {
   assert.equal(match.tick, ROUND_TICKS);
 });
 
+test('Catch-up Boost helps the trailing player swim and reach solo axolotls', () => {
+  const match = createMatch(5);
+  const [pink, kelp] = match.teams;
+  match.members.length = 0;
+  const stepContacts = () => { for (let i = 0; i < 3; i++) match.step(); };
+  const speed = () => {
+    const x = pink.x;
+    match.step(1, 0);
+    return pink.x - x;
+  };
+
+  kelp.count = 5;
+  stepContacts();
+  assert.equal(match.catchUp, false);
+  const regular = speed();
+  kelp.count = 10;
+  stepContacts();
+  assert.equal(match.catchUp, true);
+  assert.ok(speed() > regular + 0.7);
+
+  const solo = { x: pink.x + 40, y: pink.y, angle: 0, flash: 0, owner: -1 };
+  match.members.push(solo);
+  stepContacts();
+  assert.equal(solo.owner, 0);
+  assert.equal(pink.count, 2);
+
+  pink.count = 7;
+  stepContacts();
+  assert.equal(match.catchUp, true);
+  pink.count = 8;
+  stepContacts();
+  assert.equal(match.catchUp, false);
+  assert.ok(Math.abs(speed() - regular) < 1e-9);
+});
+
+test('extended recruitment stays on the same side of a reef corner', () => {
+  const match = createMatch(5);
+  const [pink, kelp] = match.teams;
+  const corner = { x: 7 * TILE, y: 13 * TILE };
+  Object.assign(pink, { x: corner.x + 14, y: corner.y - 16 });
+  kelp.count = 10;
+  match.members.length = 0;
+  for (let i = 0; i < 3; i++) match.step();
+  assert.equal(match.catchUp, true);
+
+  const solo = { x: corner.x - 19, y: corner.y + 14, angle: 0, flash: 0, owner: -1 };
+  match.members.push(solo);
+  for (let i = 0; i < 3; i++) match.step();
+  assert.equal(solo.owner, -1);
+});
+
 test('the cart repeats seeded pointer input and clears steering on pause', () => {
   const screen = { w: 720, h: 1100, scale: 2, dpr: 2, safe: { top: 0, right: 0, bottom: 0, left: 0 } };
   const newRun = () => createRuntime(createCart, screen, [], [], { seed: 618 });

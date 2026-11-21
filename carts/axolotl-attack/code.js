@@ -32,6 +32,10 @@ const TAU = 2 * Math.PI;
 const STEERING_RANGE = 54;
 const LEADER_RADIUS = 16;
 const FOLLOWER_RADIUS = 11;
+const PLAYER_SPEED = 3.35;
+const CATCH_UP_SPEED = 0.75;
+const RECRUIT_DISTANCE = 30;
+const CATCH_UP_RECRUIT_DISTANCE = 46;
 const CENTER = [0.5, 0.5];
 const ASSETS = 'assets/';
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -151,15 +155,15 @@ function chooseTarget(team, teams, members, openTarget) {
   return nextPoint(team, target, paths);
 }
 
-function steerFollower(unit, team, index, tick) {
+function steerFollower(unit, team, index, tick, speedBonus) {
   const angle = index * 2.399963 + Math.sin(tick / 95) * 0.22;
   const radius = 25 + 12 * Math.sqrt(index);
   const target = { x: team.x + Math.cos(angle) * radius, y: team.y + Math.sin(angle) * radius };
   if (!canSwim(target.x, target.y, FOLLOWER_RADIUS) || distance(unit, team) > radius + 55) {
     const leaderPoint = nextPoint(unit, team, pathsFrom(cellOf(unit)));
-    move(unit, leaderPoint.x - unit.x, leaderPoint.y - unit.y, 4.3, FOLLOWER_RADIUS);
+    move(unit, leaderPoint.x - unit.x, leaderPoint.y - unit.y, 4.3 + speedBonus, FOLLOWER_RADIUS);
   } else {
-    move(unit, target.x - unit.x, target.y - unit.y, 4, FOLLOWER_RADIUS);
+    move(unit, target.x - unit.x, target.y - unit.y, 4 + speedBonus, FOLLOWER_RADIUS);
   }
 }
 
@@ -185,6 +189,16 @@ export function createMatch(seed) {
   let peak = 1;
   let phase = 'swimming';
   let cue = { id: 0, type: '' };
+  let catchUp = false;
+
+  function updateCatchUp() {
+    const leader = Math.max(teams[1].count, teams[2].count, teams[3].count);
+    const gap = leader - player.count;
+    // Give players room to recover before taking the boost away.
+    catchUp = catchUp
+      ? gap > 2 && player.count * 5 < leader * 4
+      : gap >= 5 && player.count * 3 <= leader * 2;
+  }
 
   function signal(type) {
     cue = { id: cue.id + 1, type };
@@ -203,22 +217,31 @@ export function createMatch(seed) {
     for (const unit of members) {
       if (unit.owner >= 0) schools[unit.owner].push(unit);
     }
-    function nearest(unit, swimmers) {
-      let best = Infinity;
+    function nearest(unit, swimmers, range, extended = false) {
+      let best = range * range;
       for (const swimmer of swimmers) {
         const dx = unit.x - swimmer.x;
         const dy = unit.y - swimmer.y;
-        best = Math.min(best, dx * dx + dy * dy);
+        const squared = dx * dx + dy * dy;
+        if (squared >= best) continue;
+        if (extended && squared >= RECRUIT_DISTANCE ** 2) {
+          // The longer reach cannot recruit around the corner of a reef.
+          if (!canSwim(swimmer.x + dx / 3, swimmer.y + dy / 3, 8) ||
+              !canSwim(swimmer.x + 2 * dx / 3, swimmer.y + 2 * dy / 3, 8)) continue;
+        }
+        best = squared;
       }
-      return best;
+      return best < range * range ? best : Infinity;
     }
     const playerStart = teams[0].count;
     for (const unit of members) {
       if (unit.owner >= 0) continue;
-      let best = 30 * 30;
+      let best = Infinity;
       let candidate;
       for (const team of teams) {
-        const squared = nearest(unit, schools[team.id]);
+        const extended = catchUp && team.id === 0;
+        const range = extended ? CATCH_UP_RECRUIT_DISTANCE : RECRUIT_DISTANCE;
+        const squared = nearest(unit, schools[team.id], range, extended);
         if (squared >= best) continue;
         best = squared;
         candidate = team;
@@ -239,8 +262,8 @@ export function createMatch(seed) {
         for (const unit of schools[rival.id]) {
           if (unit === rival && counts[rival.id] > 1) continue;
           if (claimed.has(unit) || (unit.flash && tick - unit.flash < 18)) continue;
-          const squared = nearest(unit, schools[attacker.id]);
-          if (squared >= 27 * 27 || squared >= best) continue;
+          const squared = nearest(unit, schools[attacker.id], 27);
+          if (squared >= best) continue;
           best = squared;
           target = { unit, rival };
         }
@@ -279,7 +302,9 @@ export function createMatch(seed) {
   function step(dx = 0, dy = 0) {
     if (phase !== 'swimming') return;
     tick++;
-    move(player, dx * 3.35, dy * 3.35, 3.35, LEADER_RADIUS);
+    const speedBonus = catchUp ? CATCH_UP_SPEED : 0;
+    const speed = PLAYER_SPEED + speedBonus;
+    move(player, dx * speed, dy * speed, speed, LEADER_RADIUS);
     for (const team of teams.slice(1)) {
       if (team.out) continue;
       if (!team.waypoint || (tick + team.id * 5) % 20 === 0 || distance(team, team.waypoint) < 4) {
@@ -292,14 +317,18 @@ export function createMatch(seed) {
     }
     const formation = teams.map(() => 0);
     for (const unit of members) {
-      if (unit.owner >= 0) steerFollower(unit, teams[unit.owner], formation[unit.owner]++, tick);
-      else {
+      if (unit.owner >= 0) {
+        steerFollower(unit, teams[unit.owner], formation[unit.owner]++, tick, unit.owner === 0 ? speedBonus : 0);
+      } else {
         const angle = unit.angle + Math.sin(tick / 90 + unit.x * 0.05) * 0.035;
         move(unit, Math.cos(angle), Math.sin(angle), 0.27, FOLLOWER_RADIUS);
         unit.angle = angle;
       }
     }
-    if (tick % 3 === 0) resolveContacts();
+    if (tick % 3 === 0) {
+      resolveContacts();
+      updateCatchUp();
+    }
     peak = Math.max(peak, player.count);
     if (player.out || tick === ROUND_TICKS || teams.slice(1).every(team => team.out)) {
       phase = player.out ? 'caught' : 'finished';
@@ -316,6 +345,7 @@ export function createMatch(seed) {
     get peak() { return peak; },
     get phase() { return phase; },
     get cue() { return cue; },
+    get catchUp() { return phase === 'swimming' && catchUp; },
   };
 }
 
@@ -395,7 +425,7 @@ export function createCart({ options, touches, screen, spr }) {
       signature = Math.imul(signature ^ unit.owner, 16777619);
     }
     return { phase: match.phase, tick: match.tick, peak: match.peak, leaders, standings, cue: match.cue,
-      signature, steering, readout: {
+      signature, steering, catchUp: match.catchUp, readout: {
         school: player.count,
         rank: '#' + (standings.filter(team => team.count > player.count).length + 1),
         time: Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0'),
