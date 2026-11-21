@@ -481,6 +481,17 @@ export function createCart(api) {
       sprite(effect.kind === 'nova' ? 'burst' : 'range', effect.tx, effect.ty, 13 + 28 * progress, 1 - progress);
     }
 
+    const health = core / START_CORE;
+    const barWidth = 64;
+    const barX = reactor.x - barWidth / 2;
+    const barY = reactor.y - 39;
+    rect(barX, barY, barWidth, 9, [.33, .56, .65]);
+    rect(barX + 1, barY + 1, barWidth - 2, 7, DOCK);
+    if (health > 0) {
+      const color = health <= .25 ? [1, .30, .37] : health <= .5 ? AMBER : TOWERS.pulse.color;
+      rect(barX + 2, barY + 2, (barWidth - 4) * health, 5, color);
+    }
+
     rect(0, FIELD, WIDTH, HEIGHT - FIELD, DOCK);
     rect(0, FIELD, WIDTH, 1, [...sector.color, .47]);
     Object.entries(CONTROLS).forEach(([id, box]) => {
