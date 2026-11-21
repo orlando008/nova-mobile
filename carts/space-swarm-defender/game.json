@@ -13,6 +13,11 @@
   "icon": "assets/icon.png",
   "assets": [
     {
+      "path": "assets/blocked.png",
+      "bytes": 6085,
+      "sha256": "7d900bf02f885a37ae1ec6c50bd1da40881482586cdd178d044ec3ac8089bddf"
+    },
+    {
       "path": "assets/burst.png",
       "bytes": 19595,
       "sha256": "56ccd6284ffe7750f56859da99cad2a55364d795509c1b5a5af1b5276e9236ad"
@@ -115,5 +120,5 @@
       "sha256": "ff3bede2a54bf4ef31990fc70f6dfe567ca091048d185a6fbee13cec7bc8599a"
     }
   ],
-  "contentVersion": "35dec4fcb203d3e37dcc28a93f63aceb3ff176194f303d1926ba0e27d0dbfc2f"
+  "contentVersion": "788a3ad384957875b6bad823bf25e3919a21448e592470e30fbd04a69b1f5f46"
 }

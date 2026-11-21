@@ -18,7 +18,7 @@ Replaying a zone keeps its best rating. Preview saves from before the campaign r
 
 ## Controls
 
-- Pick a tower and tap an empty hex pad to build. You can construct and change defenses during a wave.
+- Drag a tower from the shop onto open ground. The placement ring shows its range on valid ground and turns red over blocked areas. You can also select a tower and tap to build. Leave room around the swarm lane, core, and existing towers. You can build during a wave.
 - Tap an installed tower to see its range. Upgrade raises damage and range through level 3. Salvage returns 65% of all credits spent on that tower, rounded down.
 - Launch the next wave when you are ready. The speed button switches between normal and double speed.
 - Pause to return to the planet map, restart the zone, mute effects, or use the shared replay tools.

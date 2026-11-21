@@ -27,8 +27,6 @@ const KEPLER = [
     description: 'A long approach and tight turns give you space to learn.',
     color: [.24, .82, .90],
     routes: [[[-20, 71], [262, 71], [262, 173], [82, 173], [82, 278], [261, 278], [261, 368], [176, 368], [176, 464]]],
-    pads: [[73, 119], [142, 119], [212, 122], [310, 113], [309, 214], [208, 223], [145, 224],
-      [35, 219], [37, 326], [125, 326], [195, 322], [310, 326], [118, 409], [229, 418]],
     credits: 150,
     pressure: 1,
   },
@@ -37,8 +35,6 @@ const KEPLER = [
     description: 'Faster swarms and long straights reward early coverage.',
     color: [.45, .65, 1],
     routes: [[[179, -16], [179, 75], [53, 75], [53, 185], [305, 185], [305, 281], [111, 281], [111, 378], [233, 378], [233, 464]]],
-    pads: [[123, 33], [230, 50], [177, 126], [112, 131], [249, 133], [309, 132], [57, 237],
-      [128, 234], [194, 234], [259, 233], [67, 328], [163, 328], [231, 329], [286, 327], [171, 418], [291, 417]],
     credits: 160,
     pressure: 1.12,
   },
@@ -50,14 +46,12 @@ const KEPLER = [
       [[-20, 72], [127, 72], [127, 153], [180, 153], [180, 248], [59, 248], [59, 348], [239, 348], [239, 464]],
       [[380, 79], [245, 79], [245, 153], [180, 153], [180, 248], [59, 248], [59, 348], [239, 348], [239, 464]],
     ],
-    pads: [[66, 123], [183, 102], [301, 131], [101, 201], [232, 204], [307, 204], [227, 263],
-      [282, 268], [109, 298], [175, 297], [236, 299], [16, 300], [287, 347], [98, 400], [179, 400], [287, 410]],
     credits: 210,
     pressure: 1.25,
   },
 ];
 
-// Later sectors reshape Kepler's three route families while keeping their build pads aligned.
+// Later sectors reshape Kepler's three route families.
 function variant(template, name, description, color, pressure, credits, flip, bendX, bendY, cadence) {
   const base = KEPLER[template];
   function project([x, y]) {
@@ -68,7 +62,7 @@ function variant(template, name, description, color, pressure, credits, flip, be
     ];
   }
   return { name, description, color, pressure, credits, cadence,
-    routes: base.routes.map(route => route.map(project)), pads: base.pads.map(project) };
+    routes: base.routes.map(route => route.map(project)) };
 }
 
 const VESPER = [.76, .58, 1];
@@ -109,6 +103,11 @@ const WAVES = [
 export const WAVE_COUNT = WAVES.length;
 export const START_CORE = 15;
 const MAX_LEVEL = 3;
+const LANE_WIDTH = 26;
+const TOWER_RADIUS = 16;
+const CORE_RADIUS = 31;
+const DRAG_DISTANCE = 8;
+const BUILD_HINT = 'Drag a tower here, or select one and tap open space.';
 const DOCK = [.025, .060, .106];
 const BUTTON = [.068, .136, .200];
 const MUTED = [.10, .20, .27];
@@ -127,6 +126,23 @@ function makeRoute(points) {
     return { x, y, dx: (endX - x) / legLength, dy: (endY - y) / legLength, end: length, length: legLength };
   });
   return { legs, length };
+}
+
+function legBox(leg, width) {
+  const endX = leg.x + leg.dx * leg.length;
+  const endY = leg.y + leg.dy * leg.length;
+  return {
+    x: Math.min(leg.x, endX) - width / 2,
+    y: Math.min(leg.y, endY) - width / 2,
+    w: Math.abs(endX - leg.x) + width,
+    h: Math.abs(endY - leg.y) + width,
+  };
+}
+
+function distanceToBox(x, y, box) {
+  const nearestX = Math.max(box.x, Math.min(x, box.x + box.w));
+  const nearestY = Math.max(box.y, Math.min(y, box.y + box.h));
+  return Math.hypot(x - nearestX, y - nearestY);
 }
 
 function placeEnemy(enemy, route) {
@@ -152,7 +168,10 @@ export function createCart(api) {
   const sectorId = SECTORS[api.options.sector] ? Number(api.options.sector) : 0;
   const sector = SECTORS[sectorId];
   const routes = sector.routes.map(makeRoute);
-  const towers = new Array(sector.pads.length).fill(null);
+  const lanes = routes.flatMap(({ legs }) => legs.map(leg => legBox(leg, LANE_WIDTH)));
+  const reactor = { x: sector.routes[0].at(-1)[0], y: FIELD - 20 };
+  const towers = [];
+  let contact;
   let enemies = [];
   let effects = [];
   let queue = [];
@@ -168,7 +187,7 @@ export function createCart(api) {
   let speed = 1;
   let kills = 0;
   let cue = { id: 0, type: '' };
-  let status = 'Select a tower, then tap a build pad.';
+  let status = BUILD_HINT;
 
   function sound(type) {
     cue = { id: cue.id + 1, type };
@@ -184,49 +203,90 @@ export function createCart(api) {
     sound('wave');
   }
 
-  function selectPad(index) {
-    selected = index;
-    if (towers[index]) {
-      const tower = towers[index];
-      picked = '';
-      status = TOWERS[tower.type].name + ' · Level ' + tower.level;
-      sound('select');
-      return;
-    }
-    if (!picked) {
-      status = 'Choose a tower below to fill this pad.';
-      return;
-    }
-    const { name, cost } = TOWERS[picked];
-    if (cost > credits) {
-      status = 'You need ' + cost + ' credits to build ' + name + '.';
+  function placementError(type, x, y) {
+    if (credits < TOWERS[type].cost) return 'Need ' + TOWERS[type].cost + ' credits.';
+    if (Math.min(x, y, WIDTH - x, FIELD - y) < TOWER_RADIUS) return 'Build inside the field.';
+    if (lanes.some(box => distanceToBox(x, y, box) < TOWER_RADIUS)) return 'Keep the swarm lane clear.';
+    if (distance(x, y, reactor) < TOWER_RADIUS + CORE_RADIUS) return 'Leave room around the core.';
+    if (towers.some(tower => distance(x, y, tower) < TOWER_RADIUS * 2)) return 'Leave room between towers.';
+    return '';
+  }
+
+  function build(type, x, y) {
+    const error = placementError(type, x, y);
+    if (error) {
+      status = error;
       sound('denied');
       return;
     }
-    towers[index] = { type: picked, level: 1, cooldown: 0, spent: cost };
+    const { name, cost } = TOWERS[type];
+    selected = towers.length;
+    towers.push({ type, x, y, level: 1, cooldown: 0, spent: cost });
+    picked = type;
     credits -= cost;
     status = name + ' built.';
     sound('build');
   }
 
+  function tapField(x, y) {
+    const index = towers.findIndex(tower => distance(x, y, tower) <= TOWER_RADIUS);
+    if (index !== -1) {
+      selected = index;
+      picked = '';
+      const tower = towers[index];
+      status = TOWERS[tower.type].name + ' · Level ' + tower.level;
+      sound('select');
+    } else if (picked) {
+      build(picked, x, y);
+    } else {
+      selected = -1;
+      status = BUILD_HINT;
+    }
+  }
+
+  function clearContact() {
+    contact = undefined;
+  }
+
+  function placementInput(scale) {
+    for (const sample of api.touches()) {
+      const x = Math.round(sample.x / scale);
+      const y = Math.round(sample.y / scale);
+      if (sample.phase === 'down') {
+        if (contact) continue;
+        const type = TOWER_TYPES.find(key => api.hit(x, y, CONTROLS[key]));
+        if (type || (y >= 0 && y < FIELD)) {
+          contact = { id: sample.id, type, x, y, startX: x, startY: y, moved: false };
+        }
+        continue;
+      }
+      if (contact?.id !== sample.id) continue;
+      if (sample.phase === 'cancel') {
+        clearContact();
+        continue;
+      }
+      contact.moved ||= Math.hypot(x - contact.startX, y - contact.startY) >= DRAG_DISTANCE;
+      contact.x = x;
+      contact.y = y;
+      const { type, moved } = contact;
+      if (sample.phase !== 'up') continue;
+      contact = undefined;
+      if (type && moved) build(type, x, y);
+      else if (type && api.hit(x, y, CONTROLS[type])) {
+        picked = type;
+        selected = -1;
+        status = 'Tap open space to build ' + TOWERS[type].name + '.';
+        sound('select');
+      } else if (!type && !moved && y >= 0 && y < FIELD) tapField(x, y);
+    }
+  }
+
   function input() {
     const scale = api.screen().w / WIDTH;
+    placementInput(scale);
     const clicked = (id, { x, y, w, h }) => api.button(id, {
       x: x * scale, y: y * scale, w: w * scale, h: h * scale,
     }) === 'clicked';
-    for (const type of TOWER_TYPES) {
-      if (!clicked(type, CONTROLS[type])) continue;
-      picked = type;
-      if (selected !== -1 && !towers[selected]) selectPad(selected);
-      else {
-        selected = -1;
-        status = 'Choose a pad for ' + TOWERS[type].name + '.';
-        sound('select');
-      }
-    }
-    sector.pads.forEach(([x, y], index) => {
-      if (clicked('pad' + index, { x: x - 21, y: y - 21, w: 42, h: 42 })) selectPad(index);
-    });
     const tower = towers[selected];
     if (clicked('upgrade', CONTROLS.upgrade) && tower && tower.level < MAX_LEVEL) {
       const cost = upgradeCost(tower);
@@ -244,7 +304,7 @@ export function createCart(api) {
     if (clicked('salvage', CONTROLS.salvage) && tower) {
       const refund = Math.floor(tower.spent * .65);
       credits += refund;
-      towers[selected] = null;
+      towers.splice(selected, 1);
       selected = -1;
       status = 'Tower salvaged for ' + refund + ' credits.';
       sound('select');
@@ -286,11 +346,10 @@ export function createCart(api) {
   }
 
   function defend() {
-    towers.forEach((tower, index) => {
-      if (!tower) return;
+    for (const tower of towers) {
       if (tower.cooldown > 0) tower.cooldown--;
-      if (tower.cooldown > 0) return;
-      const [x, y] = sector.pads[index];
+      if (tower.cooldown > 0) continue;
+      const { x, y } = tower;
       let target;
       let nearestCore = Infinity;
       for (const enemy of enemies) {
@@ -300,7 +359,7 @@ export function createCart(api) {
         nearestCore = remaining;
       }
       if (target) fire(tower, target, x, y);
-    });
+    }
   }
 
   function processEnemies() {
@@ -339,11 +398,13 @@ export function createCart(api) {
     processEnemies();
     if (core === 0) {
       phase = 'lost';
+      clearContact();
       status = 'The core has fallen.';
       sound('loss');
     } else if (cursor === queue.length && enemies.length === 0) {
       if (wave === WAVE_COUNT) {
         phase = 'won';
+        clearContact();
         status = 'Sector secured.';
         sound('win');
       } else {
@@ -369,13 +430,11 @@ export function createCart(api) {
     });
 
     api.spr('assets/space.png', 0, 0, { sx: scale, sy: scale });
-    for (const width of [26, 22, 15]) {
-      const color = width === 26 ? [...sector.color, .42] : width === 22 ? [.045, .12, .18] : [.065, .20, .26];
+    for (const width of [LANE_WIDTH, 22, 15]) {
+      const color = width === LANE_WIDTH ? [...sector.color, .42] : width === 22 ? [.045, .12, .18] : [.065, .20, .26];
       for (const { legs } of routes) for (const leg of legs) {
-        const x2 = leg.x + leg.dx * leg.length;
-        const y2 = leg.y + leg.dy * leg.length;
-        rect(Math.min(leg.x, x2) - width / 2, Math.min(leg.y, y2) - width / 2,
-          Math.abs(x2 - leg.x) + width, Math.abs(y2 - leg.y) + width, color);
+        const box = legBox(leg, width);
+        rect(box.x, box.y, box.w, box.h, color);
       }
     }
     for (const { legs } of routes) for (const leg of legs) {
@@ -384,20 +443,15 @@ export function createCart(api) {
       }
     }
     const mount = towers[selected];
-    if (mount) {
-      const [x, y] = sector.pads[selected];
-      sprite('range', x, y, rangeOf(mount) * 2, .55);
-    }
-    sector.pads.forEach(([x, y], index) => {
-      const tower = towers[index];
-      if (selected === index) sprite('range', x, y, 48, .87);
-      sprite('pad', x, y, 38, tower ? .68 : 1);
-      if (!tower) return;
-      sprite(tower.type, x, y, 41);
-      for (let i = 0; i < tower.level; i++) rect(x - 7 + i * 5, y + 17, 3, 3, TOWERS[tower.type].color);
+    const dragging = contact?.type && contact.moved;
+    if (mount && !dragging) sprite('range', mount.x, mount.y, rangeOf(mount) * 2, .55);
+    towers.forEach(({ x, y, type, level }, index) => {
+      if (selected === index && !dragging) sprite('range', x, y, 48, .87);
+      sprite('pad', x, y, 34, .68);
+      sprite(type, x, y, 36);
+      for (let i = 0; i < level; i++) rect(x - 7 + i * 5, y + 14, 3, 3, TOWERS[type].color);
     });
-    const coreX = sector.routes[0].at(-1)[0];
-    sprite('core', coreX, FIELD - 20, 72, core > 0 ? 1 : .38);
+    sprite('core', reactor.x, reactor.y, 72, core > 0 ? 1 : .38);
 
     for (const enemy of enemies) {
       const { size } = ENEMIES[enemy.type];
@@ -434,20 +488,32 @@ export function createCart(api) {
       const enabled = type ? credits >= type.cost
         : id === 'upgrade' ? mount && mount.level < MAX_LEVEL && credits >= upgradeCost(mount)
         : id === 'salvage' ? Boolean(mount) : id !== 'launch' || phase === 'setup';
-      const active = id === picked || (id === 'launch' && enabled);
+      const active = id === (dragging ? contact.type : picked) || (id === 'launch' && enabled);
       rect(box.x, box.y, box.w, box.h, active ? (type?.color ?? sector.color) : MUTED);
       rect(box.x + 1, box.y + 1, box.w - 2, box.h - 2, enabled ? BUTTON : DOCK);
       if (active) rect(box.x + 1, box.y + 1, box.w - 2, box.h - 2, [...(type?.color ?? sector.color), .13]);
       if (type) sprite(id, box.x + 21, box.y + box.h / 2, 32, enabled ? 1 : .47);
     });
+    if (dragging) {
+      const { type, x, y } = contact;
+      const error = placementError(type, x, y);
+      const ring = error ? 'blocked' : 'range';
+      if (!error) sprite(ring, x, y, TOWERS[type].range * 2, .52);
+      sprite(ring, x, y, 43);
+      sprite(type, x, y, 36, error ? .45 : .86);
+    }
   }
 
   function state() {
     const tower = towers[selected];
+    const preview = contact?.type && contact.moved
+      ? placementError(contact.type, contact.x, contact.y) || 'Release to build ' + TOWERS[contact.type].name + '.'
+      : status;
     return {
-      sector: sectorId, wave, phase, core, credits, kills, speed, picked, selected, cue, status,
+      sector: sectorId, wave, phase, core, credits, kills, speed, picked, selected, cue, status: preview,
       tick, waveTick, cursor,
-      towers: towers.map(item => item && { ...item }),
+      towers: towers.map(tower => ({ ...tower })),
+      contact: contact ? { ...contact } : null,
       enemies: enemies.map(enemy => ({ ...enemy })),
       upgrade: tower && tower.level < MAX_LEVEL ? upgradeCost(tower) : 0,
       salvage: tower ? Math.floor(tower.spent * .65) : 0,
@@ -460,5 +526,5 @@ export function createCart(api) {
     };
   }
 
-  return { update, draw, state };
+  return { update, draw, state, pause: clearContact, resize: clearContact };
 }
