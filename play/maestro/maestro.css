@@ -1,0 +1,312 @@
+@font-face {
+  font-family: Recital;
+  src: url('../../carts/maestro/assets/recital.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: Inter;
+  src: url('../../site-assets/fonts/inter-latin.woff') format('woff');
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  --night: #090e19;
+  --panel: #101727;
+  --gold: #e6bc76;
+  --border: #755d3e;
+  --ivory: #fff0d8;
+  --muted: #c1b7aa;
+  --cyan: #a1f8ff;
+  --display: Recital, Baskerville, Georgia, serif;
+  font: 400 14px/1.4 Inter, system-ui, sans-serif;
+  color: var(--ivory);
+  background: #070a10;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+button, input { font: inherit; }
+button, label, summary { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; touch-action: manipulation; }
+button:disabled { opacity: .65; cursor: wait; }
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+h1, h2, p, dl, dd { margin: 0; }
+
+.theater {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 480px);
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--night);
+}
+.theater:has(#performance:not([hidden]), #results:not([hidden])) { display: flex; flex-direction: column; }
+@media (min-width: 520px) {
+  .theater { border-inline: 1px solid #725b3e78; box-shadow: 0 0 110px #6e4d351f; }
+  body { background: radial-gradient(ellipse at 50% 10%, #191827, #070a10 64%); }
+}
+
+.topbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 45px;
+  padding: env(safe-area-inset-top) 15px 0;
+  border-bottom: 1px solid #c7a76e30;
+  background: #0b111de8;
+}
+.top-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: var(--ivory);
+  text-decoration: none;
+  font-size: .88rem;
+}
+.top-link:hover { color: var(--gold); }
+.wordmark {
+  color: var(--gold);
+  font: 400 1.37rem var(--display);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.hero {
+  display: grid;
+  align-items: start;
+  min-height: clamp(180px, 36dvh, 350px);
+  padding-top: clamp(14px, 3.6dvh, 32px);
+  text-align: center;
+  background: linear-gradient(0deg, var(--night), #090e1900 27%, #080e1950 62%, #080e19bd 100%),
+    url('../../carts/maestro/assets/recital.webp') center 47% / cover;
+}
+.hero-title { text-shadow: 0 2px 14px #000, 0 2px 8px #000; }
+.eyebrow {
+  color: var(--gold);
+  font-size: .69rem;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+.hero h1 {
+  font: 400 clamp(52px, 14vw, 74px)/1 var(--display);
+  letter-spacing: .014em;
+  text-transform: uppercase;
+}
+.hero p { margin-top: 5px; font: italic 1.05rem var(--display); }
+
+.program { padding: 0 19px 10px; }
+.ornament { display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--gold); }
+.ornament::before, .ornament::after {
+  content: '';
+  height: 1px;
+  flex: 1 1 100px;
+  background: linear-gradient(90deg, transparent, #bd995d);
+}
+.ornament::after { transform: scaleX(-1); }
+.ornament span, .diamond {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+.program h2 {
+  margin: 9px 0 12px;
+  text-align: center;
+  font: 400 1.5rem/1 var(--display);
+  letter-spacing: .19em;
+  text-transform: uppercase;
+}
+fieldset { min-inline-size: 0; display: grid; gap: 8px; margin: 0 0 14px; padding: 0; border: 0; }
+.song { position: relative; cursor: pointer; }
+.song input { position: absolute; opacity: 0; }
+.song-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 62px;
+  padding: 0 10px 0 0;
+  border: 1px solid #b7895458;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(115deg, #151f31, #101624);
+}
+.song-card img { width: 60px; height: 60px; object-fit: cover; }
+.song input:checked + .song-card {
+  border-color: var(--gold);
+  background: linear-gradient(115deg, #243045, #161c2b);
+  box-shadow: inset 0 0 0 1px #eac68260, 0 0 14px #eac6821a;
+}
+.song input:focus-visible + .song-card { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.song-copy strong { display: block; font: 400 clamp(1.18rem, 4.7vw, 1.56rem)/1.05 var(--display); }
+.song-copy small, .song-meta { color: var(--muted); font-size: .71rem; }
+.song-copy small { display: block; margin-top: 4px; }
+.song-meta { display: grid; gap: 2px; justify-items: end; white-space: nowrap; }
+.stars { color: #b5a08b; letter-spacing: .13em; }
+.stars .earned { color: #ffda8d; text-shadow: 0 0 18px #f0a94080; }
+
+.primary, .secondary {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 14px;
+  border: 1px solid #ad874c;
+  border-radius: 7px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.primary {
+  background: linear-gradient(175deg, #fff3d7, #ddae66);
+  box-shadow: inset 0 0 0 2px #ffe9bd75, 0 3px 17px #0005;
+  color: #191521;
+}
+.primary:hover:not(:disabled) { filter: brightness(1.1); }
+.secondary { color: var(--ivory); background: #161b2b; }
+.secondary:hover { background: #222b40; }
+.notice { padding: 8px 0 0; color: var(--muted); text-align: center; }
+
+#performance {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 440px;
+  background: linear-gradient(0deg, var(--night), #0a122661 41%, #11192c30 69%, #090e19df),
+    url('../../carts/maestro/assets/recital.webp') center 35% / cover;
+}
+.scoreboard { z-index: 1; padding: 19px 23px 0; text-align: center; }
+.scoreboard h2, .result-card h2, dialog h2 { font: 400 2.5rem/1 var(--display); }
+.metrics {
+  display: flex;
+  justify-content: space-between;
+  margin: 13px 0 8px;
+  color: var(--muted);
+  font-size: .76rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.metrics strong { color: var(--ivory); font-size: 1rem; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+progress {
+  width: 100%;
+  height: 5px;
+  display: block;
+  border: 1px solid #96754c;
+  border-radius: 8px;
+  background: #0c1220;
+  color: #f2c777;
+}
+progress::-webkit-progress-bar { background: #0c1220; border-radius: 8px; }
+progress::-webkit-progress-value { background: #f2c777; border-radius: 8px; }
+progress::-moz-progress-bar { background: #f2c777; border-radius: 8px; }
+.stage { position: relative; display: grid; flex: 1; min-height: 300px; place-items: center; overflow: hidden; }
+.pad {
+  --size: clamp(108px, 31vw, 145px);
+  position: absolute;
+  top: 69%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #604625;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+}
+.pad-core {
+  position: absolute;
+  inset: 2px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #ffe8b6;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #fff8e3, #f0cb8a 72%, #c79449);
+  box-shadow: 0 0 0 6px #9b73ab24, 0 0 35px #fdc57365, inset 0 0 0 7px #b9874140;
+}
+.pad-core .diamond { width: 18px; height: 18px; }
+.pad:active .pad-core { filter: brightness(1.16); }
+.ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #ffe0a0;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #f8b85a90, inset 0 0 9px #f8b85a45;
+  pointer-events: none;
+}
+.stage[data-hit="Perfect"] .pad-core {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 5px #76f4ff82, 0 0 38px #76f4ffbd, inset 0 0 22px #c5f3ed;
+}
+.stage[data-hit="Great"] .pad-core { box-shadow: 0 0 0 5px #f7cd8e80, 0 0 40px #fdc57399; }
+.judgement {
+  position: absolute;
+  inset: auto 0 0;
+  min-height: 58px;
+  text-align: center;
+  pointer-events: none;
+}
+.judgement strong { display: block; font: 400 1.9rem/1 var(--display); text-shadow: 0 2px 10px #000; }
+.stage[data-hit="Perfect"] .judgement { color: var(--cyan); }
+.stage[data-hit="Miss"] .judgement, .stage[data-hit="Off beat"] .judgement { color: #ffc1aa; }
+.judgement span { display: block; min-height: 1em; font-size: .76rem; color: var(--muted); margin-top: 4px; }
+#timing-help { padding: 2px 10px 18px; text-align: center; color: var(--muted); font-size: .8rem; }
+@media (pointer: coarse) {
+  .keyboard-hint { display: none; }
+}
+
+#results {
+  flex: 1;
+  display: grid;
+  align-items: center;
+  padding: 28px 19px;
+  background: linear-gradient(#0b111ea6, #0b111ecf), url('../../carts/maestro/assets/recital.webp') center / cover;
+}
+.result-card, dialog {
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: radial-gradient(ellipse at top, #2d2930, var(--panel) 55%);
+  color: var(--ivory);
+}
+.result-card { padding: 20px 14px; text-align: center; }
+.result-card > .eyebrow { margin-block: 17px 6px; }
+.result-card > .ornament:last-child { margin-top: 18px; }
+.large-stars { font-size: clamp(36px, 10vw, 52px); margin-block: 12px; }
+.totals, .breakdown { display: grid; }
+.totals { grid-template-columns: repeat(3, 1fr); margin-block: 12px; }
+.breakdown { grid-template-columns: repeat(4, 1fr); margin-block: 0 17px; border-top: 1px solid #e6bc7638; }
+.totals div, .breakdown div { padding: 8px 1px; }
+.totals div + div { border-left: 1px solid #e6bc7638; }
+.totals dt, .breakdown dt { color: var(--muted); font-size: .78rem; }
+.totals dd { color: var(--ivory); font: 400 clamp(1.36rem, 5.7vw, 2.1rem)/1.2 var(--display); }
+.breakdown dd { margin-top: 3px; color: var(--gold); }
+#new-best { margin-bottom: 12px; }
+.result-card button + button { margin-top: 8px; }
+
+dialog { max-width: min(360px, calc(100% - 34px)); width: 100%; padding: 20px; }
+dialog::backdrop { background: #060a14de; }
+dialog h2 { margin: 0 0 16px; }
+dialog button + button { margin-top: 9px; }
+dialog label { display: flex; justify-content: space-between; }
+dialog output { color: var(--gold); }
+dialog input { accent-color: var(--gold); width: 100%; min-height: 44px; margin: 0; }
+dialog p { color: var(--muted); font-size: .85rem; }
+dialog details { margin-block: 14px; }
+dialog summary { cursor: pointer; color: var(--gold); }
+dialog details p { margin-top: 8px; }
+dialog a { color: var(--ivory); }
