@@ -1,5 +1,5 @@
 import { APPROACH, COUNT_IN, createPerformance } from '../../carts/maestro/code.js?v=extreme';
-import { createPiano } from './audio.mjs';
+import { createPiano } from './audio.mjs?v=clock';
 
 const SONGS = [
   { id: 'clair', name: 'Clair de lune', composer: 'Claude Debussy', level: 'Gentle', duration: '5:04' },
@@ -12,6 +12,8 @@ const number = new Intl.NumberFormat(document.documentElement.lang);
 const STORAGE = 'nova-mobile:maestro';
 const RESUME_LEAD = 1200;
 const INPUT_GRACE = 32;
+const CLOCK_RESET_THRESHOLD = 250;
+const AUDIO_INTERRUPTED = 'Playback was interrupted. Resume to continue.';
 const STRIKE = .86;
 const KEYS = { KeyA: 0, KeyS: 1, KeyD: 2, ArrowLeft: 0, ArrowDown: 1, ArrowRight: 2 };
 const DIFFICULTIES = {
@@ -54,7 +56,7 @@ let song = SONGS.find(item => item.id === saved.selected) ?? SONGS[0];
 const charts = new Map();
 let run;
 let pending = false;
-let watchingAudio = false;
+let watchedContext;
 let phase = 'recital';
 let frameId;
 
@@ -266,9 +268,21 @@ function complete() {
   byId('result-title').focus({ preventScroll: true });
 }
 
+function updatePosition(timestamp) {
+  const position = piano.positionAt(timestamp);
+  if (piano.context.state !== 'running' || !Number.isFinite(position) ||
+      position < run.position - CLOCK_RESET_THRESHOLD) {
+    pauseRun(AUDIO_INTERRUPTED);
+    return;
+  }
+  run.position = Math.max(run.position, position);
+  return run.position;
+}
+
 function frame(timestamp) {
   if (phase !== 'performance' || pauseMenu.open) return;
-  const position = piano.positionAt(timestamp);
+  const position = updatePosition(timestamp);
+  if (position === undefined) return;
   run.game.advance(position - offset - INPUT_GRACE);
   if (position >= run.chart.end) {
     complete();
@@ -278,12 +292,23 @@ function frame(timestamp) {
   frameId = requestAnimationFrame(frame);
 }
 
+async function unlockPiano() {
+  await piano.unlock(volume / 100);
+  const context = piano.context;
+  if (context === watchedContext) return;
+  watchedContext = context;
+  context.addEventListener('statechange', () => {
+    if (context === piano.context && context.state !== 'running') pauseRun(AUDIO_INTERRUPTED);
+  });
+}
+
 function launch(from, lead) {
   run.from = from;
   piano.start(run.buffer, from, lead);
+  run.position = from - lead;
   pauseMenu.close();
   show('performance');
-  render(from - lead);
+  render(run.position);
   lanes[1].focus({ preventScroll: true });
   frameId = requestAnimationFrame(frame);
 }
@@ -299,13 +324,7 @@ async function startPiece(button) {
   const notice = pauseMenu.open ? 'pause-notice' : phase === 'results' ? 'result-notice' : 'notice';
   showNotice(notice, 'Preparing the piano…');
   try {
-    await piano.unlock(volume / 100);
-    if (!watchingAudio) {
-      watchingAudio = true;
-      piano.context.addEventListener('statechange', () => {
-        if (piano.context.state !== 'running') pauseRun();
-      });
-    }
+    await unlockPiano();
     const [data, buffer] = await Promise.all([
       charts.get(mode) ?? fetch(asset(settings.asset)).then(response => {
         if (!response.ok) throw new Error('The beat chart could not load.');
@@ -319,14 +338,14 @@ async function startPiece(button) {
       throw new Error('The track and beat chart do not match.');
     }
     stop();
-    run = { chart, buffer, game: createPerformance(chart.cues), mode, pausedAt: 0, flashes: [] };
+    run = { chart, buffer, game: createPerformance(chart.cues), mode, pausedAt: 0, position: -COUNT_IN, flashes: [] };
     byId('performance').dataset.difficulty = mode;
     setText('piece-title', song.name);
     setText('piece-difficulty', settings.name);
     if (document.hidden) {
       show('performance');
       run.from = 0;
-      render(-COUNT_IN);
+      render(run.position);
       if (!pauseMenu.open) pauseMenu.showModal();
     } else {
       launch(0, COUNT_IN);
@@ -342,13 +361,13 @@ async function startPiece(button) {
   }
 }
 
-function pauseRun() {
+function pauseRun(message = '') {
   if (pending || phase !== 'performance' || pauseMenu.open) return;
-  run.pausedAt = Math.max(run.from, piano.positionAt(performance.now()));
+  run.pausedAt = Math.min(run.chart.end, Math.max(run.from, run.position));
   run.game.clearPartial();
   run.flashes = [];
   stop();
-  showNotice('pause-notice');
+  showNotice('pause-notice', message);
   pauseMenu.showModal();
 }
 
@@ -358,7 +377,7 @@ async function resumeRun() {
   pending = true;
   resume.disabled = true;
   try {
-    await piano.unlock(volume / 100);
+    await unlockPiano();
     if (!document.hidden) {
       if (run.pausedAt >= run.chart.end) {
         pauseMenu.close();
@@ -377,12 +396,14 @@ async function resumeRun() {
 
 function tap(lane, event) {
   if (phase !== 'performance' || pauseMenu.open) return;
-  const position = piano.positionAt(event.timeStamp);
-  if (position < run.from - (run.from === 0 ? 275 : 0)) return;
-  const time = position - offset;
+  const position = updatePosition(performance.now());
+  if (position === undefined) return;
+  const inputPosition = piano.positionAt(event.timeStamp);
+  if (inputPosition < run.from - (run.from === 0 ? 275 : 0)) return;
+  const time = inputPosition - offset;
   const name = run.game.tap(lane, time);
   if (name) run.flashes[lane] = { time, name };
-  render(piano.positionAt(performance.now()));
+  render(position);
 }
 
 lanes.forEach((button, lane) => {
@@ -413,13 +434,13 @@ pauseMenu.addEventListener('cancel', event => {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) pauseRun();
 });
-window.addEventListener('pagehide', pauseRun);
+window.addEventListener('pagehide', () => pauseRun());
 
 for (const id of ['play', 'replay', 'restart']) {
   byId(id).addEventListener('click', event => startPiece(event.currentTarget));
 }
 for (const button of document.querySelectorAll('[data-recital]')) button.addEventListener('click', showRecital);
-byId('pause').addEventListener('click', pauseRun);
+byId('pause').addEventListener('click', () => pauseRun());
 byId('resume').addEventListener('click', resumeRun);
 byId('settings').addEventListener('click', () => settingsMenu.showModal());
 updateRecords();
