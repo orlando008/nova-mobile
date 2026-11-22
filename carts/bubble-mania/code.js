@@ -8,6 +8,7 @@ const LIGHTS = [[.31, .68, 1], [.81, .42, 1], [.37, 1, .59], [1, .33, .44], [1, 
 const CHARGE_TICKS = 71;
 const MAX_ANGLE = .84;
 const MIN_RADIUS = 3.5;
+const MULLIGAN_INTERVAL = 15;
 const BEAD_RADIUS = 2.4;
 const CONTACT_TOLERANCE = 1e-7;
 const SHATTER_TICKS = 44;
@@ -149,6 +150,8 @@ export function createCart(api) {
   let finalCoverage;
   let tick = 0;
   let nextColor = 0;
+  let mulligans = 0;
+  let milestonesReached = 0;
   let cue = { id: 0 };
   let status = 'Hold below the glass. Drag to aim and release to fire.';
 
@@ -223,6 +226,13 @@ export function createCart(api) {
     const { x, y } = shotPosition(shot, distance);
     shot = undefined;
     if (impact === 'bubble') {
+      if (mulligans > 0) {
+        mulligans--;
+        phase = 'ready';
+        status = 'Mulligan Save! Aim and try again.';
+        sound('mulligan-used');
+        return;
+      }
       finalCoverage = coverageOf(bubbles);
       const [bubble] = bubbles.splice(victim, 1);
       shattered = { ...bubble, contactX: x, contactY: y, start: tick };
@@ -242,8 +252,17 @@ export function createCart(api) {
     bubbles.push({ x, y, color, radius: goal });
     growing = undefined;
     phase = 'ready';
-    status = 'Ready for the next bead';
-    sound('settle');
+    const milestones = Math.floor(coverageOf(bubbles) / MULLIGAN_INTERVAL);
+    const earned = milestones - milestonesReached;
+    milestonesReached = milestones;
+    mulligans += earned;
+    if (earned > 0) {
+      status = earned === 1 ? 'Mulligan Earned!' : earned + ' mulligans earned!';
+      sound('mulligan-earned');
+    } else {
+      status = 'Ready for the next bead';
+      sound('settle');
+    }
   }
 
   function update() {
@@ -313,9 +332,12 @@ export function createCart(api) {
     const coverage = finalCoverage ?? coverageOf(bubbles, growing);
     return {
       phase, angle, power, charging: Boolean(gesture), shotPreview: previewShot(), status, cue,
-      coverage,
+      coverage, mulligans,
       bubbles: visible.map(({ x, y, radius, color }) => ({ x, y, radius, color })),
-      readout: { coverage: coverage.toFixed(1) + '%' },
+      readout: {
+        coverage: coverage.toFixed(1) + '%',
+        mulligans,
+      },
     };
   }
 

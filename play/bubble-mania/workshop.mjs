@@ -1,6 +1,6 @@
 import { HEIGHT, PIPE_LENGTH, PIVOT, WIDTH } from '../../carts/bubble-mania/code.js';
 import { chooseCartOptions, pausePlayer, restartPlayer } from '../../src/player.mjs';
-import { createGlassAudio } from './audio.mjs';
+import { createGlassAudio } from './audio.mjs?v=3';
 import { challengeUrl, readChallenge } from './challenge.mjs';
 
 const byId = id => document.getElementById(id);
@@ -10,6 +10,12 @@ const launcher = byId('blowpipe');
 const gauge = byId('power');
 const radiusLayer = byId('radius-layer');
 const previewMarker = byId('shot-preview');
+const mulliganPopup = byId('mulligan-flash');
+const mulliganMessage = byId('mulligan-flash-message');
+const mulliganMessages = {
+  'mulligan-earned': 'Mulligan Earned!',
+  'mulligan-used': 'Mulligan Save!',
+};
 const feedback = byId('feedback');
 const sound = byId('sound');
 const easyMode = byId('easy-mode');
@@ -22,6 +28,7 @@ const labels = [];
 let best = 0;
 let session;
 let cueId = 0;
+let mulliganFlash;
 let resultShown = false;
 let challenge = readChallenge(location.href);
 let seed;
@@ -114,6 +121,30 @@ function renderShotPreview(preview) {
   previewMarker.classList.toggle('impact', preview.impact === 'bubble');
 }
 
+function hideMulliganPopup() {
+  mulliganFlash?.cancel();
+  mulliganFlash = undefined;
+  mulliganPopup.hidden = true;
+}
+
+function showMulliganPopup(message) {
+  mulliganFlash?.cancel();
+  mulliganMessage.textContent = message;
+  mulliganPopup.hidden = false;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const keyframes = reduceMotion ? [{ opacity: 1 }, { opacity: 1 }] : [
+    { opacity: 0, transform: 'scale(.92)' },
+    { opacity: 1, transform: 'scale(1)', offset: .12 },
+    { opacity: 1, transform: 'scale(1)', offset: .83 },
+    { opacity: 0, transform: 'scale(1)' },
+  ];
+  const flash = mulliganPopup.animate(keyframes, 1000);
+  mulliganFlash = flash;
+  flash.onfinish = () => {
+    if (mulliganFlash === flash) hideMulliganPopup();
+  };
+}
+
 function closeMenu() {
   menu.close();
   pausePlayer(false);
@@ -169,7 +200,7 @@ const nativeShare = byId('share-native');
 nativeShare.hidden = typeof navigator.share !== 'function';
 nativeShare.addEventListener('click', async () => {
   try {
-    await navigator.share({ title: 'Bubble Mania', text: byId('share-detail').textContent, url: link.value });
+    await navigator.share({ title: document.title, text: byId('share-detail').textContent, url: link.value });
   } catch (error) {
     if (error.name !== 'AbortError') selectLink();
   }
@@ -194,6 +225,7 @@ byId('surface').addEventListener('cartframe', ({ detail }) => {
     session = detail.session;
     cueId = 0;
     resultShown = false;
+    hideMulliganPopup();
   }
   launcher.style.setProperty('--angle', state.angle + 'rad');
   launcher.classList.toggle('charging', state.charging);
@@ -203,6 +235,8 @@ byId('surface').addEventListener('cartframe', ({ detail }) => {
   renderShotPreview(state.shotPreview);
   if (state.cue.id !== cueId) {
     cueId = state.cue.id;
+    const message = mulliganMessages[state.cue.name];
+    if (message) showMulliganPopup(message);
     audio.play(state.cue);
   }
   if (detail.mode === 'replay' || detail.mode === 'finished') return;
