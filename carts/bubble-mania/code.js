@@ -229,7 +229,7 @@ export function createCart(api) {
       if (mulligans > 0) {
         mulligans--;
         phase = 'ready';
-        status = 'Mulligan used. Aim and try again.';
+        status = 'Mulligan Save! Aim and try again.';
         sound('mulligan-used');
         return;
       }
@@ -257,7 +257,7 @@ export function createCart(api) {
     milestonesReached = milestones;
     mulligans += earned;
     if (earned > 0) {
-      status = earned === 1 ? 'Mulligan earned!' : earned + ' mulligans earned!';
+      status = earned === 1 ? 'Mulligan Earned!' : earned + ' mulligans earned!';
       sound('mulligan-earned');
     } else {
       status = 'Ready for the next bead';
@@ -337,7 +337,6 @@ export function createCart(api) {
       readout: {
         coverage: coverage.toFixed(1) + '%',
         mulligans,
-        hint: cue.name?.startsWith('mulligan-') ? status : 'Hold and drag below the frame. Release to fire.',
       },
     };
   }

@@ -21,6 +21,6 @@ Share board in the Workshop menu makes a link to the current seed. Share challen
 
 ## Presentation
 
-Backlit sapphire, amethyst, emerald, ruby, and gold stained glass sits in a bronze-framed kiln. The launcher is a brass-mounted blowpipe with a molten-glass charge column. An expanding glass swell rises in pitch, finished glass rings softly, and a shatter breaks into the tinkle of falling shards. Sound effects can be muted from the workshop menu.
+Backlit sapphire, amethyst, emerald, ruby, and gold stained glass sits in a bronze-framed kiln. The launcher is a brass-mounted blowpipe with a molten-glass charge column. An expanding glass swell rises in pitch, finished glass rings softly, and a shatter breaks into the tinkle of falling shards. Earning or using a mulligan flashes “Mulligan Earned!” or “Mulligan Save!” for one second, with a distinct chime for each. Sound effects can be muted from the workshop menu.
 
 The cart uses the shared worker, fixed ticks, pointer input, and WebGL and Canvas renderers. A recording includes the starting board seed and reproduces the shot, growth, score, and shatter state tick for tick. The browser presents the radius labels, launcher angle, audio cues, and controls from the worker's reported state.

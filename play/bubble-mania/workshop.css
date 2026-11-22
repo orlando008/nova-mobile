@@ -109,6 +109,23 @@ button:disabled { opacity: .55; cursor: default; }
 .best { text-align: right; }
 .best strong, .target strong, .mulligans strong { font-size: 1.25rem; }
 .target, .mulligans { text-align: center; }
+.mulligan-flash {
+  position: absolute;
+  inset: 0 0 20%;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.mulligan-flash strong {
+  padding: .48em .85em .55em;
+  border: 1px solid #f8cf91;
+  border-radius: .55rem;
+  background: linear-gradient(160deg, #283b49, #141b24 60%);
+  color: #ffedc4;
+  box-shadow: 0 0 1.25rem #f6a94e73, 0 .25rem 1rem #000b;
+  font: bold clamp(1.15rem, 6.5cqw, 1.85rem)/1.05 Georgia, serif;
+  text-shadow: 0 1px 2px #17100a;
+}
 .surface-frame {
   position: relative;
   container-type: inline-size;

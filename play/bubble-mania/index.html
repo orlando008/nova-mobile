@@ -10,7 +10,7 @@
   <meta property="og:image" content="../../carts/bubble-mania/assets/poster.png">
   <title>Gaffer's Gauntlet</title>
   <link rel="icon" href="../../carts/bubble-mania/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./workshop.css?v=5">
+  <link rel="stylesheet" href="./workshop.css?v=6">
 </head>
 <body data-cart="bubble-mania">
   <main>
@@ -49,8 +49,11 @@
           <div class="power-window"><div class="power-fill"></div></div>
           <span aria-hidden="true">Power</span>
         </div>
+        <div class="mulligan-flash" id="mulligan-flash" aria-hidden="true" hidden>
+          <strong id="mulligan-flash-message"></strong>
+        </div>
       </div>
-      <p id="controls-hint" data-cart-field="hint">Hold and drag below the frame. Release to fire.</p>
+      <p id="controls-hint">Hold and drag below the frame. Release to fire.</p>
       <p id="cart-status" class="sr-only" role="status"></p>
     </section>
     <p id="feedback" role="status"></p>
@@ -96,6 +99,6 @@
     <p id="share-status" role="status"></p>
   </dialog>
   <div id="safe-area" aria-hidden="true"></div>
-  <script type="module" src="./workshop.mjs?v=5"></script>
+  <script type="module" src="./workshop.mjs?v=6"></script>
 </body>
 </html>

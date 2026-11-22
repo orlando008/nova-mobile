@@ -191,6 +191,7 @@ test('mulligans accrue at every 15% and save the board until the supply runs out
   const saved = fireAt(.12, 16);
   assert.equal(saved.phase, 'ready');
   assert.equal(saved.cue.name, 'mulligan-used');
+  assert.equal(saved.status, 'Mulligan Save! Aim and try again.');
   assert.equal(saved.mulligans, 1);
   assert.equal(saved.coverage, first.coverage);
   assert.deepEqual(saved.bubbles, first.bubbles);
@@ -203,6 +204,7 @@ test('mulligans accrue at every 15% and save the board until the supply runs out
   const milestone = fireAt(-.72, 13);
   assert.ok(milestone.coverage >= 45 && milestone.coverage < 60);
   assert.equal(milestone.mulligans, 2);
+  assert.equal(milestone.status, 'Mulligan Earned!');
   assert.equal(fireAt(-.72, 13).mulligans, 1);
   assert.equal(fireAt(-.72, 13).mulligans, 0);
   const lost = fireAt(-.72, 13);
