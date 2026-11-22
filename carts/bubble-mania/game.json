@@ -1,7 +1,7 @@
 {
   "format": 1,
   "name": "bubble-mania",
-  "title": "Bubble Mania",
+  "title": "Gaffer's Gauntlet",
   "version": "0.1.0",
   "console": "0.1",
   "description": "Launch molten glass, grow stained-glass bubbles, and cover as much of the board as you can.",
@@ -71,8 +71,8 @@
     {
       "path": "assets/poster.png",
       "lazy": true,
-      "bytes": 250099,
-      "sha256": "2eb287f0333f2a27979ea99abc0eee5a867c8a8f9f81de202708962b54f309fb"
+      "bytes": 257768,
+      "sha256": "cdef0e6e70ae2f9c8ffee26ff4f536b9313c8271340ba720a2be0a69fbe78f13"
     },
     {
       "path": "assets/ruby.png",
@@ -90,5 +90,5 @@
       "sha256": "145aba4ee54c08a0c140d05418ad9b96e101ff61fd5c67bbea715a549e8bc01f"
     }
   ],
-  "contentVersion": "8a645afb68ad40c540d76a309cb6f64c237fb1d095360e1ec2c293d48ec5e9ce"
+  "contentVersion": "430dc886a989334f88bb359494c30f564334ebdbbf64f052778191f294db4bbf"
 }

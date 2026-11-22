@@ -1,6 +1,6 @@
 import { HEIGHT, PIPE_LENGTH, PIVOT, WIDTH } from '../../carts/bubble-mania/code.js';
 import { chooseCartOptions, pausePlayer, restartPlayer } from '../../src/player.mjs';
-import { createGlassAudio } from './audio.mjs';
+import { createGlassAudio } from './audio.mjs?v=2';
 import { challengeUrl, readChallenge } from './challenge.mjs';
 
 const byId = id => document.getElementById(id);
@@ -169,7 +169,7 @@ const nativeShare = byId('share-native');
 nativeShare.hidden = typeof navigator.share !== 'function';
 nativeShare.addEventListener('click', async () => {
   try {
-    await navigator.share({ title: 'Bubble Mania', text: byId('share-detail').textContent, url: link.value });
+    await navigator.share({ title: document.title, text: byId('share-detail').textContent, url: link.value });
   } catch (error) {
     if (error.name !== 'AbortError') selectLink();
   }

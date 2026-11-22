@@ -171,6 +171,47 @@ test('the label radius grows to its exact limit and a repeat shot shatters the b
   assert.equal(after.coverage, before.coverage);
 });
 
+test('mulligans accrue at every 15% and save the board until the supply runs out', () => {
+  const game = make(1);
+  function fireAt(angle, heldTicks) {
+    const releaseX = 160 + (angle - game.state().angle) / .012;
+    game.tick(frame(press('down')));
+    for (let i = 1; i < heldTicks; i++) game.tick(frame());
+    game.tick(frame(press('up', releaseX)));
+    return settle(game);
+  }
+
+  assert.equal(game.state().mulligans, 0);
+  const first = fireAt(.12, 16);
+  assert.ok(first.coverage >= 30 && first.coverage < 45);
+  assert.equal(first.mulligans, 2);
+  assert.equal(first.readout.mulligans, 2);
+  assert.equal(first.cue.name, 'mulligan-earned');
+
+  const saved = fireAt(.12, 16);
+  assert.equal(saved.phase, 'ready');
+  assert.equal(saved.cue.name, 'mulligan-used');
+  assert.equal(saved.mulligans, 1);
+  assert.equal(saved.coverage, first.coverage);
+  assert.deepEqual(saved.bubbles, first.bubbles);
+
+  for (const hold of [66, 53]) {
+    const next = fireAt(-.6, hold);
+    assert.ok(next.coverage > first.coverage && next.coverage < 45);
+    assert.equal(next.mulligans, 1);
+  }
+  const milestone = fireAt(-.72, 13);
+  assert.ok(milestone.coverage >= 45 && milestone.coverage < 60);
+  assert.equal(milestone.mulligans, 2);
+  assert.equal(fireAt(-.72, 13).mulligans, 1);
+  assert.equal(fireAt(-.72, 13).mulligans, 0);
+  const lost = fireAt(-.72, 13);
+  assert.equal(lost.phase, 'lost');
+  assert.equal(lost.cue.name, 'shatter');
+  assert.equal(lost.coverage, milestone.coverage);
+  assert.equal(lost.bubbles.length, milestone.bubbles.length - 1);
+});
+
 test('holding cycles the power meter from empty to full and back without firing', () => {
   const game = make();
   game.tick(frame(press('down')));

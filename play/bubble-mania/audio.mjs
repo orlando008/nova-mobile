@@ -98,6 +98,14 @@ export function createGlassAudio() {
         texture(time, .13, 840, 350, .13, .004, 'bandpass');
         resonance(time, .11, 205, 160, .051);
         break;
+      case 'mulligan-earned':
+        resonance(time, .28, 1047, 1043, .042);
+        resonance(time + .09, .37, 1568, 1562, .036);
+        break;
+      case 'mulligan-used':
+        texture(time, .16, 1410, 520, .13, .004, 'bandpass');
+        resonance(time, .20, 784, 523, .05);
+        break;
       case 'shatter':
         texture(time, .24, 2950, 1350, .45, .003, 'highpass');
         texture(time + .035, .25, 2320, 4270, .19, .01, 'bandpass');

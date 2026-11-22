@@ -1,16 +1,17 @@
-# Bubble Mania
+# Gaffer's Gauntlet
 
-Bubble Mania is a portrait score-attack puzzle set in a glassblower's workshop. Launch a bead of molten glass and cover as much of the playfield as possible with stained-glass bubbles.
+Gaffer's Gauntlet is a portrait score-attack puzzle set in a glassblower's workshop. Launch a bead of molten glass and cover as much of the playfield as possible with stained-glass bubbles.
 
 ## Controls
 
-Press anywhere in the launcher area and hold to charge. Drag left or right to turn the blowpipe, then release to fire. The glowing blowpipe muzzle shows the angle. The far-left gauge cycles from empty to full and back while you hold. Releasing uses the power at that point in the cycle. Turn on Easy Mode in the Workshop menu to see a landing marker while you aim. It follows the shot through ricochets and shows an X if the bead would shatter a bubble. The setting is off by default and saved locally. A canceled touch or a pause clears the charge.
+Press anywhere in the launcher area and hold to charge. Drag left or right to turn the blowpipe, then release to fire. The glowing blowpipe muzzle shows the angle. The far-left gauge cycles from empty to full and back while you hold. Releasing uses the power at that point in the cycle. Turn on Easy Mode in the Workshop menu to see a landing marker while you aim. It follows the shot through ricochets and shows an X if the bead would hit a bubble. The setting is off by default and saved locally. A canceled touch or a pause clears the charge.
 
 ## Rules
 
 - The bead travels along the blowpipe's angle and ricochets off the frame and the square firebricks. The charge held at release sets the travel distance, including any distance after a bounce.
 - The landing point becomes the center of a circle. Its centered radius readout counts up as it expands. Growth stops at the closest edge of the frame, a square firebrick, or another bubble.
-- A bead that lands with too little room to grow is spent. A bead that hits an existing bubble shatters it and ends the run.
+- A bead that lands with too little room to grow is spent. A bead that hits an existing bubble shatters it and ends the run if no mulligans are available.
+- Each run starts with zero mulligans. When a bubble finishes growing, the player earns one for each new 15-point milestone reached in coverage. Mulligans accumulate in the scorecard. The game automatically spends one to cancel a shot that hits a bubble, preserving every bubble and the current score.
 - The score is the sum of the bubble areas divided by the playfield's full area. The final score uses the coverage at the instant before the shatter. The best score is stored locally.
 - Retry board reuses the firebrick pattern. New board selects a new seed. Colors cycle through five distinct hues, and the bead takes on the next bubble's hue.
 

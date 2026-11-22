@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0c131a">
   <meta name="description" content="Launch molten glass, grow stained-glass bubbles, and cover as much of the board as you can.">
-  <meta property="og:title" content="Bubble Mania">
+  <meta property="og:title" content="Gaffer's Gauntlet">
   <meta property="og:description" content="Launch molten glass, grow stained-glass bubbles, and cover as much of the board as you can.">
   <meta property="og:image" content="../../carts/bubble-mania/assets/poster.png">
-  <title>Bubble Mania</title>
+  <title>Gaffer's Gauntlet</title>
   <link rel="icon" href="../../carts/bubble-mania/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./workshop.css?v=4">
+  <link rel="stylesheet" href="./workshop.css?v=5">
 </head>
 <body data-cart="bubble-mania">
   <main>
@@ -19,19 +19,20 @@
       <button type="button" id="menu" hidden>Menu</button>
     </header>
     <section id="intro" aria-labelledby="title">
-      <h1 class="sr-only" id="title">Bubble Mania</h1>
+      <h1 class="sr-only" id="title">Gaffer's Gauntlet</h1>
       <img class="poster" src="../../carts/bubble-mania/assets/poster.png" width="1200" height="630" alt="">
       <p class="challenge-intro" id="challenge-intro" hidden></p>
-      <button class="primary" type="button" id="play">Play Bubble Mania</button>
+      <button class="primary" type="button" id="play">Play Gaffer's Gauntlet</button>
       <ul class="instructions">
         <li>Hold below the frame and drag to aim. The power gauge cycles up and down. Release at the power you want.</li>
         <li>Bank the bead off the frame or a firebrick. After it lands, the glass grows until it touches a wall, a firebrick, or another bubble.</li>
-        <li>Your score is the area covered. Hit a bubble with the bead and the run ends.</li>
+        <li>Earn a mulligan at every 15% of coverage. If you hit a bubble, a mulligan saves the board. With none left, the run ends.</li>
       </ul>
     </section>
-    <section id="board" aria-label="Bubble Mania game" hidden>
+    <section id="board" aria-label="Gaffer's Gauntlet game" hidden>
       <div class="scorecard">
         <div class="score"><span>Coverage</span><strong data-cart-field="coverage">0.0%</strong></div>
+        <div class="mulligans"><span>Mulligans</span><strong data-cart-field="mulligans">0</strong></div>
         <div class="target" id="target" hidden><span>To beat</span><strong id="target-score"></strong></div>
         <div class="best"><span>Best</span><strong id="best">0.0%</strong></div>
       </div>
@@ -49,7 +50,7 @@
           <span aria-hidden="true">Power</span>
         </div>
       </div>
-      <p id="controls-hint">Hold and drag below the frame. Release to fire.</p>
+      <p id="controls-hint" data-cart-field="hint">Hold and drag below the frame. Release to fire.</p>
       <p id="cart-status" class="sr-only" role="status"></p>
     </section>
     <p id="feedback" role="status"></p>
@@ -95,6 +96,6 @@
     <p id="share-status" role="status"></p>
   </dialog>
   <div id="safe-area" aria-hidden="true"></div>
-  <script type="module" src="./workshop.mjs?v=4"></script>
+  <script type="module" src="./workshop.mjs?v=5"></script>
 </body>
 </html>
