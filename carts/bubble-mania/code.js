@@ -301,11 +301,18 @@ export function createCart(api) {
     }
   }
 
+  function previewShot() {
+    if (!gesture) return null;
+    // A release with the same aim fires on the next tick.
+    const preview = traceShot(angle, chargePower(tick + 1 - gesture.tick), bricks, bubbles);
+    return { ...shotPosition(preview, preview.distance), impact: preview.impact };
+  }
+
   function state() {
     const visible = growing ? [...bubbles, growing] : bubbles;
     const coverage = finalCoverage ?? coverageOf(bubbles, growing);
     return {
-      phase, angle, power, charging: Boolean(gesture), status, cue,
+      phase, angle, power, charging: Boolean(gesture), shotPreview: previewShot(), status, cue,
       coverage,
       bubbles: visible.map(({ x, y, radius, color }) => ({ x, y, radius, color })),
       readout: { coverage: coverage.toFixed(1) + '%' },
