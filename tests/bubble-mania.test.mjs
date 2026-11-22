@@ -124,8 +124,12 @@ test('brick faces and corners reflect the appropriate axis and preserve travel d
 test('a charged bank shot signals the bounce and grows at the reflected landing point', () => {
   const game = make(1);
   game.tick(frame(press('down')));
-  for (let i = 1; i < 71; i++) game.tick(frame());
+  game.tick(frame(press('move', 90)));
+  for (let i = 2; i < 71; i++) game.tick(frame());
+  const preview = game.state().shotPreview;
+  assert.equal(preview.impact, 'land');
   game.tick(frame(press('up', 90)));
+  assert.equal(game.state().shotPreview, null);
   const cues = [];
   while (game.state().phase === 'flight' && cues.length < 90) {
     game.tick(frame());
@@ -140,6 +144,7 @@ test('a charged bank shot signals the bounce and grows at the reflected landing 
   const [bubble] = result.bubbles;
   assert.equal(bubble.x, origin.x + dx * (distance - start));
   assert.equal(bubble.y, origin.y + dy * (distance - start));
+  assert.deepEqual(preview, { x: bubble.x, y: bubble.y, impact: 'land' });
 });
 
 test('the label radius grows to its exact limit and a repeat shot shatters the bubble', () => {
@@ -156,7 +161,9 @@ test('the label radius grows to its exact limit and a repeat shot shatters the b
   assert.equal(before.bubbles[0].radius, ARENA.bottom - before.bubbles[0].y);
   assert.equal(before.coverage, 100 * Math.PI * before.bubbles[0].radius ** 2 /
     ((ARENA.right - ARENA.left) * (ARENA.bottom - ARENA.top)));
-  game.tick(tap);
+  game.tick(frame(press('down')));
+  assert.equal(game.state().shotPreview.impact, 'bubble');
+  game.tick(frame(press('up')));
   const after = settle(game);
   assert.equal(after.phase, 'lost');
   assert.deepEqual(after.bubbles, []);
@@ -209,6 +216,7 @@ test('presses inside the arena, second fingers and canceled charges cannot fire'
   game.tick(frame(press('up')));
   assert.equal(game.state().phase, 'ready');
   assert.equal(game.state().power, 0);
+  assert.equal(game.state().shotPreview, null);
   game.tick(frame(press('down')));
   game.tick({ ...frame(), lifecycle: 'pause' });
   game.tick(frame(press('up')));

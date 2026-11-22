@@ -9,8 +9,10 @@ const audio = createGlassAudio();
 const launcher = byId('blowpipe');
 const gauge = byId('power');
 const radiusLayer = byId('radius-layer');
+const previewMarker = byId('shot-preview');
 const feedback = byId('feedback');
 const sound = byId('sound');
+const easyMode = byId('easy-mode');
 const menu = byId('pause-menu');
 const result = byId('result');
 const share = byId('share');
@@ -29,15 +31,16 @@ try {
   const saved = JSON.parse(localStorage.getItem(storageKey));
   if (typeof saved?.best === 'number' && saved.best >= 0 && saved.best <= 100) best = saved.best;
   sound.checked = saved?.sound !== false;
+  easyMode.checked = saved?.easyMode === true;
 } catch {
   // A blocked or damaged save still lets the game start.
 }
 
 function save() {
   try {
-    localStorage.setItem(storageKey, JSON.stringify({ best, sound: sound.checked }));
+    localStorage.setItem(storageKey, JSON.stringify({ best, sound: sound.checked, easyMode: easyMode.checked }));
   } catch {
-    // Keep the session record and sound preference even if storage is unavailable.
+    // Keep the session record and preferences even if storage is unavailable.
   }
 }
 
@@ -103,6 +106,14 @@ function renderLabels(bubbles) {
   while (labels.length > positions.length) labels.pop().remove();
 }
 
+function renderShotPreview(preview) {
+  previewMarker.hidden = !easyMode.checked || !preview || menu.open;
+  if (previewMarker.hidden) return;
+  previewMarker.style.left = 100 * preview.x / WIDTH + '%';
+  previewMarker.style.top = 100 * preview.y / HEIGHT + '%';
+  previewMarker.classList.toggle('impact', preview.impact === 'bubble');
+}
+
 function closeMenu() {
   menu.close();
   pausePlayer(false);
@@ -129,6 +140,7 @@ byId('play').addEventListener('click', () => {
 
 byId('menu').addEventListener('click', () => {
   pausePlayer(true);
+  previewMarker.hidden = true;
   menu.showModal();
 });
 byId('resume').addEventListener('click', closeMenu);
@@ -168,6 +180,7 @@ sound.addEventListener('change', () => {
   if (sound.checked) void audio.unlock();
   save();
 });
+easyMode.addEventListener('change', save);
 
 new MutationObserver(() => {
   feedback.classList.toggle('sr-only', feedback.textContent === 'Live input');
@@ -187,6 +200,7 @@ byId('surface').addEventListener('cartframe', ({ detail }) => {
   gauge.style.setProperty('--power', state.power);
   gauge.setAttribute('aria-valuenow', String(Math.round(state.power * 100)));
   renderLabels(state.bubbles);
+  renderShotPreview(state.shotPreview);
   if (state.cue.id !== cueId) {
     cueId = state.cue.id;
     audio.play(state.cue);
