@@ -1,4 +1,7 @@
-export const FEEDBACK_DURATION_MS = 840;
+const FEEDBACK_DELAY_MS = 800;
+const FEEDBACK_SPACING_MS = 105;
+const FEEDBACK_TAIL_MS = 280;
+export const FEEDBACK_DURATION_MS = FEEDBACK_DELAY_MS + 2 * FEEDBACK_SPACING_MS + FEEDBACK_TAIL_MS + 30;
 
 export function createInstrument() {
   let context;
@@ -68,7 +71,9 @@ export function createInstrument() {
       if (correct === undefined) return;
       const phrase = correct ? [72, 76, 79] : [65, 63, 60];
       phrase.forEach((pitch, index) => {
-        note(pitch, time + .32 + index * .105, index === 2 ? .28 : .19, correct ? .24 : .19);
+        const start = time + (FEEDBACK_DELAY_MS + index * FEEDBACK_SPACING_MS) / 1000;
+        const duration = index === phrase.length - 1 ? FEEDBACK_TAIL_MS / 1000 : .19;
+        note(pitch, start, duration, correct ? .24 : .19);
       });
     } catch {
       // The quiz can still be played if the browser interrupts audio.
