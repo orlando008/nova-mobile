@@ -1,4 +1,4 @@
-import { createLesson, DIFFICULTIES, LESSON_LENGTH } from '../../carts/music-tutor/code.js?v=key-signatures';
+import { createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP } from '../../carts/music-tutor/code.js?v=middle-c';
 import { createInstrument, FEEDBACK_DURATION_MS } from './audio.mjs';
 
 const element = id => document.getElementById(id);
@@ -7,6 +7,7 @@ const lesson = element('lesson');
 const results = element('results');
 const staff = element('staff');
 const notation = staff.querySelector('.notation');
+const ledgerLine = element('ledger-line');
 const accidental = element('accidental');
 const keySignature = element('key-signature');
 const feedback = element('feedback');
@@ -16,7 +17,7 @@ const keyboardAnswers = element('keyboard-answers');
 const choices = [...document.querySelectorAll('.choice')];
 const instrument = createInstrument();
 const keyLayout = [
-  { name: 'C', position: 0 },
+  { name: 'Middle C', position: 0 },
   { name: 'C sharp or D flat', position: 1, black: true },
   { name: 'D', position: 1 },
   { name: 'D sharp or E flat', position: 2, black: true },
@@ -66,6 +67,7 @@ function presentQuestion() {
   element('progress').textContent = `Note ${index + 1} of ${LESSON_LENGTH}`;
   staff.style.setProperty('--note-y', staffPosition(target.step));
   notation.classList.toggle('stem-down', target.step >= 4);
+  ledgerLine.hidden = target.step !== MIDDLE_C_STEP;
   if (writtenAccidental === null) delete accidental.dataset.sign;
   else accidental.dataset.sign = writtenAccidental;
   feedback.textContent = '';
@@ -74,9 +76,10 @@ function presentQuestion() {
     button.removeAttribute('data-result');
     button.removeAttribute('aria-disabled');
   }
-  choices.forEach((button, optionIndex) => {
-    button.textContent = options[optionIndex].label;
-    button.setAttribute('aria-label', options[optionIndex].spoken);
+  options.forEach((option, optionIndex) => {
+    const button = choices[optionIndex];
+    button.textContent = option.label;
+    button.setAttribute('aria-label', option.spoken);
   });
   staff.focus({ preventScroll: true });
   instrument.play(target.midi);
@@ -84,13 +87,14 @@ function presentQuestion() {
 
 function start() {
   const difficulty = menu.querySelector('input[name="difficulty"]:checked').value;
-  const useKeyboard = menu.querySelector('input[name="mode"]:checked').value === 'keyboard';
+  const mode = menu.querySelector('input[name="mode"]:checked').value;
+  const useKeyboard = mode === 'keyboard';
   letterAnswers.hidden = useKeyboard;
   keyboardAnswers.hidden = !useKeyboard;
   answerButtons = useKeyboard ? keys : choices;
   lessonLabel = `${DIFFICULTIES[difficulty]} · ${useKeyboard ? 'Keyboard' : 'Letters'}`;
   const [seed] = crypto.getRandomValues(new Uint32Array(1));
-  questions = createLesson(difficulty, seed);
+  questions = createLesson(difficulty, seed, mode);
   showKeySignature(questions[0].signature);
   index = 0;
   score = 0;
@@ -150,11 +154,7 @@ const keys = keyLayout.map(({ name, position, black }, pitchClass) => {
   button.className = black ? 'piano-key black-key' : 'piano-key';
   button.setAttribute('aria-label', name);
   button.style.setProperty('--key-position', position);
-  button.addEventListener('click', () => {
-    const { target } = questions[index];
-    const octaveStart = target.midi - target.midi % 12;
-    selectAnswer(button, octaveStart + pitchClass);
-  });
+  button.addEventListener('click', () => selectAnswer(button, MIDDLE_C_MIDI + pitchClass));
   return button;
 });
 keyboardAnswers.replaceChildren(...keys);

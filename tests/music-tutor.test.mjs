@@ -80,3 +80,20 @@ test('practice rounds include the intended mix of accidentals', () => {
       target.accidental === accidental).length), expected);
   }
 });
+
+test('Keyboard mode uses the fixed middle-C octave at every difficulty', () => {
+  const whiteKeys = [60, 62, 64, 65, 67, 69, 71];
+  for (const difficulty of Object.keys(DIFFICULTIES)) {
+    for (let seed = 0; seed < 100; seed++) {
+      const lesson = createLesson(difficulty, Math.imul(seed, 0x9e3779b1), 'keyboard');
+      assert.equal(lesson.length, LESSON_LENGTH);
+      for (const { target } of lesson) {
+        assert.ok(target.midi >= 60 && target.midi <= 71);
+        assert.equal(target.midi, whiteKeys[target.step + 2] + target.accidental);
+      }
+      if (difficulty === 'natural') {
+        assert.deepEqual([...new Set(lesson.map(({ target }) => target.midi))].sort((a, b) => a - b), whiteKeys);
+      }
+    }
+  }
+});

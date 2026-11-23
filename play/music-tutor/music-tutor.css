@@ -260,17 +260,22 @@ fieldset small {
   aspect-ratio: 2.4;
 }
 [data-key-signature] .staff { --note-x: 72%; }
-.staff-line {
+.staff-line, .staff-ledger {
   position: absolute;
-  inset-inline: 2.5%;
   margin-block-start: -1px;
   border-block-start: 2px solid currentColor;
 }
+.staff-line { inset-inline: 2.5%; }
 .staff-line:nth-child(1) { top: 26%; }
 .staff-line:nth-child(2) { top: 40%; }
 .staff-line:nth-child(3) { top: 54%; }
 .staff-line:nth-child(4) { top: 68%; }
 .staff-line:nth-child(5) { top: 82%; }
+.staff-ledger {
+  top: var(--note-y);
+  left: calc(var(--note-x) - 5.5%);
+  width: 11%;
+}
 
 .clef {
   position: absolute;
