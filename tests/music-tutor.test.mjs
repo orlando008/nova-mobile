@@ -81,19 +81,20 @@ test('practice rounds include the intended mix of accidentals', () => {
   }
 });
 
-test('Keyboard mode uses the fixed middle-C octave at every difficulty', () => {
-  const whiteKeys = [60, 62, 64, 65, 67, 69, 71];
+test('Keyboard mode covers the treble staff from middle C through its top F', () => {
+  const whiteKeys = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77];
   for (const difficulty of Object.keys(DIFFICULTIES)) {
+    const covered = new Set();
     for (let seed = 0; seed < 100; seed++) {
       const lesson = createLesson(difficulty, Math.imul(seed, 0x9e3779b1), 'keyboard');
       assert.equal(lesson.length, LESSON_LENGTH);
       for (const { target } of lesson) {
-        assert.ok(target.midi >= 60 && target.midi <= 71);
+        assert.ok(target.midi >= 60 && target.midi <= 78);
         assert.equal(target.midi, whiteKeys[target.step + 2] + target.accidental);
-      }
-      if (difficulty === 'natural') {
-        assert.deepEqual([...new Set(lesson.map(({ target }) => target.midi))].sort((a, b) => a - b), whiteKeys);
+        covered.add(target.midi);
       }
     }
+    assert.ok(whiteKeys.every(midi => covered.has(midi)));
+    assert.equal(covered.has(78), difficulty !== 'natural');
   }
 });

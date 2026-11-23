@@ -1,6 +1,7 @@
 export const LESSON_LENGTH = 10;
 export const MIDDLE_C_MIDI = 60;
 export const MIDDLE_C_STEP = -2;
+export const KEYBOARD_END_MIDI = 78;
 
 const LETTERS = 'CDEFGABCDEF';
 const PITCHES = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77];
@@ -34,8 +35,7 @@ function makeNote(step, accidental) {
 
 const naturals = PITCHES.map((_, index) => makeNote(index + MIDDLE_C_STEP, 0));
 const letterNotes = naturals.filter(note => note.step >= 0);
-const onKeyboard = note => note.midi >= MIDDLE_C_MIDI && note.midi < MIDDLE_C_MIDI + 12;
-const keyboardNotes = naturals.filter(onKeyboard);
+const onKeyboard = note => note.midi >= MIDDLE_C_MIDI && note.midi <= KEYBOARD_END_MIDI;
 
 function shuffle(items, random) {
   const copy = [...items];
@@ -89,7 +89,7 @@ export function createLesson(difficulty, seed, mode = 'letters') {
     return state / 4294967296;
   };
   const keyboard = mode === 'keyboard';
-  const notes = keyboard ? keyboardNotes : letterNotes;
+  const notes = keyboard ? naturals : letterNotes;
   const makeQuestion = (target, pool, signature = [], writtenAccidental = target.accidental || null) => ({
     target, signature, writtenAccidental, choices: keyboard ? [] : makeChoices(target, pool, random),
   });
@@ -97,9 +97,10 @@ export function createLesson(difficulty, seed, mode = 'letters') {
 
   const targets = shuffle(notes, random);
   if (difficulty === 'natural') {
+    const selected = targets.slice(0, LESSON_LENGTH);
     const extra = targets.filter(note => note.label !== targets.at(-1).label)
-      .slice(0, LESSON_LENGTH - targets.length);
-    return [...targets, ...extra].map(note => makeQuestion(note, notes));
+      .slice(0, LESSON_LENGTH - selected.length);
+    return [...selected, ...extra].map(note => makeQuestion(note, notes));
   }
 
   const sharps = notes.filter(note => 'CDFGA'.includes(note.label)).map(note => makeNote(note.step, 1));

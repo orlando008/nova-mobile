@@ -1,4 +1,6 @@
-import { createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP } from '../../carts/music-tutor/code.js?v=middle-c';
+import {
+  createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP, KEYBOARD_END_MIDI,
+} from '../../carts/music-tutor/code.js?v=full-staff';
 import { createInstrument, FEEDBACK_DURATION_MS } from './audio.mjs';
 
 const element = id => document.getElementById(id);
@@ -16,19 +18,19 @@ const letterAnswers = element('letter-answers');
 const keyboardAnswers = element('keyboard-answers');
 const choices = [...document.querySelectorAll('.choice')];
 const instrument = createInstrument();
-const keyLayout = [
-  { name: 'Middle C', position: 0 },
-  { name: 'C sharp or D flat', position: 1, black: true },
-  { name: 'D', position: 1 },
-  { name: 'D sharp or E flat', position: 2, black: true },
-  { name: 'E', position: 2 },
-  { name: 'F', position: 3 },
-  { name: 'F sharp or G flat', position: 4, black: true },
-  { name: 'G', position: 4 },
-  { name: 'G sharp or A flat', position: 5, black: true },
-  { name: 'A', position: 5 },
-  { name: 'A sharp or B flat', position: 6, black: true },
-  { name: 'B', position: 6 },
+const octaveLayout = [
+  { names: ['C'], position: 0 },
+  { names: ['C sharp', 'D flat'], position: 1 },
+  { names: ['D'], position: 1 },
+  { names: ['D sharp', 'E flat'], position: 2 },
+  { names: ['E'], position: 2 },
+  { names: ['F'], position: 3 },
+  { names: ['F sharp', 'G flat'], position: 4 },
+  { names: ['G'], position: 4 },
+  { names: ['G sharp', 'A flat'], position: 5 },
+  { names: ['A'], position: 5 },
+  { names: ['A sharp', 'B flat'], position: 6 },
+  { names: ['B'], position: 6 },
 ];
 
 let lessonLabel;
@@ -148,16 +150,21 @@ staff.addEventListener('click', () => instrument.play(questions[index].target.mi
 choices.forEach((button, optionIndex) => {
   button.addEventListener('click', () => selectAnswer(button, questions[index].choices[optionIndex].midi));
 });
-const keys = keyLayout.map(({ name, position, black }, pitchClass) => {
+const keys = Array.from({ length: KEYBOARD_END_MIDI - MIDDLE_C_MIDI + 1 }, (_, offset) => {
+  const { names, position } = octaveLayout[offset % octaveLayout.length];
+  const midi = MIDDLE_C_MIDI + offset;
+  const octave = Math.floor(midi / 12) - 1;
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = black ? 'piano-key black-key' : 'piano-key';
-  button.setAttribute('aria-label', name);
-  button.style.setProperty('--key-position', position);
-  button.addEventListener('click', () => selectAnswer(button, MIDDLE_C_MIDI + pitchClass));
+  button.className = names.length === 2 ? 'piano-key black-key' : 'piano-key';
+  const label = offset === 0 ? 'Middle C' : names.map(name => `${name} ${octave}`).join(' or ');
+  button.setAttribute('aria-label', label);
+  button.style.setProperty('--key-position', position + 7 * Math.floor(offset / octaveLayout.length));
+  button.addEventListener('click', () => selectAnswer(button, midi));
   return button;
 });
 keyboardAnswers.replaceChildren(...keys);
+keyboardAnswers.style.setProperty('--white-keys', keyboardAnswers.querySelectorAll('.piano-key:not(.black-key)').length);
 element('mute').addEventListener('click', event => {
   muted = !muted;
   event.currentTarget.setAttribute('aria-pressed', String(muted));

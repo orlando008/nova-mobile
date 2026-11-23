@@ -1,6 +1,6 @@
 # Music Tutor
 
-Music Tutor is a portrait note-reading game. Pick an answer mode and a difficulty, then identify ten notes shown on a treble staff. In Letters mode, tap one of three choices or use keys 1–3. In Keyboard mode, tap a white or black key on a one-octave piano from middle C (C4) through B4. A black key works for either spelling of its pitch. The results show how many notes you identified correctly, and you can repeat the round or change its settings.
+Music Tutor is a portrait note-reading game. Pick an answer mode and a difficulty, then identify ten notes shown on a treble staff. In Letters mode, tap one of three choices or use keys 1–3. In Keyboard mode, tap a white or black key from middle C (C4) through the top-line F (F5), with F♯5 at the right edge. A black key works for either spelling of its pitch. The results show how many notes you identified correctly, and you can repeat the round or change its settings.
 
 | Difficulty | Notes per round |
 | --- | --- |
