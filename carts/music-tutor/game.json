@@ -31,6 +31,12 @@
       "sha256": "1257f6ce7986b9c5764f4622516ef62a20f834ef493b3656e19eced92a7e08ba"
     },
     {
+      "path": "assets/natural.png",
+      "lazy": true,
+      "bytes": 1225,
+      "sha256": "7884a45d353dc421fd398258e524e5cd24eb5764d97bf007b89d69ccbc9e85ea"
+    },
+    {
       "path": "assets/poster.png",
       "lazy": true,
       "bytes": 616606,
@@ -49,5 +55,5 @@
       "sha256": "d22e6318cb1df7573b78e2b32c6b7369b68775fdb4df125e858d6da3c1eb27bf"
     }
   ],
-  "contentVersion": "2dfc4c2488f35bd457c37aa42777ccad723f5547264f4cfd97fe05119ac0d420"
+  "contentVersion": "19f55254e732a992e09cf5ac2686c5e1d528e8b29cd1cf68e02bf6376f1c700b"
 }

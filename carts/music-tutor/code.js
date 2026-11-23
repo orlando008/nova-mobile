@@ -7,7 +7,17 @@ export const DIFFICULTIES = {
   natural: 'Natural notes',
   sharps: 'Sharps',
   mixed: 'Sharps & flats',
+  key: 'Key signatures',
 };
+
+const SHARP_SIGNATURE = [
+  { letter: 'F', step: 8 }, { letter: 'C', step: 5 },
+  { letter: 'G', step: 9 }, { letter: 'D', step: 6 },
+];
+const FLAT_SIGNATURE = [
+  { letter: 'B', step: 4 }, { letter: 'E', step: 7 },
+  { letter: 'A', step: 3 }, { letter: 'D', step: 6 },
+];
 
 function makeNote(step, accidental) {
   const letter = LETTERS[step];
@@ -32,15 +42,38 @@ function shuffle(items, random) {
   return copy;
 }
 
-function makeQuestion(target, pool, random) {
-  const nearby = pool.filter(note => Math.abs(note.midi - target.midi) <= 5);
+function makeQuestion(target, pool, random, signature = [], writtenAccidental = target.accidental || null) {
+  const nearby = note => Math.abs(note.midi - target.midi) <= 5;
+  const candidates = shuffle(pool, random);
   const choices = [target];
-  for (const candidate of shuffle(nearby, random)) {
+  for (const candidate of [...candidates.filter(nearby), ...candidates.filter(note => !nearby(note))]) {
     if (choices.some(note => note.label === candidate.label || note.midi === candidate.midi)) continue;
     choices.push(candidate);
     if (choices.length === 3) break;
   }
-  return { target, choices: shuffle(choices, random) };
+  return { target, choices: shuffle(choices, random), signature, writtenAccidental };
+}
+
+function makeKeyLesson(random) {
+  const sign = random() < .5 ? -1 : 1;
+  const count = random() < .5 ? 3 : 4;
+  const marks = sign === 1 ? SHARP_SIGNATURE : FLAT_SIGNATURE;
+  const signature = marks.slice(0, count).map(mark => ({ ...mark, sign }));
+  const scale = LETTERS.map((letter, step) =>
+    makeNote(step, signature.some(mark => mark.letter === letter) ? sign : 0));
+  const inKey = shuffle(scale.filter(note => note.accidental !== 0), random).slice(0, 3);
+  const unaltered = shuffle(scale.filter(note => note.accidental === 0), random).slice(0, 3);
+  const questions = [...inKey, ...unaltered].map(note => makeQuestion(note, scale, random, signature, null));
+
+  for (const [writtenAccidental, total] of [[1, 1], [-1, 1], [0, 2]]) {
+    // A note accidental replaces the key signature for that note.
+    const pool = scale.filter(note => note.accidental !== writtenAccidental)
+      .map(note => makeNote(note.step, writtenAccidental));
+    for (const note of shuffle(pool, random).slice(0, total)) {
+      questions.push(makeQuestion(note, pool, random, signature, writtenAccidental));
+    }
+  }
+  return shuffle(questions, random);
 }
 
 export function createLesson(difficulty, seed) {
@@ -50,20 +83,20 @@ export function createLesson(difficulty, seed) {
     state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
     return state / 4294967296;
   };
-  const pool = [...naturals];
+  if (difficulty === 'key') return makeKeyLesson(random);
+
   const targets = shuffle(naturals, random);
   if (difficulty === 'natural') {
     const extra = targets.find(note => note.label !== targets[targets.length - 1].label);
-    return [...targets, extra].map(note => makeQuestion(note, pool, random));
+    return [...targets, extra].map(note => makeQuestion(note, naturals, random));
   }
 
-  pool.push(...sharps);
   const lesson = targets.slice(0, 5);
   if (difficulty === 'mixed') {
-    pool.push(...flats);
     lesson.push(...shuffle(sharps, random).slice(0, 2), ...shuffle(flats, random).slice(0, 3));
   } else {
     lesson.push(...shuffle(sharps, random).slice(0, 5));
   }
-  return shuffle(lesson, random).map(note => makeQuestion(note, pool, random));
+  const notesByAccidental = [flats, naturals, sharps];
+  return shuffle(lesson, random).map(note => makeQuestion(note, notesByAccidental[note.accidental + 1], random));
 }

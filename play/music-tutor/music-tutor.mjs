@@ -8,6 +8,7 @@ const results = element('results');
 const staff = element('staff');
 const notation = staff.querySelector('.notation');
 const accidental = element('accidental');
+const keySignature = element('key-signature');
 const feedback = element('feedback');
 const next = element('next');
 const choices = [...document.querySelectorAll('.choice')];
@@ -28,13 +29,28 @@ function show(screen) {
   results.hidden = screen !== results;
 }
 
+const staffPosition = step => `${82 - step * 7}%`;
+
+function showKeySignature(signature) {
+  staff.toggleAttribute('data-key-signature', signature.length > 0);
+  keySignature.replaceChildren(...signature.map(({ step, sign }, index) => {
+    const mark = document.createElement('span');
+    mark.className = 'accidental';
+    mark.dataset.sign = sign;
+    mark.style.top = staffPosition(step);
+    mark.style.left = `${25 + index * 7}%`;
+    return mark;
+  }));
+}
+
 function presentQuestion() {
-  const { target, choices: options } = questions[index];
+  const { target, choices: options, writtenAccidental } = questions[index];
   answered = false;
   element('progress').textContent = `Note ${index + 1} of ${LESSON_LENGTH}`;
-  notation.style.setProperty('--note-y', `${82 - target.step * 7}%`);
+  staff.style.setProperty('--note-y', staffPosition(target.step));
   notation.classList.toggle('stem-down', target.step >= 4);
-  accidental.dataset.sign = target.accidental;
+  if (writtenAccidental === null) delete accidental.dataset.sign;
+  else accidental.dataset.sign = writtenAccidental;
   feedback.textContent = '';
   next.hidden = true;
   choices.forEach((button, optionIndex) => {
@@ -52,6 +68,7 @@ function start() {
   difficulty = selection.value;
   const [seed] = crypto.getRandomValues(new Uint32Array(1));
   questions = createLesson(difficulty, seed);
+  showKeySignature(questions[0].signature);
   index = 0;
   score = 0;
   element('level').textContent = DIFFICULTIES[difficulty];

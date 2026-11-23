@@ -240,11 +240,14 @@ fieldset small {
 }
 
 .staff {
+  --note-x: 59%;
+  --note-y: 75%;
   display: block;
   position: relative;
   width: 100%;
   aspect-ratio: 2.4;
 }
+[data-key-signature] .staff { --note-x: 72%; }
 .staff-line {
   position: absolute;
   inset-inline: 2.5%;
@@ -269,8 +272,8 @@ fieldset small {
 
 .notation {
   position: absolute;
-  top: var(--note-y, 75%);
-  left: 59%;
+  top: var(--note-y);
+  left: var(--note-x);
   width: 6.35%;
   aspect-ratio: 1.78;
   transform: translate(-50%, -50%);
@@ -300,18 +303,23 @@ fieldset small {
 
 .accidental {
   position: absolute;
-  right: 142%;
-  top: 50%;
-  width: 65%;
-  height: 265%;
-  transform: translateY(-50%);
+  width: 4.2%;
+  height: 22%;
+  transform: translate(-50%, -50%);
   background: url('../../carts/music-tutor/assets/sharp.png') center / contain no-repeat;
 }
-.accidental:not([data-sign="1"], [data-sign="-1"]) { display: none; }
+#accidental {
+  top: var(--note-y);
+  left: calc(var(--note-x) - 8%);
+}
+.accidental:not([data-sign]) { display: none; }
 .accidental[data-sign="-1"] {
-  height: 210%;
-  transform: translateY(-78%);
+  height: 18%;
+  transform: translate(-50%, -78%);
   background-image: url('../../carts/music-tutor/assets/flat.png');
+}
+.accidental[data-sign="0"] {
+  background-image: url('../../carts/music-tutor/assets/natural.png');
 }
 
 .replay-label {
