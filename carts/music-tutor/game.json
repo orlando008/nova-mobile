@@ -37,6 +37,12 @@
       "sha256": "7884a45d353dc421fd398258e524e5cd24eb5764d97bf007b89d69ccbc9e85ea"
     },
     {
+      "path": "assets/piano-studio.webp",
+      "lazy": true,
+      "bytes": 164900,
+      "sha256": "a0848c73e903ce97ef9c640b3c5be6fe4727007b8613617685be81a3de2b2b14"
+    },
+    {
       "path": "assets/poster.png",
       "lazy": true,
       "bytes": 616606,
@@ -55,5 +61,5 @@
       "sha256": "d22e6318cb1df7573b78e2b32c6b7369b68775fdb4df125e858d6da3c1eb27bf"
     }
   ],
-  "contentVersion": "07774cdf25d58cb749b2f7e7c70de1a1e22aa67f60812b6fe330b957b68aa557"
+  "contentVersion": "9911d36bedb3c956c89912f3e9c6eeebc48faa9af44a7321fd2d7619d6ba9eb6"
 }

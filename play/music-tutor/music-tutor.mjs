@@ -2,11 +2,13 @@ import {
   createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP, KEYBOARD_END_MIDI,
 } from '../../carts/music-tutor/code.js?v=full-staff';
 import { createInstrument, feedbackDurationMs } from './audio.mjs?v=chime';
+import { createStudio } from './studio.mjs';
 
 const element = id => document.getElementById(id);
 const menu = element('menu');
 const lesson = element('lesson');
 const results = element('results');
+const studioScreen = element('studio');
 const staff = element('staff');
 const notation = staff.querySelector('.notation');
 const ledgerLine = element('ledger-line');
@@ -18,6 +20,7 @@ const letterAnswers = element('letter-answers');
 const keyboardAnswers = element('keyboard-answers');
 const choices = [...document.querySelectorAll('.choice')];
 const instrument = createInstrument();
+const studio = createStudio();
 const octaveLayout = [
   { names: ['C'], position: 0 },
   { names: ['C sharp', 'D flat'], position: 1 },
@@ -41,12 +44,15 @@ let score;
 let answered;
 let muted = false;
 let feedbackTimer;
+let lessonReward;
+let studioReturn;
 
 function show(screen) {
   clearTimeout(feedbackTimer);
   menu.hidden = screen !== menu;
   lesson.hidden = screen !== lesson;
   results.hidden = screen !== results;
+  studioScreen.hidden = screen !== studioScreen;
 }
 
 const staffPosition = step => `${82 - step * 7}%`;
@@ -100,6 +106,7 @@ function start() {
   showKeySignature(questions[0].signature);
   index = 0;
   score = 0;
+  lessonReward = null;
   element('level').textContent = lessonLabel;
   show(lesson);
   presentQuestion();
@@ -119,18 +126,27 @@ function selectAnswer(button, midi) {
   next.disabled = !muted;
   if (!muted) feedbackTimer = setTimeout(() => { next.disabled = false; }, feedbackDurationMs(correct));
   instrument.play(midi, correct);
+  if (index + 1 === LESSON_LENGTH) lessonReward = studio.earn(score);
 }
 
-function advance() {
-  if (lesson.hidden || !answered) return;
-  index++;
-  if (index < LESSON_LENGTH) {
+async function advance() {
+  if (lesson.hidden || !answered || next.disabled) return;
+  if (index + 1 < LESSON_LENGTH) {
+    index++;
     presentQuestion();
     return;
   }
-  // Let the final answer's feedback finish while the results come into view.
+  next.disabled = true;
+  const pending = lessonReward;
+  const reward = await pending;
+  if (lesson.hidden || pending !== lessonReward) return;
   element('final-score').textContent = `${score} of ${LESSON_LENGTH} correct`;
   element('final-level').textContent = lessonLabel;
+  element('lesson-xp').textContent = `+${reward.xp} XP`;
+  const levelReward = element('level-reward');
+  levelReward.hidden = reward.levels === 0;
+  const points = `+${reward.levels} studio point${reward.levels === 1 ? '' : 's'}`;
+  levelReward.textContent = `Level ${reward.level} · ${points}${reward.rank ? ` · New rank: ${reward.rank}` : ''}`;
   show(results);
   element('results-title').focus({ preventScroll: true });
 }
@@ -141,10 +157,24 @@ function returnToMenu() {
   element('menu-title').focus({ preventScroll: true });
 }
 
+function openStudio(from) {
+  instrument.stop();
+  studioReturn = from;
+  studio.open();
+  show(studioScreen);
+  element('studio-title').focus();
+}
+
 element('start').addEventListener('click', start);
 element('again').addEventListener('click', start);
 element('change-level').addEventListener('click', returnToMenu);
 element('results-menu').addEventListener('click', returnToMenu);
+element('menu-studio').addEventListener('click', () => openStudio(menu));
+element('results-studio').addEventListener('click', () => openStudio(results));
+element('studio-back').addEventListener('click', () => {
+  show(studioReturn);
+  element(studioReturn === menu ? 'menu-studio' : 'results-studio').focus();
+});
 next.addEventListener('click', advance);
 staff.addEventListener('click', () => instrument.play(questions[index].target.midi));
 choices.forEach((button, optionIndex) => {

@@ -13,4 +13,10 @@ Letters prompts span the bottom E to the top F. Keyboard prompts include middle 
 
 Starting a lesson enables audio in the browser. Each note plays as it appears, and tapping the staff replays it. Selecting an answer plays the pitch represented by that choice, followed by an ascending phrase for a correct answer or a descending phrase for a wrong answer. The selected button changes color and the text below it gives the answer. Use the mute button to practice reading without audio.
 
+## Progression and Piano Studio
+
+Completing all ten questions earns 40 XP plus 6 XP per correct answer in either mode and at any difficulty. Every 100 XP advances one level and grants one studio point. Players start at level 1 as an Apprentice. Musician unlocks at level 3, Pianist at level 5, Virtuoso at level 8, and Maestro at level 12.
+
+Open Piano Studio from the practice menu or the results screen. Spend studio points on rugs, wall art, and plants. Purchased items remain owned when they are put away and can be placed again for free. The room displays one item per category at a time. Progress, purchases, and the current arrangement are saved in the browser.
+
 The cover and engraved flourishes are original generated art based on the Music Tutor concept. The staff symbols use rasterized glyphs from [Noto Music](https://github.com/notofonts/music), a typeface distributed under the SIL Open Font License. The plucked instrument and feedback phrases are synthesized with Web Audio.
