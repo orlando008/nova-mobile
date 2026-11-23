@@ -2,7 +2,7 @@ import {
   createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP, KEYBOARD_END_MIDI,
 } from '../../carts/music-tutor/code.js?v=full-staff';
 import { createInstrument, feedbackDurationMs } from './audio.mjs?v=chime';
-import { createStudio } from './studio.mjs';
+import { createStudio } from './studio.mjs?v=previews';
 
 const element = id => document.getElementById(id);
 const menu = element('menu');

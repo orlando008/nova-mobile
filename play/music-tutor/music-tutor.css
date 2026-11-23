@@ -243,6 +243,12 @@ fieldset small {
 }
 .primary:focus-visible { outline-color: var(--crimson); }
 .primary:disabled { opacity: .65; cursor: default; }
+.primary.studio-entry {
+  margin-block-start: .45rem;
+  border-color: #b6a385;
+  background: var(--navy);
+}
+.studio-entry:focus-visible { outline-color: var(--navy); }
 
 .back {
   margin-block-start: .25rem;
@@ -442,7 +448,7 @@ fieldset small {
 
 .results { text-align: center; }
 .final-score { margin: .45rem 0 0; font-size: clamp(1.5rem, 6vw, 2.1rem); }
-.results .primary { margin-block-start: .9rem; }
+#again { margin-block-start: .9rem; }
 #lesson-xp { color: var(--crimson); font-size: 1.2rem; font-weight: 700; }
 .level-reward {
   padding: .55rem;
@@ -568,6 +574,24 @@ fieldset small {
   font-size: .88rem;
 }
 .studio-items li[data-placed] { border-color: var(--crimson); }
+.studio-item-heading {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  text-align: start;
+}
+.studio-preview {
+  position: relative;
+  flex: 0 0 clamp(2rem, 11vw, 3.35rem);
+  aspect-ratio: 1;
+  border: 1px solid #c9b38e;
+  border-radius: .23rem;
+  background: #eddbb6;
+}
+.studio-preview .rug { inset: auto 8% 25%; height: 50%; }
+.studio-preview .wall { left: 24%; top: 13%; width: 52%; height: 74%; }
+.studio-preview .wall::before { font-size: clamp(.7rem, 3.6vw, 1.25rem); }
+.studio-preview .plant { right: 22%; bottom: 12%; width: 56%; height: 66%; }
 .studio-action {
   min-height: 44px;
   border: 1px solid var(--navy);
@@ -592,6 +616,7 @@ fieldset small {
 @media (hover: hover) {
   .topbar a:hover, .utility:hover { text-decoration: underline; }
   .primary:hover { background: #9a2540; }
+  .primary.studio-entry:hover { background: #293d60; }
   .staff-button:hover { background: #fff5e0; }
   .choice:not([aria-disabled]):hover { background: #293d60; }
   .piano-key:not([aria-disabled]):hover { filter: brightness(.9); }

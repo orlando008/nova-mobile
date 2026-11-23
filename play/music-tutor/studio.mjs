@@ -68,8 +68,18 @@ export function createStudio() {
 
   const controls = DECOR.map(item => {
     const row = document.createElement('li');
+    const heading = document.createElement('div');
+    heading.className = 'studio-item-heading';
+    const preview = document.createElement('span');
+    preview.className = 'studio-preview';
+    preview.setAttribute('aria-hidden', 'true');
+    const decor = document.createElement('span');
+    decor.className = `room-decor ${item.slot}`;
+    decor.dataset.decor = item.id;
+    preview.append(decor);
     const name = document.createElement('span');
     name.textContent = item.name;
+    heading.append(preview, name);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'studio-action';
@@ -77,7 +87,7 @@ export function createStudio() {
       const result = await update(current => changeDecor(current, item));
       status.textContent = result?.message ?? 'You need more studio points.';
     });
-    row.append(name, button);
+    row.append(heading, button);
     shop.append(row);
     return [item, button];
   });
