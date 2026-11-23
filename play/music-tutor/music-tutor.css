@@ -247,10 +247,9 @@ fieldset small {
 }
 .staff-line {
   position: absolute;
-  background: currentColor;
   inset-inline: 2.5%;
-  height: 1.5px;
-  transform: translateY(-50%);
+  margin-block-start: -1px;
+  border-block-start: 2px solid currentColor;
 }
 .staff-line:nth-child(1) { top: 26%; }
 .staff-line:nth-child(2) { top: 40%; }

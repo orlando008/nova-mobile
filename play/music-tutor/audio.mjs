@@ -67,7 +67,7 @@ export function createInstrument() {
     try {
       if (!await unlock() || current !== request) return;
       const time = context.currentTime + .012;
-      note(midi, time, correct === undefined ? .55 : .32, .38);
+      note(midi, time, .55, .38);
       if (correct === undefined) return;
       const phrase = correct ? [72, 76, 79] : [65, 63, 60];
       phrase.forEach((pitch, index) => {
