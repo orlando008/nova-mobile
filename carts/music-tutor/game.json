@@ -1,0 +1,53 @@
+{
+  "format": 1,
+  "name": "music-tutor",
+  "title": "Music Tutor",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Hear a note, read the treble staff, and choose its name. Practice naturals, sharps, and flats.",
+  "shelf": "Puzzle",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/flat.png",
+      "lazy": true,
+      "bytes": 1529,
+      "sha256": "a06c190cbf51df741ce88a132ee5b1df6109edbf4ced6b28347ed33bdde30be8"
+    },
+    {
+      "path": "assets/flourish.webp",
+      "lazy": true,
+      "bytes": 28342,
+      "sha256": "6a974c764abee15728ac36f76f6d04f7199071c8d431c46b68a703e8287e4001"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 66065,
+      "sha256": "1257f6ce7986b9c5764f4622516ef62a20f834ef493b3656e19eced92a7e08ba"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 616606,
+      "sha256": "08205f05c4e0f5f5c11bd7fad970de59a9e2a745c4e11714478d79ac602fe2fd"
+    },
+    {
+      "path": "assets/sharp.png",
+      "lazy": true,
+      "bytes": 2297,
+      "sha256": "7f0f05b40c99261707ca6b5beeb2f690f692fed2309a50c0f159eaf060a61ff9"
+    },
+    {
+      "path": "assets/treble-clef.png",
+      "lazy": true,
+      "bytes": 10236,
+      "sha256": "d22e6318cb1df7573b78e2b32c6b7369b68775fdb4df125e858d6da3c1eb27bf"
+    }
+  ],
+  "contentVersion": "2dfc4c2488f35bd457c37aa42777ccad723f5547264f4cfd97fe05119ac0d420"
+}
