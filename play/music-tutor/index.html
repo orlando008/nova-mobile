@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101c32">
+  <meta name="description" content="Hear a note, read the treble staff, and choose its name. Practice naturals, sharps, and flats.">
+  <meta property="og:title" content="Music Tutor">
+  <meta property="og:description" content="Hear a note, read the treble staff, and choose its name. Practice naturals, sharps, and flats.">
+  <meta property="og:image" content="../../carts/music-tutor/assets/poster.png">
+  <title>Music Tutor</title>
+  <link rel="icon" href="../../carts/music-tutor/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./music-tutor.css">
+</head>
+<body>
+  <main class="folio">
+    <header class="topbar">
+      <a href="../../">‹ Library</a>
+      <button type="button" class="utility" id="mute" aria-pressed="false">Mute sound</button>
+    </header>
+
+    <div class="sheet">
+      <header class="masthead">
+        <h1>Music Tutor</h1>
+        <div class="ornament" aria-hidden="true">❦</div>
+      </header>
+
+      <section id="menu" class="menu" aria-labelledby="menu-title">
+        <h2 id="menu-title" tabindex="-1">Choose a difficulty</h2>
+        <fieldset aria-labelledby="menu-title">
+          <label>
+            <input type="radio" name="difficulty" value="natural" checked>
+            <span>Natural notes <small>A through G</small></span>
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="sharps">
+            <span>Sharps <small>Natural notes and ♯</small></span>
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="mixed">
+            <span>Sharps &amp; flats <small>Natural notes, ♯ and ♭</small></span>
+          </label>
+        </fieldset>
+        <button type="button" class="primary" id="start">Start practice</button>
+      </section>
+
+      <section id="lesson" aria-label="Note practice" hidden>
+        <div class="lesson-heading">
+          <p id="level"></p>
+          <p id="progress"></p>
+        </div>
+        <button type="button" id="staff" class="staff-button" aria-label="Replay the note">
+          <span class="staff" aria-hidden="true">
+            <span class="staff-line"></span>
+            <span class="staff-line"></span>
+            <span class="staff-line"></span>
+            <span class="staff-line"></span>
+            <span class="staff-line"></span>
+            <img class="clef" src="../../carts/music-tutor/assets/treble-clef.png" alt="">
+            <span class="notation">
+              <span id="accidental" class="accidental"></span>
+              <span class="stem"></span>
+              <span class="notehead"></span>
+            </span>
+          </span>
+          <span class="replay-label"><span aria-hidden="true">♪</span> Tap the note to replay</span>
+        </button>
+
+        <div class="answers" role="group" aria-label="Name the note">
+          <button type="button" class="choice" aria-keyshortcuts="1"></button>
+          <button type="button" class="choice" aria-keyshortcuts="2"></button>
+          <button type="button" class="choice" aria-keyshortcuts="3"></button>
+        </div>
+
+        <p id="feedback" class="feedback" role="status"></p>
+        <button type="button" class="primary" id="next" hidden>Next note</button>
+        <button type="button" id="change-level" class="back">Change difficulty</button>
+      </section>
+
+      <section id="results" class="results" aria-labelledby="results-title" hidden>
+        <h2 id="results-title" tabindex="-1">Practice complete</h2>
+        <p id="final-score" class="final-score"></p>
+        <p id="final-level"></p>
+        <button type="button" class="primary" id="again">Practice again</button>
+        <button type="button" id="results-menu" class="back">Change difficulty</button>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="./music-tutor.mjs"></script>
+</body>
+</html>
