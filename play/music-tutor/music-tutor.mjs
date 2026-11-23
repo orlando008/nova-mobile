@@ -1,7 +1,7 @@
 import {
   createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP, KEYBOARD_END_MIDI,
 } from '../../carts/music-tutor/code.js?v=full-staff';
-import { createInstrument, FEEDBACK_DURATION_MS } from './audio.mjs';
+import { createInstrument, feedbackDurationMs } from './audio.mjs?v=chime';
 
 const element = id => document.getElementById(id);
 const menu = element('menu');
@@ -117,7 +117,7 @@ function selectAnswer(button, midi) {
   next.textContent = index + 1 === LESSON_LENGTH ? 'See results' : 'Next note';
   next.hidden = false;
   next.disabled = !muted;
-  if (!muted) feedbackTimer = setTimeout(() => { next.disabled = false; }, FEEDBACK_DURATION_MS);
+  if (!muted) feedbackTimer = setTimeout(() => { next.disabled = false; }, feedbackDurationMs(correct));
   instrument.play(midi, correct);
 }
 
