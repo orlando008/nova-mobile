@@ -37,12 +37,6 @@
       "sha256": "7884a45d353dc421fd398258e524e5cd24eb5764d97bf007b89d69ccbc9e85ea"
     },
     {
-      "path": "assets/piano-studio.webp",
-      "lazy": true,
-      "bytes": 164900,
-      "sha256": "a0848c73e903ce97ef9c640b3c5be6fe4727007b8613617685be81a3de2b2b14"
-    },
-    {
       "path": "assets/poster.png",
       "lazy": true,
       "bytes": 616606,
@@ -55,11 +49,77 @@
       "sha256": "7f0f05b40c99261707ca6b5beeb2f690f692fed2309a50c0f159eaf060a61ff9"
     },
     {
+      "path": "assets/studio/baby-grand.webp",
+      "lazy": true,
+      "bytes": 77498,
+      "sha256": "9b0e8a89454d231e6778c6e897786971493a34902aaac0167f1bcfebaa08b49e"
+    },
+    {
+      "path": "assets/studio/botanical-print.webp",
+      "lazy": true,
+      "bytes": 30154,
+      "sha256": "6bbbccc26887c955963e88260284569ce1c5aeefb3ac114e45593e052c08139d"
+    },
+    {
+      "path": "assets/studio/carved-upright.webp",
+      "lazy": true,
+      "bytes": 94788,
+      "sha256": "5444d5f5d0a2ba6a1300256af6c35f1f87697d3cffbe3b5699df84f9486aef49"
+    },
+    {
+      "path": "assets/studio/concert-grand.webp",
+      "lazy": true,
+      "bytes": 97562,
+      "sha256": "739bdbc166811005f921c41e18deafb6892d7a101f793c09b9dab2111543f2a3"
+    },
+    {
+      "path": "assets/studio/crimson-rug.webp",
+      "lazy": true,
+      "bytes": 53674,
+      "sha256": "0d920cd1ce4166d72b47b199e905b3f99a02a8a159dbfd41831164563eb03e3d"
+    },
+    {
+      "path": "assets/studio/fern.webp",
+      "lazy": true,
+      "bytes": 52282,
+      "sha256": "9dfff13109094c705ce8ed043455448adf35bb825f827109a3eb54a8de815ae5"
+    },
+    {
+      "path": "assets/studio/framed-score.webp",
+      "lazy": true,
+      "bytes": 43098,
+      "sha256": "e63015874b33ad6b6150cf88a293fbeeb52dd38ee24661536beb700f114edb19"
+    },
+    {
+      "path": "assets/studio/navy-rug.webp",
+      "lazy": true,
+      "bytes": 55946,
+      "sha256": "9456f5497bae313506c9fe46b9ed8763eaaa33efc5ec30b80fd335551e9376d0"
+    },
+    {
+      "path": "assets/studio/olive-tree.webp",
+      "lazy": true,
+      "bytes": 44890,
+      "sha256": "529969e945e9c796a2af3e96dfc1a4f751a9bf75c2b2630978a8052351319b2c"
+    },
+    {
+      "path": "assets/studio/room.webp",
+      "lazy": true,
+      "bytes": 114052,
+      "sha256": "fae9b0ee307559c85c50c87f21f92c6f547d7a6a08d08f14ca3df45e37c8f467"
+    },
+    {
+      "path": "assets/studio/wooden-upright.webp",
+      "lazy": true,
+      "bytes": 92602,
+      "sha256": "26ff668e1163eb3ce174c682076ac6c75f1dfef8615a57227b0275ea90a0ba0d"
+    },
+    {
       "path": "assets/treble-clef.png",
       "lazy": true,
       "bytes": 10236,
       "sha256": "d22e6318cb1df7573b78e2b32c6b7369b68775fdb4df125e858d6da3c1eb27bf"
     }
   ],
-  "contentVersion": "9911d36bedb3c956c89912f3e9c6eeebc48faa9af44a7321fd2d7619d6ba9eb6"
+  "contentVersion": "fe79022ce1818767caceee28a05c416a6221fd70f310c3eb55d9f27ce74a5374"
 }

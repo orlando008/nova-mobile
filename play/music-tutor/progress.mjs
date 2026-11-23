@@ -16,11 +16,20 @@ export const DECOR = [
   { id: 'olive-tree', slot: 'plant', name: 'Olive tree', cost: 2 },
 ];
 
+export const PIANOS = [
+  { id: 'wooden-upright', slot: 'piano', name: 'Wooden Upright', cost: 0 },
+  { id: 'carved-upright', slot: 'piano', name: 'Carved Mahogany Upright', cost: 2 },
+  { id: 'baby-grand', slot: 'piano', name: 'Baby Grand', cost: 4 },
+  { id: 'concert-grand', slot: 'piano', name: 'Concert Grand', cost: 7 },
+];
+export const STUDIO_ITEMS = [...PIANOS, ...DECOR];
+
 export function readProgress(data) {
   const xp = Number.isSafeInteger(data?.xp) && data.xp >= 0 ? data.xp : 0;
-  const owned = DECOR.filter(item => Array.isArray(data?.owned) && data.owned.includes(item.id));
-  const equipped = Object.fromEntries(owned.filter(item => data.equipped?.[item.slot] === item.id)
-    .map(item => [item.slot, item.id]));
+  const owned = STUDIO_ITEMS.filter(item => item.cost > 0 && Array.isArray(data?.owned) && data.owned.includes(item.id));
+  const placed = owned.filter(item => data.equipped?.[item.slot] === item.id)
+    .map(item => [item.slot, item.id]);
+  const equipped = { piano: PIANOS[0].id, ...Object.fromEntries(placed) };
   return { xp, owned: owned.map(item => item.id), equipped };
 }
 
@@ -28,7 +37,7 @@ export function progressSummary({ xp, owned }) {
   const level = Math.floor(xp / XP_PER_LEVEL) + 1;
   const rank = RANKS.findLast(entry => entry.level <= level).name;
   const nextRank = RANKS.find(entry => entry.level > level);
-  const spent = DECOR.reduce((sum, item) => sum + (owned.includes(item.id) ? item.cost : 0), 0);
+  const spent = STUDIO_ITEMS.reduce((sum, item) => sum + (owned.includes(item.id) ? item.cost : 0), 0);
   return { level, rank, nextRank, points: level - 1 - spent, levelXP: xp % XP_PER_LEVEL, goal: XP_PER_LEVEL };
 }
 
@@ -46,14 +55,15 @@ export function rewardLesson(progress, correct) {
   };
 }
 
-export function changeDecor(progress, item) {
+export function changeStudioItem(progress, item) {
   if (progress.equipped[item.slot] === item.id) {
+    if (item.slot === 'piano') return null;
     const equipped = { ...progress.equipped };
     delete equipped[item.slot];
     return { progress: { ...progress, equipped }, message: `${item.name} put away.` };
   }
 
-  const owned = progress.owned.includes(item.id);
+  const owned = item.cost === 0 || progress.owned.includes(item.id);
   if (!owned && progressSummary(progress).points < item.cost) return null;
   return {
     progress: {

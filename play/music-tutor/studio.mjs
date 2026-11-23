@@ -1,13 +1,20 @@
-import { DECOR, changeDecor, progressSummary, readProgress, rewardLesson } from './progress.mjs';
+import { STUDIO_ITEMS, changeStudioItem, progressSummary, readProgress, rewardLesson } from './progress.mjs?v=piano-upgrades';
 
 const STORAGE_KEY = 'nova-mobile:music-tutor:progress';
 const element = id => document.getElementById(id);
-const slots = ['rug', 'wall', 'plant'];
 const pointsText = count => `${count} studio point${count === 1 ? '' : 's'}`;
+const artwork = id => `../../carts/music-tutor/assets/studio/${id}.webp`;
 
 export function createStudio() {
   const shop = element('studio-items');
+  const pianos = element('piano-items');
   const room = element('studio-room');
+  const roomItems = [
+    ['piano', room.querySelector('.piano-furniture')],
+    ['rug', room.querySelector('.rug')],
+    ['wall', room.querySelector('.wall')],
+    ['plant', room.querySelector('.plant')],
+  ];
   const status = element('studio-status');
   let progress = readProgress();
   let saved = true;
@@ -51,32 +58,38 @@ export function createStudio() {
     element('studio-points').textContent = pointsText(points);
     element('save-notice').hidden = saved;
 
-    for (const slot of slots) room.querySelector(`.${slot}`).dataset.decor = progress.equipped[slot] ?? '';
-    const placed = DECOR.filter(item => progress.equipped[item.slot] === item.id).map(item => item.name);
-    room.setAttribute('aria-label', placed.length ? `Baroque piano room with ${placed.join(', ')}` : 'Baroque piano room');
+    for (const [slot, layer] of roomItems) {
+      const id = progress.equipped[slot];
+      layer.hidden = !id;
+      if (!id || layer.dataset.item === id) continue;
+      layer.src = artwork(id);
+      layer.dataset.item = id;
+    }
+    const placed = STUDIO_ITEMS.filter(item => progress.equipped[item.slot] === item.id).map(item => item.name);
+    room.setAttribute('aria-label', `Piano studio with ${placed.join(', ')}`);
 
     for (const [item, button] of controls) {
-      const owned = progress.owned.includes(item.id);
+      const piano = item.slot === 'piano';
+      const owned = item.cost === 0 || progress.owned.includes(item.id);
       const active = progress.equipped[item.slot] === item.id;
-      const label = active ? 'Remove' : owned ? 'Place' : `Buy · ${item.cost} pt${item.cost === 1 ? '' : 's'}`;
-      button.textContent = label;
-      button.setAttribute('aria-label', `${active ? 'Remove' : owned ? 'Place' : 'Buy'} ${item.name}${owned ? '' : ` for ${pointsText(item.cost)}`}`);
-      button.disabled = !owned && item.cost > points;
+      const action = active ? (piano ? 'In use' : 'Remove') : owned ? (piano ? 'Use' : 'Place') : 'Buy';
+      button.textContent = owned ? action : `Buy · ${item.cost} pt${item.cost === 1 ? '' : 's'}`;
+      button.setAttribute('aria-label', active && piano ? `${item.name} in use` :
+        `${action} ${item.name}${owned ? '' : ` for ${pointsText(item.cost)}`}`);
+      button.disabled = active && piano || !owned && item.cost > points;
       button.closest('li').toggleAttribute('data-placed', active);
     }
   }
 
-  const controls = DECOR.map(item => {
+  const controls = STUDIO_ITEMS.map(item => {
     const row = document.createElement('li');
     const heading = document.createElement('div');
     heading.className = 'studio-item-heading';
-    const preview = document.createElement('span');
+    const preview = document.createElement('img');
     preview.className = 'studio-preview';
-    preview.setAttribute('aria-hidden', 'true');
-    const decor = document.createElement('span');
-    decor.className = `room-decor ${item.slot}`;
-    decor.dataset.decor = item.id;
-    preview.append(decor);
+    preview.alt = '';
+    preview.loading = 'lazy';
+    preview.src = artwork(item.id);
     const name = document.createElement('span');
     name.textContent = item.name;
     heading.append(preview, name);
@@ -84,11 +97,11 @@ export function createStudio() {
     button.type = 'button';
     button.className = 'studio-action';
     button.addEventListener('click', async () => {
-      const result = await update(current => changeDecor(current, item));
+      const result = await update(current => changeStudioItem(current, item));
       status.textContent = result?.message ?? 'You need more studio points.';
     });
     row.append(heading, button);
-    shop.append(row);
+    (item.slot === 'piano' ? pianos : shop).append(row);
     return [item, button];
   });
 

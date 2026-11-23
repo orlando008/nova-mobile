@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DECOR, changeDecor, progressSummary, readProgress, rewardLesson } from '../play/music-tutor/progress.mjs';
+import { DECOR, PIANOS, changeStudioItem, progressSummary, readProgress, rewardLesson } from '../play/music-tutor/progress.mjs';
 
 test('completed lessons earn XP and level-ups earn studio points', () => {
   const starting = readProgress();
@@ -27,28 +27,46 @@ test('decor purchases spend points once and owned items can be swapped or remove
   const crimson = DECOR.find(item => item.id === 'crimson-rug');
   const navy = DECOR.find(item => item.id === 'navy-rug');
   const progress = readProgress({ xp: 300 });
-  assert.equal(changeDecor(readProgress(), crimson), null);
+  assert.equal(changeStudioItem(readProgress(), crimson), null);
 
-  const bought = changeDecor(progress, crimson).progress;
-  const swapped = changeDecor(bought, navy).progress;
+  const bought = changeStudioItem(progress, crimson).progress;
+  const swapped = changeStudioItem(bought, navy).progress;
   assert.equal(swapped.equipped.rug, navy.id);
   assert.equal(progressSummary(swapped).points, 0);
 
   const restored = readProgress(JSON.parse(JSON.stringify(swapped)));
   assert.deepEqual(restored, swapped);
-  const putAway = changeDecor(restored, navy).progress;
+  const putAway = changeStudioItem(restored, navy).progress;
   assert.equal(putAway.equipped.rug, undefined);
   assert.deepEqual(putAway.owned, [crimson.id, navy.id]);
-  const redecorated = changeDecor(putAway, crimson).progress;
+  const redecorated = changeStudioItem(putAway, crimson).progress;
   assert.equal(redecorated.equipped.rug, crimson.id);
   assert.equal(progressSummary(redecorated).points, 0);
 });
 
 test('old and invalid saves load with valid ownership and equipped slots', () => {
-  assert.deepEqual(readProgress(null), { xp: 0, owned: [], equipped: {} });
+  assert.deepEqual(readProgress(null), { xp: 0, owned: [], equipped: { piano: 'wooden-upright' } });
   assert.deepEqual(readProgress({
     xp: 300,
     owned: ['crimson-rug', 'unknown', 'crimson-rug'],
     equipped: { rug: 'crimson-rug', wall: 'framed-score' },
-  }), { xp: 300, owned: ['crimson-rug'], equipped: { rug: 'crimson-rug' } });
+  }), { xp: 300, owned: ['crimson-rug'], equipped: { piano: 'wooden-upright', rug: 'crimson-rug' } });
+});
+
+test('a purchased piano replaces the upright, and any owned piano can be switched back in', () => {
+  const [starter, , babyGrand, concertGrand] = PIANOS;
+  const starting = readProgress({ xp: 400 });
+  assert.equal(changeStudioItem(starting, concertGrand), null);
+  assert.equal(changeStudioItem(starting, starter), null);
+
+  const upgraded = changeStudioItem(starting, babyGrand).progress;
+  const reloaded = readProgress(JSON.parse(JSON.stringify(upgraded)));
+  assert.equal(reloaded.equipped.piano, babyGrand.id);
+  assert.equal(progressSummary(reloaded).points, 0);
+  assert.equal(changeStudioItem(reloaded, babyGrand), null);
+
+  const reverted = changeStudioItem(reloaded, starter).progress;
+  assert.equal(reverted.equipped.piano, starter.id);
+  assert.equal(changeStudioItem(reverted, babyGrand).progress.equipped.piano, babyGrand.id);
+  assert.equal(progressSummary(reverted).points, 0);
 });
