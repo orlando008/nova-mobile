@@ -1,4 +1,4 @@
-import { createLesson, DIFFICULTIES, LESSON_LENGTH } from '../../carts/music-tutor/code.js';
+import { createLesson, DIFFICULTIES, LESSON_LENGTH } from '../../carts/music-tutor/code.js?v=key-signatures';
 import { createInstrument, FEEDBACK_DURATION_MS } from './audio.mjs';
 
 const element = id => document.getElementById(id);
