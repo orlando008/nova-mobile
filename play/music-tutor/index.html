@@ -10,7 +10,7 @@
   <meta property="og:image" content="../../carts/music-tutor/assets/poster.png">
   <title>Music Tutor</title>
   <link rel="icon" href="../../carts/music-tutor/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./music-tutor.css?v=key-signatures">
+  <link rel="stylesheet" href="./music-tutor.css?v=keyboard">
 </head>
 <body>
   <main class="folio">
@@ -26,6 +26,17 @@
       </header>
 
       <section id="menu" class="menu" aria-labelledby="menu-title">
+        <fieldset class="mode-options">
+          <legend>Answer mode</legend>
+          <label>
+            <input type="radio" name="mode" value="letters" checked>
+            <span>Letters</span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="keyboard">
+            <span>Keyboard</span>
+          </label>
+        </fieldset>
         <h2 id="menu-title" tabindex="-1">Choose a difficulty</h2>
         <fieldset aria-labelledby="menu-title">
           <label>
@@ -71,15 +82,16 @@
           <span class="replay-label"><span aria-hidden="true">♪</span> Tap the note to replay</span>
         </button>
 
-        <div class="answers" role="group" aria-label="Name the note">
+        <div id="letter-answers" class="answers" role="group" aria-label="Name the note">
           <button type="button" class="choice" aria-keyshortcuts="1"></button>
           <button type="button" class="choice" aria-keyshortcuts="2"></button>
           <button type="button" class="choice" aria-keyshortcuts="3"></button>
         </div>
+        <div id="keyboard-answers" class="piano" role="group" aria-label="Play the note on the piano keyboard" hidden></div>
 
         <p id="feedback" class="feedback" role="status"></p>
         <button type="button" class="primary" id="next" hidden>Next note</button>
-        <button type="button" id="change-level" class="back">Change difficulty</button>
+        <button type="button" id="change-level" class="back">Change mode or difficulty</button>
       </section>
 
       <section id="results" class="results" aria-labelledby="results-title" hidden>
@@ -87,10 +99,10 @@
         <p id="final-score" class="final-score"></p>
         <p id="final-level"></p>
         <button type="button" class="primary" id="again">Practice again</button>
-        <button type="button" id="results-menu" class="back">Change difficulty</button>
+        <button type="button" id="results-menu" class="back">Change mode or difficulty</button>
       </section>
     </div>
   </main>
-  <script type="module" src="./music-tutor.mjs?v=key-signatures"></script>
+  <script type="module" src="./music-tutor.mjs?v=keyboard"></script>
 </body>
 </html>

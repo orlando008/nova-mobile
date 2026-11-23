@@ -190,6 +190,19 @@ fieldset small {
   font-size: .8rem;
 }
 
+.mode-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mode-options legend {
+  padding: 0;
+  margin-block-end: .45rem;
+  color: var(--crimson);
+  font-weight: 700;
+}
+.mode-options span {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
 .primary, .back {
   display: block;
   width: 100%;
@@ -352,6 +365,42 @@ fieldset small {
 .choice[data-result="incorrect"] { background: var(--crimson); }
 .choice[aria-disabled] { cursor: default; }
 
+.piano {
+  position: relative;
+  height: clamp(106px, 29vw, 142px);
+  margin-block-start: .8rem;
+  border: 2px solid var(--navy);
+  border-radius: .35rem;
+  background: var(--navy);
+}
+.piano-key {
+  position: absolute;
+  top: 0;
+  left: calc(var(--key-position) * 100% / 7);
+  width: calc(100% / 7);
+  height: 100%;
+  border: 1px solid var(--navy);
+  border-radius: 0 0 .25rem .25rem;
+  background: #fff3da;
+  box-shadow: inset 0 -3px #0002;
+}
+.piano-key.black-key {
+  z-index: 1;
+  width: calc(68% / 7);
+  height: 61%;
+  transform: translateX(-50%);
+  background: var(--navy);
+  box-shadow: inset 0 -3px #ffffff25, 0 3px 3px #0005;
+}
+.piano-key:focus-visible {
+  z-index: 2;
+  outline: 3px solid #a98353;
+  outline-offset: -4px;
+}
+.piano-key[aria-disabled] { cursor: default; }
+.piano-key[data-result="correct"] { background: var(--green); }
+.piano-key[data-result="incorrect"] { background: var(--crimson); }
+
 .feedback {
   min-height: 1.4em;
   margin: .55rem 0;
@@ -369,4 +418,5 @@ fieldset small {
   .primary:hover { background: #9a2540; }
   .staff-button:hover { background: #fff5e0; }
   .choice:not([aria-disabled]):hover { background: #293d60; }
+  .piano-key:not([aria-disabled]):hover { filter: brightness(.9); }
 }
