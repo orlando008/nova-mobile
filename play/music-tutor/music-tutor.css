@@ -241,7 +241,6 @@ fieldset small {
 
 .staff {
   --note-x: 59%;
-  --note-y: 75%;
   display: block;
   position: relative;
   width: 100%;
@@ -272,7 +271,7 @@ fieldset small {
 
 .notation {
   position: absolute;
-  top: var(--note-y);
+  top: var(--note-y, 75%);
   left: var(--note-x);
   width: 6.35%;
   aspect-ratio: 1.78;
@@ -309,7 +308,7 @@ fieldset small {
   background: url('../../carts/music-tutor/assets/sharp.png') center / contain no-repeat;
 }
 #accidental {
-  top: var(--note-y);
+  top: var(--note-y, 75%);
   left: calc(var(--note-x) - 8%);
 }
 .accidental:not([data-sign]) { display: none; }
