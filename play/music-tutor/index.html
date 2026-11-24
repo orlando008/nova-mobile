@@ -10,7 +10,7 @@
   <meta property="og:image" content="../../carts/music-tutor/assets/poster.png">
   <title>Music Tutor</title>
   <link rel="icon" href="../../carts/music-tutor/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./music-tutor.css?v=studio-rugs">
+  <link rel="stylesheet" href="./music-tutor.css?v=xp-celebrations">
 </head>
 <body>
   <main class="folio">
@@ -117,11 +117,30 @@
         <h2 id="results-title" tabindex="-1">Practice complete</h2>
         <p id="final-score" class="final-score"></p>
         <p id="final-level"></p>
-        <p id="lesson-xp"></p>
-        <p id="level-reward" class="level-reward" hidden></p>
+        <div class="player-progress result-progress">
+          <div class="result-progress-heading"><strong id="result-rank"></strong><strong id="lesson-xp"></strong></div>
+          <div class="result-meter" id="result-meter" role="progressbar" aria-label="Experience toward next level">
+            <span class="result-meter-track"><span id="result-meter-fill"></span></span>
+            <span class="level-sparkle" aria-hidden="true">✦</span>
+          </div>
+          <span id="result-xp"></span>
+          <p id="level-reward" role="status"></p>
+        </div>
         <button type="button" class="primary" id="again">Practice again</button>
         <button type="button" class="primary studio-entry" id="results-studio">Piano Studio</button>
         <button type="button" id="results-menu" class="secondary">Change mode or difficulty</button>
+        <dialog class="rank-popup" id="rank-popup" aria-labelledby="rank-title">
+          <div class="rank-fireworks" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="rank-popup-content">
+            <div class="ornament" aria-hidden="true">❦</div>
+            <h3 id="rank-title"></h3>
+            <form method="dialog">
+              <button type="submit" class="primary" autofocus>Continue</button>
+            </form>
+          </div>
+        </dialog>
       </section>
 
       <section id="explorer" class="explorer" aria-labelledby="explorer-title" hidden>
@@ -181,6 +200,6 @@
       <p class="save-notice" id="save-notice" role="status" hidden>Progress could not be saved on this device.</p>
     </div>
   </main>
-  <script type="module" src="./music-tutor.mjs?v=bass-clef"></script>
+  <script type="module" src="./music-tutor.mjs?v=xp-celebrations"></script>
 </body>
 </html>

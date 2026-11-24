@@ -1,8 +1,9 @@
 import {
   CLEFS, createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI,
 } from '../../carts/music-tutor/code.js?v=bass-clef';
-import { createInstrument, nextNoteDelayMs } from './audio.mjs?v=quicker-next';
-import { createStudio } from './studio.mjs?v=piano-upgrades';
+import { createInstrument, nextNoteDelayMs } from './audio.mjs?v=xp-celebrations';
+import { createResults } from './results.mjs';
+import { createStudio } from './studio.mjs?v=xp-celebrations';
 
 const element = id => document.getElementById(id);
 const menu = element('menu');
@@ -22,6 +23,7 @@ const keyboardAnswers = element('keyboard-answers');
 const choices = [...document.querySelectorAll('.choice')];
 const instrument = createInstrument();
 const studio = createStudio();
+const resultsProgress = createResults(instrument);
 const octaveLayout = [
   { names: ['C'], position: 0 },
   { names: ['C sharp', 'D flat'], position: 1 },
@@ -51,6 +53,7 @@ let clefName = menu.querySelector('input[name="lesson-clef"]:checked').value;
 
 function show(screen) {
   clearTimeout(feedbackTimer);
+  if (screen !== results && !results.hidden) resultsProgress.finish();
   menu.hidden = screen !== menu;
   lesson.hidden = screen !== lesson;
   results.hidden = screen !== results;
@@ -194,13 +197,9 @@ async function advance() {
   if (lesson.hidden || pending !== lessonReward) return;
   element('final-score').textContent = `${score} of ${LESSON_LENGTH} correct`;
   element('final-level').textContent = lessonLabel;
-  element('lesson-xp').textContent = `+${reward.xp} XP`;
-  const levelReward = element('level-reward');
-  levelReward.hidden = reward.levels === 0;
-  const points = `+${reward.levels} studio point${reward.levels === 1 ? '' : 's'}`;
-  levelReward.textContent = `Level ${reward.level} · ${points}${reward.rank ? ` · New rank: ${reward.rank}` : ''}`;
   show(results);
   element('results-title').focus({ preventScroll: true });
+  resultsProgress.present(reward);
 }
 
 function returnToMenu() {
@@ -286,4 +285,7 @@ document.addEventListener('keydown', event => {
       event.metaKey || !/^[1-3]$/.test(event.key)) return;
   choices[Number(event.key) - 1].click();
 });
-window.addEventListener('pagehide', instrument.stop);
+window.addEventListener('pagehide', () => {
+  resultsProgress.finish();
+  instrument.stop();
+});

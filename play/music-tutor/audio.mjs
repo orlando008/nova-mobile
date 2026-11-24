@@ -67,13 +67,20 @@ export function createInstrument() {
     oscillator.stop(time + duration + .015);
   }
 
-  async function play(midi, correct) {
+  async function playSequence(schedule) {
     stop();
     const current = request;
     if (muted) return;
     try {
       if (!await unlock() || current !== request) return;
-      const time = context.currentTime + .012;
+      schedule(context.currentTime + .012);
+    } catch {
+      // The quiz can still be played if the browser interrupts audio.
+    }
+  }
+
+  function play(midi, correct) {
+    return playSequence(time => {
       note(midi, time, .55, .38);
       if (correct === undefined) return;
       const { pitches, spacingMs, tailMs } = correct ? SUCCESS : MISS;
@@ -82,9 +89,22 @@ export function createInstrument() {
         const duration = correct || index === pitches.length - 1 ? tailMs / 1000 : .19;
         note(pitch, start, duration, .19, correct);
       });
-    } catch {
-      // The quiz can still be played if the browser interrupts audio.
-    }
+    });
+  }
+
+  function celebrate(rank = false) {
+    return playSequence(time => {
+      if (rank) {
+        note(72, time, .8, .15, true);
+        note(79, time + .1, .76, .14, true);
+        note(84, time + .2, .95, .2, true);
+        note(88, time + .2, .9, .12, true);
+        note(91, time + .33, .86, .1, true);
+      } else {
+        note(84, time, .64, .23, true);
+        note(91, time + .07, .54, .08, true);
+      }
+    });
   }
 
   function setMuted(value) {
@@ -92,5 +112,5 @@ export function createInstrument() {
     if (muted) stop();
   }
 
-  return { play, stop, setMuted };
+  return { play, celebrate, stop, setMuted };
 }

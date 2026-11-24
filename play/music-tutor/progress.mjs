@@ -51,7 +51,8 @@ export function rewardLesson(progress, correct) {
     xp,
     levels: after.level - before.level,
     rank: after.rank === before.rank ? null : after.rank,
-    level: after.level,
+    before,
+    after,
   };
 }
 

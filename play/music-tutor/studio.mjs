@@ -1,4 +1,4 @@
-import { STUDIO_ITEMS, changeStudioItem, progressSummary, readProgress, rewardLesson } from './progress.mjs?v=piano-upgrades';
+import { STUDIO_ITEMS, changeStudioItem, progressSummary, readProgress, rewardLesson } from './progress.mjs?v=xp-celebrations';
 
 const STORAGE_KEY = 'nova-mobile:music-tutor:progress';
 const element = id => document.getElementById(id);
