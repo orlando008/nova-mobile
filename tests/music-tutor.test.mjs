@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createLesson, DIFFICULTIES, LESSON_LENGTH } from '../carts/music-tutor/code.js';
+import { CLEFS, createLesson, DIFFICULTIES, LESSON_LENGTH } from '../carts/music-tutor/code.js';
 
 test('the same difficulty and seed reproduce the lesson', () => {
   assert.deepEqual(createLesson('mixed', 321), createLesson('mixed', 321));
@@ -96,5 +96,51 @@ test('Keyboard mode covers the treble staff from middle C through its top F', ()
     }
     assert.ok(whiteKeys.every(midi => covered.has(midi)));
     assert.equal(covered.has(78), difficulty !== 'natural');
+  }
+});
+
+test('bass notes cover the staff and middle C in the correct octaves', () => {
+  const pitches = [43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60];
+  const letters = 'GABCDEFGABC';
+  assert.deepEqual(CLEFS.bass.notes.map(note => note.midi), pitches);
+  assert.equal(CLEFS.bass.notes.map(note => note.label).join(''), letters);
+  assert.equal(CLEFS.bass.notes.find(note => note.midi === 60).step, CLEFS.bass.ledgerStep);
+
+  for (const mode of ['letters', 'keyboard']) {
+    for (const difficulty of Object.keys(DIFFICULTIES)) {
+      const covered = new Set();
+      for (let seed = 0; seed < 100; seed++) {
+        const round = createLesson(difficulty, Math.imul(seed, 0x9e3779b1), mode, 'bass');
+        assert.equal(round.length, LESSON_LENGTH);
+        for (const { target, choices } of round) {
+          assert.equal(choices.length, mode === 'letters' ? 3 : 0);
+          assert.equal(new Set(choices.map(note => note.label)).size, choices.length);
+          assert.equal(new Set(choices.map(note => note.midi)).size, choices.length);
+          for (const note of [target, ...choices]) {
+            assert.equal(note.midi, pitches[note.step] + note.accidental);
+            assert.equal(note.label, letters[note.step] + ['♭', '', '♯'][note.accidental + 1]);
+            if (mode === 'letters') assert.ok(note.step <= 8);
+            else assert.ok(note.midi >= CLEFS.bass.keyboardStart && note.midi <= CLEFS.bass.keyboardEnd);
+          }
+          covered.add(target.step);
+        }
+      }
+      assert.equal(covered.size, mode === 'letters' ? 9 : 11);
+    }
+  }
+});
+
+test('bass key signatures use bass positions and honor written accidentals', () => {
+  const sharpSteps = [6, 3, 7, 4];
+  const flatSteps = [2, 5, 1, 4];
+  for (let seed = 0; seed < 30; seed++) {
+    const round = createLesson('key', Math.imul(seed, 0x9e3779b1), 'keyboard', 'bass');
+    for (const { target, signature, writtenAccidental } of round) {
+      const expectedSteps = signature[0].sign === 1 ? sharpSteps : flatSteps;
+      assert.deepEqual(signature.map(mark => mark.step), expectedSteps.slice(0, signature.length));
+      for (const mark of signature) assert.equal(mark.letter, CLEFS.bass.notes[mark.step].label);
+      const keySign = signature.find(mark => mark.letter === CLEFS.bass.notes[target.step].label)?.sign ?? 0;
+      assert.equal(target.accidental, writtenAccidental ?? keySign);
+    }
   }
 });

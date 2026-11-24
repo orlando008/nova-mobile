@@ -316,6 +316,7 @@ fieldset small {
   left: 8%;
   pointer-events: none;
 }
+[data-clef="bass"] .clef { height: 54%; top: 21.5%; left: 4%; }
 
 .notation {
   position: absolute;
@@ -445,7 +446,7 @@ fieldset small {
 
 .piano {
   /* Leave room on the right for the rest of the top F-sharp key. */
-  --white-key-width: calc(100% / (var(--white-keys) + .4));
+  --white-key-width: calc(100% / (var(--white-keys) + var(--left-edge, 0) + .4));
   position: relative;
   height: clamp(106px, 29vw, 142px);
   margin-block-start: .8rem;
@@ -456,7 +457,7 @@ fieldset small {
 .piano-key {
   position: absolute;
   top: 0;
-  left: calc(var(--key-position) * var(--white-key-width));
+  left: calc((var(--key-position) + var(--left-edge, 0)) * var(--white-key-width));
   width: var(--white-key-width);
   height: 100%;
   border: 1px solid var(--navy);

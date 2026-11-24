@@ -13,6 +13,12 @@
   "icon": "assets/icon.png",
   "assets": [
     {
+      "path": "assets/bass-clef.png",
+      "lazy": true,
+      "bytes": 8622,
+      "sha256": "d820ae63f083fbddd7a7fc6d2ba40b85bcd03327d70facf83c4c39295f468e37"
+    },
+    {
       "path": "assets/flat.png",
       "lazy": true,
       "bytes": 1529,
@@ -121,5 +127,5 @@
       "sha256": "d22e6318cb1df7573b78e2b32c6b7369b68775fdb4df125e858d6da3c1eb27bf"
     }
   ],
-  "contentVersion": "67f73ce9ac532a32e5b6ec59d500694c7105c4425ed6e28f2c7951d3d82739dc"
+  "contentVersion": "5f85005d34a45892fe5da9d145c1a2905fb97d4273f2d3063b5f2ae26589beac"
 }
