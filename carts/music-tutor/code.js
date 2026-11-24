@@ -33,8 +33,8 @@ function makeNote(step, accidental) {
   };
 }
 
-const naturals = PITCHES.map((_, index) => makeNote(index + MIDDLE_C_STEP, 0));
-const letterNotes = naturals.filter(note => note.step >= 0);
+export const NATURAL_NOTES = PITCHES.map((_, index) => makeNote(index + MIDDLE_C_STEP, 0));
+const letterNotes = NATURAL_NOTES.filter(note => note.step >= 0);
 const onKeyboard = note => note.midi >= MIDDLE_C_MIDI && note.midi <= KEYBOARD_END_MIDI;
 
 function shuffle(items, random) {
@@ -89,7 +89,7 @@ export function createLesson(difficulty, seed, mode = 'letters') {
     return state / 4294967296;
   };
   const keyboard = mode === 'keyboard';
-  const notes = keyboard ? naturals : letterNotes;
+  const notes = keyboard ? NATURAL_NOTES : letterNotes;
   const makeQuestion = (target, pool, signature = [], writtenAccidental = target.accidental || null) => ({
     target, signature, writtenAccidental, choices: keyboard ? [] : makeChoices(target, pool, random),
   });

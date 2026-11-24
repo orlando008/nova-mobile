@@ -1,6 +1,6 @@
 import {
-  createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP, KEYBOARD_END_MIDI,
-} from '../../carts/music-tutor/code.js?v=full-staff';
+  createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP, KEYBOARD_END_MIDI, NATURAL_NOTES,
+} from '../../carts/music-tutor/code.js?v=note-explorer';
 import { createInstrument, nextNoteDelayMs } from './audio.mjs?v=quicker-next';
 import { createStudio } from './studio.mjs?v=piano-upgrades';
 
@@ -8,6 +8,7 @@ const element = id => document.getElementById(id);
 const menu = element('menu');
 const lesson = element('lesson');
 const results = element('results');
+const explorer = element('explorer');
 const studioScreen = element('studio');
 const staff = element('staff');
 const notation = staff.querySelector('.notation');
@@ -52,10 +53,41 @@ function show(screen) {
   menu.hidden = screen !== menu;
   lesson.hidden = screen !== lesson;
   results.hidden = screen !== results;
+  explorer.hidden = screen !== explorer;
   studioScreen.hidden = screen !== studioScreen;
 }
 
 const staffPosition = step => `${82 - step * 7}%`;
+
+const explorerStaff = element('explorer-staff');
+const explorerNote = explorerStaff.querySelector('.notation');
+const explorerLedger = explorerStaff.querySelector('.staff-ledger');
+const explorerLetter = explorerStaff.querySelector('.explorer-letter');
+let letterTimer;
+
+for (const note of [...NATURAL_NOTES].reverse()) {
+  const row = document.createElement('button');
+  row.type = 'button';
+  row.className = 'explorer-hit';
+  row.style.top = staffPosition(note.step);
+  const octave = Math.floor(note.midi / 12) - 1;
+  row.setAttribute('aria-label', note.step === MIDDLE_C_STEP ? 'Play middle C' : `Play ${note.label}${octave}`);
+  row.addEventListener('click', event => {
+    const bounds = explorerStaff.getBoundingClientRect();
+    const x = event.detail ? ((event.clientX - bounds.left) / bounds.width) * 100 : 55;
+    explorerStaff.style.setProperty('--note-x', `${Math.max(40, Math.min(82, x))}%`);
+    explorerStaff.style.setProperty('--note-y', staffPosition(note.step));
+    explorerNote.classList.toggle('stem-down', note.step >= 4);
+    explorerNote.hidden = false;
+    explorerLedger.hidden = note.step !== MIDDLE_C_STEP;
+    explorerLetter.textContent = note.label;
+    explorerLetter.hidden = false;
+    clearTimeout(letterTimer);
+    letterTimer = setTimeout(() => { explorerLetter.hidden = true; }, 900);
+    instrument.play(note.midi);
+  });
+  explorerStaff.append(row);
+}
 
 function showKeySignature(signature) {
   staff.toggleAttribute('data-key-signature', signature.length > 0);
@@ -169,6 +201,17 @@ element('start').addEventListener('click', start);
 element('again').addEventListener('click', start);
 element('change-level').addEventListener('click', returnToMenu);
 element('results-menu').addEventListener('click', returnToMenu);
+element('open-explorer').addEventListener('click', () => {
+  explorerNote.hidden = explorerLedger.hidden = explorerLetter.hidden = true;
+  show(explorer);
+  element('explorer-title').focus({ preventScroll: true });
+});
+element('explorer-back').addEventListener('click', () => {
+  clearTimeout(letterTimer);
+  instrument.stop();
+  show(menu);
+  element('open-explorer').focus({ preventScroll: true });
+});
 element('menu-studio').addEventListener('click', () => openStudio(menu));
 element('results-studio').addEventListener('click', () => openStudio(results));
 element('studio-back').addEventListener('click', () => {

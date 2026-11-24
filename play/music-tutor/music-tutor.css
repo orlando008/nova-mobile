@@ -132,7 +132,7 @@ h1 {
 }
 .ornament::after { transform: scaleX(-1); }
 
-.menu, #lesson, .results, .studio {
+.menu, #lesson, .results, .studio, .explorer {
   padding: clamp(.9rem, 4.4vw, 1.6rem);
 }
 
@@ -377,6 +377,49 @@ fieldset small {
   font-style: italic;
 }
 
+#explorer-help { margin: 0 0 .8rem; text-align: center; }
+.explorer-board {
+  padding: .35rem .65rem 1rem;
+  border: 1px solid #cbb18e;
+  border-radius: .35rem;
+  background: var(--paper);
+}
+.explorer-board .staff {
+  height: clamp(240px, 72vw, 310px);
+  aspect-ratio: auto;
+}
+.explorer-board .clef { left: 4%; }
+.explorer-board .notation { color: var(--crimson); }
+.explorer-hit {
+  position: absolute;
+  inset-inline: 2.5%;
+  height: 7%;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: .2rem;
+  padding: 0;
+  background: transparent;
+}
+.explorer-hit:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--crimson);
+  outline-offset: -2px;
+}
+.explorer-letter {
+  position: absolute;
+  z-index: 2;
+  top: var(--note-y);
+  left: calc(var(--note-x) + 5%);
+  min-width: 1.7rem;
+  transform: translateY(-50%);
+  border-radius: .25rem;
+  background: var(--crimson);
+  color: var(--cream);
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
 .answers {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -568,6 +611,7 @@ fieldset small {
   .primary.studio-entry:hover { background: #293d60; }
   .secondary:hover { border-color: var(--crimson); background: #e8d5ad; }
   .staff-button:hover { background: #fff5e0; }
+  .explorer-hit:hover { background: #841a3114; }
   .choice:not([aria-disabled]):hover { background: #293d60; }
   .piano-key:not([aria-disabled]):hover { filter: brightness(.9); }
 }
