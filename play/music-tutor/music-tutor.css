@@ -49,23 +49,24 @@ button {
   margin-block-end: 5px;
 }
 
-.topbar a, .utility {
+.utility {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0 8px;
+  padding: 0 .75rem;
+  border: 1px solid #a98f6e;
+  border-radius: .3rem;
+  background: var(--navy);
   color: var(--cream);
   text-decoration: none;
   font-size: .9rem;
+  font-weight: 700;
 }
 
-.utility {
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: .25rem;
+.utility[aria-pressed="true"] {
+  border-color: var(--cream);
+  background: #354966;
 }
-
-.utility[aria-pressed="true"] { text-decoration: line-through; }
 
 .sheet {
   color-scheme: light;
@@ -227,19 +228,19 @@ fieldset small {
 }
 .player-progress small, #player-xp { font-size: .82rem; }
 
-.primary, .back {
+.primary, .secondary {
   display: block;
   width: 100%;
   min-height: 44px;
+  padding: .45rem .75rem;
   border-radius: .3rem;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 .primary {
-  padding: .45rem .75rem;
   border: 3px double #e5af9d;
   background: var(--crimson);
   color: #fff3d8;
-  font-size: 1.1rem;
-  font-weight: 700;
 }
 .primary:focus-visible { outline-color: var(--crimson); }
 .primary:disabled { opacity: .65; cursor: default; }
@@ -250,15 +251,14 @@ fieldset small {
 }
 .studio-entry:focus-visible { outline-color: var(--navy); }
 
-.back {
-  margin-block-start: .25rem;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--crimson);
-  font-size: .88rem;
-  text-decoration: underline;
-  text-underline-offset: .22em;
+.secondary {
+  margin-block-start: .45rem;
+  border: 3px double #8b7459;
+  background: #efdfbd;
+  color: var(--navy);
 }
+.secondary:active { background: #decca7; }
+.utility:active { background: #354966; }
 
 .lesson-heading {
   display: flex;
@@ -563,9 +563,10 @@ fieldset small {
 }
 
 @media (hover: hover) {
-  .topbar a:hover, .utility:hover { text-decoration: underline; }
+  .utility:hover { border-color: var(--cream); }
   .primary:hover { background: #9a2540; }
   .primary.studio-entry:hover { background: #293d60; }
+  .secondary:hover { border-color: var(--crimson); background: #e8d5ad; }
   .staff-button:hover { background: #fff5e0; }
   .choice:not([aria-disabled]):hover { background: #293d60; }
   .piano-key:not([aria-disabled]):hover { filter: brightness(.9); }

@@ -10,12 +10,12 @@
   <meta property="og:image" content="../../carts/music-tutor/assets/poster.png">
   <title>Music Tutor</title>
   <link rel="icon" href="../../carts/music-tutor/assets/icon.png" sizes="512x512" type="image/png">
-  <link rel="stylesheet" href="./music-tutor.css?v=piano-upgrades">
+  <link rel="stylesheet" href="./music-tutor.css?v=navigation-buttons">
 </head>
 <body>
   <main class="folio">
     <header class="topbar">
-      <a href="../../">‹ Library</a>
+      <a class="utility" href="../../">‹ Library</a>
       <button type="button" class="utility" id="mute" aria-pressed="false">Mute sound</button>
     </header>
 
@@ -98,7 +98,7 @@
 
         <p id="feedback" class="feedback" role="status"></p>
         <button type="button" class="primary" id="next" hidden>Next note</button>
-        <button type="button" id="change-level" class="back">Change mode or difficulty</button>
+        <button type="button" id="change-level" class="secondary">Change mode or difficulty</button>
       </section>
 
       <section id="results" class="results" aria-labelledby="results-title" hidden>
@@ -109,7 +109,7 @@
         <p id="level-reward" class="level-reward" hidden></p>
         <button type="button" class="primary" id="again">Practice again</button>
         <button type="button" class="primary studio-entry" id="results-studio">Piano Studio</button>
-        <button type="button" id="results-menu" class="back">Change mode or difficulty</button>
+        <button type="button" id="results-menu" class="secondary">Change mode or difficulty</button>
       </section>
 
       <section id="studio" class="studio" aria-labelledby="studio-title" hidden>
@@ -130,7 +130,7 @@
         <div class="studio-heading"><h3>Decorations</h3></div>
         <ul id="studio-items" class="studio-items studio-decorations" aria-label="Decorations"></ul>
         <p id="studio-status" class="studio-status" role="status"></p>
-        <button type="button" class="back" id="studio-back">Back to practice</button>
+        <button type="button" class="secondary" id="studio-back">Back to practice</button>
       </section>
       <p class="save-notice" id="save-notice" role="status" hidden>Progress could not be saved on this device.</p>
     </div>
