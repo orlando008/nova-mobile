@@ -2,9 +2,9 @@ const FEEDBACK_DELAY_MS = 800;
 const SUCCESS = { pitches: [79, 83, 86], spacingMs: 75, tailMs: 650 };
 const MISS = { pitches: [65, 63, 60], spacingMs: 105, tailMs: 280 };
 
-export function feedbackDurationMs(correct) {
-  const { pitches, spacingMs, tailMs } = correct ? SUCCESS : MISS;
-  return FEEDBACK_DELAY_MS + (pitches.length - 1) * spacingMs + tailMs + 30;
+export function nextNoteDelayMs(correct) {
+  const { pitches, spacingMs } = correct ? SUCCESS : MISS;
+  return FEEDBACK_DELAY_MS + (pitches.length - 1) * spacingMs + 30;
 }
 
 export function createInstrument() {

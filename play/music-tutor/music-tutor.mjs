@@ -1,7 +1,7 @@
 import {
   createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI, MIDDLE_C_STEP, KEYBOARD_END_MIDI,
 } from '../../carts/music-tutor/code.js?v=full-staff';
-import { createInstrument, feedbackDurationMs } from './audio.mjs?v=chime';
+import { createInstrument, nextNoteDelayMs } from './audio.mjs?v=quicker-next';
 import { createStudio } from './studio.mjs?v=piano-upgrades';
 
 const element = id => document.getElementById(id);
@@ -124,7 +124,7 @@ function selectAnswer(button, midi) {
   next.textContent = index + 1 === LESSON_LENGTH ? 'See results' : 'Next note';
   next.hidden = false;
   next.disabled = !muted;
-  if (!muted) feedbackTimer = setTimeout(() => { next.disabled = false; }, feedbackDurationMs(correct));
+  if (!muted) feedbackTimer = setTimeout(() => { next.disabled = false; }, nextNoteDelayMs(correct));
   instrument.play(midi, correct);
   if (index + 1 === LESSON_LENGTH) lessonReward = studio.earn(score);
 }
@@ -199,7 +199,10 @@ element('mute').addEventListener('click', event => {
   muted = !muted;
   event.currentTarget.setAttribute('aria-pressed', String(muted));
   instrument.setMuted(muted);
-  if (muted) next.disabled = false;
+  if (muted) {
+    clearTimeout(feedbackTimer);
+    next.disabled = false;
+  }
 });
 document.addEventListener('keydown', event => {
   if (lesson.hidden || letterAnswers.hidden || event.repeat || event.altKey || event.ctrlKey ||
