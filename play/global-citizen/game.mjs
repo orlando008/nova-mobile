@@ -36,7 +36,7 @@ function show(screen, heading) {
   quiz.hidden = screen !== quiz;
   results.hidden = screen !== results;
   menuButton.hidden = screen === menu;
-  heading.focus({ preventScroll: true });
+  heading?.focus({ preventScroll: true });
   window.scrollTo(0, 0);
 }
 
@@ -100,7 +100,8 @@ function presentQuestion() {
       return button;
     }));
   }
-  prompt.focus({ preventScroll: true });
+  const questionStart = mode === 'flags' ? flag : prompt;
+  questionStart.focus({ preventScroll: true });
 }
 
 function start(nextMode, nextRegion) {
@@ -111,11 +112,12 @@ function start(nextMode, nextRegion) {
   score = position = 0;
   element('mode-title').textContent = MODES[mode];
   element('quiz-region').textContent = region;
+  prompt.hidden = mode === 'flags';
   mapQuestion.hidden = mode !== 'countries';
   flagQuestion.hidden = mode !== 'flags';
   answers.hidden = mode === 'countries';
   retryMap.hidden = true;
-  show(quiz, prompt);
+  show(quiz);
   presentQuestion();
 }
 
