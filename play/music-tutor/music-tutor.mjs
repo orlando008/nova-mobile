@@ -204,7 +204,9 @@ function selectAnswer(button, midi, chosenName) {
   if (correct) score++;
   for (const answer of answerButtons) answer.setAttribute('aria-disabled', 'true');
   button.dataset.result = correct ? 'correct' : 'incorrect';
-  const correctName = keyboardAnswers.hidden ? target.spoken : keyboardNoteName(target.midi, target.spoken);
+  const correctName = keyboardAnswers.hidden
+    ? target.spoken
+    : keyboardNoteName(target.midi - target.accidental, target.spoken);
   feedback.textContent = correct
     ? `Correct! That’s ${target.spoken}.`
     : `Incorrect: You chose ${chosenName}. The correct note is ${correctName}.`;
@@ -288,7 +290,7 @@ choices.forEach((button, optionIndex) => {
 });
 
 function keyboardNoteName(midi, name) {
-  return midi === MIDDLE_C_MIDI ? 'Middle C' : `${name} ${Math.floor(midi / 12) - 1}`;
+  return midi === MIDDLE_C_MIDI && name === 'C' ? 'Middle C' : `${name} ${Math.floor(midi / 12) - 1}`;
 }
 
 function renderKeyboard(container, { keyboardStart, keyboardEnd }, onPlay) {
