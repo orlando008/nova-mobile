@@ -1,0 +1,51 @@
+{
+  "format": 1,
+  "name": "global-citizen",
+  "title": "Global Citizen",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Explore the world with quizzes on country locations, flags, and capitals.",
+  "shelf": "Puzzle",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/countries.mjs",
+      "bytes": 22128,
+      "sha256": "8045fe498ce156f6802f15a76c780ba77ecf5fae64d8d9da451210279280e653"
+    },
+    {
+      "path": "assets/flags.webp",
+      "lazy": true,
+      "bytes": 314340,
+      "sha256": "e798e52773a3a992850c2cd684e2a6db16e7571ea93e0f1bdf390ca6d5f18ea7"
+    },
+    {
+      "path": "assets/hero.webp",
+      "bytes": 57328,
+      "sha256": "7f9f46428dd5531861c1166373b7225a49d76ed9c134eae49d33b4af5b22f43e"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 427293,
+      "sha256": "b05eff91f929461b9847fd1f9a817c40c0eb55f3fbcf14dd8c4a3339463c9144"
+    },
+    {
+      "path": "assets/map.json",
+      "lazy": true,
+      "bytes": 583328,
+      "sha256": "fc1658bdbb6848bc75b7b3a69513782eb5e6400b794f083a7b08a731b6132649"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 295490,
+      "sha256": "a3ff1a6670a0e73f0392ef27ae6ece50bcee0914bb3a26e7ff3746cf60951d71"
+    }
+  ],
+  "contentVersion": "d8cd501627892ba8b0c62782d95fe0beb1783e4795860e72279f84e4f2840f6c"
+}
