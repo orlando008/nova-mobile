@@ -41,6 +41,17 @@ export const CLEFS = {
   },
 };
 
+export function explorerKeyboardNotes({ notes, keyboardStart, keyboardEnd }) {
+  return Array.from({ length: keyboardEnd - keyboardStart + 1 }, (_, index) => {
+    const midi = keyboardStart + index;
+    const natural = notes.find(note => note.midi === midi);
+    if (natural) return natural;
+    const lower = notes.find(note => note.midi === midi - 1);
+    // Spell the lowest bass black key as G-flat so it fits on the staff.
+    return lower ? makeNote(lower, 1) : makeNote(notes[0], -1);
+  });
+}
+
 function shuffle(items, random) {
   const copy = [...items];
   for (let index = copy.length - 1; index > 0; index--) {

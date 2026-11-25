@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CLEFS, createLesson, DIFFICULTIES, LESSON_LENGTH } from '../carts/music-tutor/code.js';
+import { CLEFS, createLesson, DIFFICULTIES, explorerKeyboardNotes, LESSON_LENGTH } from '../carts/music-tutor/code.js';
 
 test('the same difficulty and seed reproduce the lesson', () => {
   assert.deepEqual(createLesson('mixed', 321), createLesson('mixed', 321));
@@ -143,4 +143,21 @@ test('bass key signatures use bass positions and honor written accidentals', () 
       assert.equal(target.accidental, writtenAccidental ?? keySign);
     }
   }
+});
+
+test('all Explorer piano keys match their pitch and written note in both clefs', () => {
+  for (const clef of Object.values(CLEFS)) {
+    const keys = explorerKeyboardNotes(clef);
+    assert.equal(keys.length, clef.keyboardEnd - clef.keyboardStart + 1);
+    for (const [index, key] of keys.entries()) {
+      const natural = clef.notes.find(note => note.step === key.step);
+      assert.equal(key.midi, clef.keyboardStart + index);
+      assert.equal(key.midi, natural.midi + key.accidental);
+      assert.equal(key.label, natural.label + ['♭', '', '♯'][key.accidental + 1]);
+    }
+    assert.equal(keys.find(key => key.midi === 60).step, clef.ledgerStep);
+  }
+  assert.equal(explorerKeyboardNotes(CLEFS.bass)[0].label, 'G♭');
+  assert.equal(explorerKeyboardNotes(CLEFS.bass).at(-1).label, 'C♯');
+  assert.equal(explorerKeyboardNotes(CLEFS.treble).at(-1).label, 'F♯');
 });

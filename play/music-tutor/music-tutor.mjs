@@ -1,6 +1,6 @@
 import {
-  CLEFS, createLesson, DIFFICULTIES, LESSON_LENGTH, MIDDLE_C_MIDI,
-} from '../../carts/music-tutor/code.js?v=bass-clef';
+  CLEFS, createLesson, DIFFICULTIES, explorerKeyboardNotes, LESSON_LENGTH, MIDDLE_C_MIDI,
+} from '../../carts/music-tutor/code.js?v=explorer-keyboard';
 import { createInstrument, nextNoteDelayMs } from './audio.mjs?v=xp-celebrations';
 import { createResults } from './results.mjs';
 import { createStudio } from './studio.mjs?v=xp-celebrations';
@@ -66,8 +66,11 @@ const staffPosition = step => `${82 - step * 7}%`;
 const explorerStaff = element('explorer-staff');
 const explorerNote = explorerStaff.querySelector('.notation');
 const explorerLedger = explorerStaff.querySelector('.staff-ledger');
+const explorerAccidental = explorerStaff.querySelector('.note-accidental');
 const explorerLetter = explorerStaff.querySelector('.explorer-letter');
-const explorerKeys = element('explorer-keys');
+const explorerRows = element('explorer-rows');
+const explorerPiano = element('explorer-piano');
+const explorerModes = [...explorer.querySelectorAll('input[name="explorer-mode"]')];
 const clefControls = [...document.querySelectorAll('input[data-clef]')];
 let letterTimer;
 
@@ -76,14 +79,47 @@ function renderClef(board) {
   board.querySelector('.clef').src = `../../carts/music-tutor/assets/${clefName}-clef.png`;
 }
 
+function setAccidental(mark, sign) {
+  if (sign === null) delete mark.dataset.sign;
+  else mark.dataset.sign = sign;
+}
+
+function playExplorerNote(note, x = 55) {
+  const leftLimit = clefName === 'bass' ? 49 : 40;
+  explorerStaff.style.setProperty('--note-x', `${Math.max(leftLimit, Math.min(82, x))}%`);
+  explorerStaff.style.setProperty('--note-y', staffPosition(note.step));
+  explorerNote.classList.toggle('stem-down', note.step >= 4);
+  explorerNote.hidden = false;
+  explorerLedger.hidden = note.step !== CLEFS[clefName].ledgerStep;
+  setAccidental(explorerAccidental, note.accidental || null);
+  explorerLetter.textContent = note.label;
+  explorerLetter.hidden = false;
+  clearTimeout(letterTimer);
+  letterTimer = setTimeout(() => { explorerLetter.hidden = true; }, 900);
+  instrument.play(note.midi);
+}
+
 function renderExplorer() {
   clearTimeout(letterTimer);
   instrument.stop();
   const clef = CLEFS[clefName];
-  const leftLimit = clefName === 'bass' ? 49 : 40;
+  const mode = explorerModes.find(input => input.checked).value;
+  const useKeyboard = mode === 'keyboard';
+  explorer.dataset.mode = mode;
+  explorerPiano.hidden = !useKeyboard;
+  explorerRows.hidden = useKeyboard;
+  element('explorer-help').textContent = useKeyboard
+    ? 'Play a key to see its note on the staff.'
+    : 'Tap a line or space to hear its note.';
   explorerNote.hidden = explorerLedger.hidden = explorerLetter.hidden = true;
+  setAccidental(explorerAccidental, null);
   explorerStaff.setAttribute('aria-label', `${clef.name} staff`);
   renderClef(explorerStaff);
+  if (useKeyboard) {
+    const notes = explorerKeyboardNotes(clef);
+    renderKeyboard(explorerPiano, clef, (_, midi) => playExplorerNote(notes[midi - clef.keyboardStart]));
+    return;
+  }
   const rows = [...clef.notes].reverse().map(note => {
     const row = document.createElement('button');
     row.type = 'button';
@@ -92,22 +128,16 @@ function renderExplorer() {
     const octave = Math.floor(note.midi / 12) - 1;
     row.setAttribute('aria-label', note.midi === MIDDLE_C_MIDI ? 'Play middle C' : `Play ${note.label}${octave}`);
     row.addEventListener('click', event => {
+      if (!event.detail) {
+        playExplorerNote(note);
+        return;
+      }
       const bounds = explorerStaff.getBoundingClientRect();
-      const x = event.detail ? ((event.clientX - bounds.left) / bounds.width) * 100 : 55;
-      explorerStaff.style.setProperty('--note-x', `${Math.max(leftLimit, Math.min(82, x))}%`);
-      explorerStaff.style.setProperty('--note-y', staffPosition(note.step));
-      explorerNote.classList.toggle('stem-down', note.step >= 4);
-      explorerNote.hidden = false;
-      explorerLedger.hidden = note.step !== clef.ledgerStep;
-      explorerLetter.textContent = note.label;
-      explorerLetter.hidden = false;
-      clearTimeout(letterTimer);
-      letterTimer = setTimeout(() => { explorerLetter.hidden = true; }, 900);
-      instrument.play(note.midi);
+      playExplorerNote(note, 100 * (event.clientX - bounds.left) / bounds.width);
     });
     return row;
   });
-  explorerKeys.replaceChildren(...rows);
+  explorerRows.replaceChildren(...rows);
 }
 
 function showKeySignature(signature) {
@@ -129,8 +159,7 @@ function presentQuestion() {
   staff.style.setProperty('--note-y', staffPosition(target.step));
   notation.classList.toggle('stem-down', target.step >= 4);
   ledgerLine.hidden = target.step !== CLEFS[clefName].ledgerStep;
-  if (writtenAccidental === null) delete accidental.dataset.sign;
-  else accidental.dataset.sign = writtenAccidental;
+  setAccidental(accidental, writtenAccidental);
   feedback.textContent = '';
   next.hidden = true;
   for (const button of answerButtons) {
@@ -153,7 +182,7 @@ function start() {
   letterAnswers.hidden = useKeyboard;
   keyboardAnswers.hidden = !useKeyboard;
   const clef = CLEFS[clefName];
-  answerButtons = useKeyboard ? renderKeyboard(clef) : choices;
+  answerButtons = useKeyboard ? renderKeyboard(keyboardAnswers, clef, selectAnswer) : choices;
   lessonLabel = `${DIFFICULTIES[difficulty]} · ${useKeyboard ? 'Keyboard' : 'Letters'} · ${clef.name}`;
   const [seed] = crypto.getRandomValues(new Uint32Array(1));
   questions = createLesson(difficulty, seed, mode, clefName);
@@ -225,6 +254,7 @@ element('open-explorer').addEventListener('click', () => {
   show(explorer);
   element('explorer-title').focus({ preventScroll: true });
 });
+for (const control of explorerModes) control.addEventListener('change', renderExplorer);
 for (const control of clefControls) {
   control.checked = control.value === clefName;
   control.addEventListener('change', () => {
@@ -250,7 +280,7 @@ staff.addEventListener('click', () => instrument.play(questions[index].target.mi
 choices.forEach((button, optionIndex) => {
   button.addEventListener('click', () => selectAnswer(button, questions[index].choices[optionIndex].midi));
 });
-function renderKeyboard({ keyboardStart, keyboardEnd }) {
+function renderKeyboard(container, { keyboardStart, keyboardEnd }, onPlay) {
   const leftKey = octaveLayout[keyboardStart % 12];
   const startOctave = Math.floor(keyboardStart / 12);
   const keys = Array.from({ length: keyboardEnd - keyboardStart + 1 }, (_, offset) => {
@@ -262,13 +292,14 @@ function renderKeyboard({ keyboardStart, keyboardEnd }) {
     button.className = names.length === 2 ? 'piano-key black-key' : 'piano-key';
     const label = midi === MIDDLE_C_MIDI ? 'Middle C' : names.map(name => `${name} ${octave - 1}`).join(' or ');
     button.setAttribute('aria-label', label);
+    if (names.length === 1) button.dataset.noteLetter = names[0];
     button.style.setProperty('--key-position', position - leftKey.position + 7 * (octave - startOctave));
-    button.addEventListener('click', () => selectAnswer(button, midi));
+    button.addEventListener('click', () => onPlay(button, midi));
     return button;
   });
-  keyboardAnswers.replaceChildren(...keys);
-  keyboardAnswers.style.setProperty('--left-edge', leftKey.names.length === 2 ? .4 : 0);
-  keyboardAnswers.style.setProperty('--white-keys', keyboardAnswers.querySelectorAll('.piano-key:not(.black-key)').length);
+  container.replaceChildren(...keys);
+  container.style.setProperty('--left-edge', leftKey.names.length === 2 ? .4 : 0);
+  container.style.setProperty('--white-keys', container.querySelectorAll('.piano-key:not(.black-key)').length);
   return keys;
 }
 element('mute').addEventListener('click', event => {

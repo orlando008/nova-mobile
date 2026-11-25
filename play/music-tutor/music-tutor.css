@@ -356,7 +356,7 @@ fieldset small {
   transform: translate(-50%, -50%);
   background: url('../../carts/music-tutor/assets/sharp.png') center / contain no-repeat;
 }
-#accidental {
+.note-accidental {
   top: var(--note-y, 75%);
   left: calc(var(--note-x) - 8%);
 }
@@ -389,6 +389,7 @@ fieldset small {
   height: clamp(240px, 72vw, 310px);
   aspect-ratio: auto;
 }
+.explorer[data-mode="keyboard"] .staff { height: clamp(150px, 46vw, 200px); }
 .explorer-board .clef { left: 4%; }
 .explorer-board .notation { color: var(--crimson); }
 .explorer-hit {
@@ -412,6 +413,7 @@ fieldset small {
   top: var(--note-y);
   left: calc(var(--note-x) + 5%);
   min-width: 1.7rem;
+  padding-inline: .18rem;
   transform: translateY(-50%);
   border-radius: .25rem;
   background: var(--crimson);
@@ -481,6 +483,18 @@ fieldset small {
 .piano-key[aria-disabled] { cursor: default; }
 .piano-key[data-result="correct"] { background: var(--green); }
 .piano-key[data-result="incorrect"] { background: var(--crimson); }
+
+#explorer-piano .piano-key:not(.black-key) {
+  display: grid;
+  place-items: end center;
+  padding: 0 0 .45rem;
+  color: var(--navy);
+  font-size: .78rem;
+  font-weight: 700;
+}
+#explorer-piano .piano-key:not(.black-key)::after { content: attr(data-note-letter); }
+#explorer-piano .piano-key:active { background: #e7c89d; }
+#explorer-piano .black-key:active { background: #694a4c; }
 
 .feedback {
   min-height: 1.4em;

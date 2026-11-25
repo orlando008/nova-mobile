@@ -13,7 +13,7 @@ Letters prompts span the five staff lines and the spaces between them. Keyboard 
 
 Starting a lesson enables audio in the browser. Each note plays as it appears, and tapping the staff replays it. Selecting an answer plays the pitch represented by that choice, followed by an ascending phrase for a correct answer or a descending phrase for a wrong answer. The selected button changes color and the text below it gives the answer. Use the mute button to practice reading without audio.
 
-Open Note Explorer from the practice menu to play natural notes freely. Its clef toggle switches the staff and available pitches immediately. Tapping a line or space draws its note, flashes the letter, and plays the pitch. You can also tab through the notes and play them with Enter or Space.
+Open Note Explorer from the practice menu to play notes freely. In Staff mode, tap a line or space to hear its natural note. In Keyboard mode, play the piano's white and black keys for the selected clef. Both modes draw the note on the staff and briefly show its name. The clef toggle switches the staff and available pitches immediately. You can also tab through the notes or keys and play them with Enter or Space.
 
 ## Progression and Piano Studio
 
