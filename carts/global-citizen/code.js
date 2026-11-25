@@ -66,12 +66,15 @@ export function panFrame(frame, dx, dy) {
   };
 }
 
-export function zoomFrame(frame, factor) {
+const center = { x: .5, y: .5 };
+
+// Keep the map point at the previous finger midpoint under the new midpoint.
+export function zoomFrame(frame, factor, from = center, to = from) {
   const width = clamp(frame.width * factor, 6, 180);
   const height = width * 4 / 5;
   return panFrame({
-    x: frame.x + (frame.width - width) / 2,
-    y: frame.y + (frame.height - height) / 2,
+    x: frame.x + from.x * frame.width - to.x * width,
+    y: frame.y + from.y * frame.height - to.y * height,
     width,
     height,
   }, 0, 0);

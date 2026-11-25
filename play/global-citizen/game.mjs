@@ -1,6 +1,6 @@
-import { createRound, MODES } from '../../carts/global-citizen/code.js?v=1';
+import { createRound, MODES } from '../../carts/global-citizen/code.js?v=2';
 import { COUNTRIES } from '../../carts/global-citizen/assets/countries.mjs?v=1';
-import { createMap } from './map.mjs?v=2';
+import { createMap } from './map.mjs?v=3';
 
 const element = id => document.getElementById(id);
 const menu = element('menu');

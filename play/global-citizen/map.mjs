@@ -1,4 +1,4 @@
-import { mapFrame, panFrame, worldOffset, zoomFrame } from '../../carts/global-citizen/code.js?v=1';
+import { mapFrame, panFrame, worldOffset, zoomFrame } from '../../carts/global-citizen/code.js?v=2';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -15,7 +15,10 @@ export function createMap(svg, controls, countries, onAnswer) {
   let home;
   let frame;
   let answer;
+  const pointers = new Map();
   let drag;
+  let pinch;
+  let redraw;
   let ignoreClick = false;
 
   function load(outlines) {
@@ -80,6 +83,13 @@ export function createMap(svg, controls, countries, onAnswer) {
     }
   }
 
+  function scheduleDraw() {
+    redraw ??= requestAnimationFrame(() => {
+      redraw = undefined;
+      draw();
+    });
+  }
+
   function mark(correctId, chosenId) {
     for (const node of svg.querySelectorAll('[data-country]')) {
       const id = node.dataset.country;
@@ -93,8 +103,9 @@ export function createMap(svg, controls, countries, onAnswer) {
     home = mapFrame(country.center);
     frame = home;
     answer = null;
-    drag = null;
-    ignoreClick = false;
+    if (pointers.size) ignoreClick = true;
+    pointers.clear();
+    drag = pinch = null;
     svg.removeAttribute('data-dragging');
     mark();
     draw();
@@ -113,15 +124,51 @@ export function createMap(svg, controls, countries, onAnswer) {
     onAnswer(node.dataset.country, node.dataset.name);
   }
 
+  function pointerPosition({ clientX: x, clientY: y }) {
+    return { x, y };
+  }
+
+  function measurePinch() {
+    const [first, second] = pointers.values();
+    const bounds = svg.getBoundingClientRect();
+    return {
+      center: {
+        x: ((first.x + second.x) / 2 - bounds.left) / bounds.width,
+        y: ((first.y + second.y) / 2 - bounds.top) / bounds.height,
+      },
+      distance: Math.max(1, Math.hypot(second.x - first.x, second.y - first.y)),
+    };
+  }
+
   svg.addEventListener('pointerdown', event => {
-    if (!frame || drag || event.button !== 0) return;
-    ignoreClick = false;
-    drag = { id: event.pointerId, x: event.clientX, y: event.clientY, start: frame, moved: false };
+    if (!frame || event.button !== 0) return;
+    const position = pointerPosition(event);
+    pointers.set(event.pointerId, position);
+    if (pointers.size === 1) {
+      ignoreClick = false;
+      drag = { ...position, start: frame, moved: false };
+      return;
+    }
+    ignoreClick = true;
+    drag = null;
+    pinch = measurePinch();
+    svg.setAttribute('data-dragging', '');
+    for (const id of pointers.keys()) svg.setPointerCapture(id);
   });
+
   svg.addEventListener('pointermove', event => {
-    if (drag?.id !== event.pointerId) return;
-    const dx = event.clientX - drag.x;
-    const dy = event.clientY - drag.y;
+    if (!pointers.has(event.pointerId)) return;
+    const position = pointerPosition(event);
+    pointers.set(event.pointerId, position);
+    if (pinch) {
+      const next = measurePinch();
+      frame = zoomFrame(frame, pinch.distance / next.distance, pinch.center, next.center);
+      pinch = next;
+      scheduleDraw();
+      return;
+    }
+    const dx = position.x - drag.x;
+    const dy = position.y - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) < 6) return;
     if (!drag.moved) {
       drag.moved = true;
@@ -133,22 +180,32 @@ export function createMap(svg, controls, countries, onAnswer) {
     svg.setAttribute('viewBox', `${frame.x} ${frame.y} ${frame.width} ${frame.height}`);
   });
 
-  function finishDrag(event) {
-    if (drag?.id !== event.pointerId) return;
-    ignoreClick = drag.moved;
-    drag = null;
+  function finishPointer(event) {
+    if (!pointers.delete(event.pointerId)) return;
+    if (pointers.size > 1) {
+      pinch = measurePinch();
+      return;
+    }
+    if (pointers.size === 1) {
+      pinch = null;
+      const [remaining] = pointers.values();
+      drag = { ...remaining, start: frame, moved: true };
+      return;
+    }
+    ignoreClick ||= drag?.moved || event.type !== 'pointerup';
+    drag = pinch = null;
     svg.removeAttribute('data-dragging');
     if (ignoreClick) draw();
   }
 
   for (const type of ['pointerup', 'pointercancel']) {
-    svg.addEventListener(type, finishDrag);
+    svg.addEventListener(type, finishPointer);
   }
   svg.addEventListener('lostpointercapture', event => {
-    if (event.target === svg) finishDrag(event);
+    if (event.target === svg) finishPointer(event);
   });
   svg.addEventListener('pointerleave', event => {
-    if (!drag?.moved) finishDrag(event);
+    if (!pinch && !drag?.moved) finishPointer(event);
   });
   svg.addEventListener('click', event => {
     if (!ignoreClick) choose(event.target);

@@ -4,7 +4,7 @@ Global Citizen is a portrait world geography game. Choose the world or one of si
 
 | Quiz | How to play |
 | --- | --- |
-| Countries | Tap the requested country or its dot on the map. Drag to pan and use the map controls to zoom or reset the view. Tab through visible countries and press Enter or Space to select one from a keyboard. |
+| Countries | Tap the requested country or its dot on the map. Drag to pan. Pinch or use the zoom buttons to zoom, and use the reset button to restore the original view. Tab through visible countries and press Enter or Space to select one from a keyboard. |
 | Flags | Identify the country represented by a flag from three options. |
 | Capitals | Choose the capital from three options. Prompts identify the government function where a country uses multiple capitals or an administrative center. |
 
