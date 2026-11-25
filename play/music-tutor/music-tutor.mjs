@@ -196,7 +196,7 @@ function start() {
   presentQuestion();
 }
 
-function selectAnswer(button, midi) {
+function selectAnswer(button, midi, chosenName) {
   if (lesson.hidden || answered) return;
   const { target } = questions[index];
   const correct = midi === target.midi;
@@ -204,7 +204,10 @@ function selectAnswer(button, midi) {
   if (correct) score++;
   for (const answer of answerButtons) answer.setAttribute('aria-disabled', 'true');
   button.dataset.result = correct ? 'correct' : 'incorrect';
-  feedback.textContent = correct ? `Correct! That’s ${target.spoken}.` : `Incorrect. That’s ${target.spoken}.`;
+  const correctName = keyboardAnswers.hidden ? target.spoken : keyboardNoteName(target.midi, target.spoken);
+  feedback.textContent = correct
+    ? `Correct! That’s ${target.spoken}.`
+    : `Incorrect: You chose ${chosenName}. The correct note is ${correctName}.`;
   next.textContent = index + 1 === LESSON_LENGTH ? 'See results' : 'Next note';
   next.hidden = false;
   next.disabled = !muted;
@@ -278,8 +281,16 @@ element('studio-back').addEventListener('click', () => {
 next.addEventListener('click', advance);
 staff.addEventListener('click', () => instrument.play(questions[index].target.midi));
 choices.forEach((button, optionIndex) => {
-  button.addEventListener('click', () => selectAnswer(button, questions[index].choices[optionIndex].midi));
+  button.addEventListener('click', () => {
+    const { midi, spoken } = questions[index].choices[optionIndex];
+    selectAnswer(button, midi, spoken);
+  });
 });
+
+function keyboardNoteName(midi, name) {
+  return midi === MIDDLE_C_MIDI ? 'Middle C' : `${name} ${Math.floor(midi / 12) - 1}`;
+}
+
 function renderKeyboard(container, { keyboardStart, keyboardEnd }, onPlay) {
   const leftKey = octaveLayout[keyboardStart % 12];
   const startOctave = Math.floor(keyboardStart / 12);
@@ -290,11 +301,11 @@ function renderKeyboard(container, { keyboardStart, keyboardEnd }, onPlay) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = names.length === 2 ? 'piano-key black-key' : 'piano-key';
-    const label = midi === MIDDLE_C_MIDI ? 'Middle C' : names.map(name => `${name} ${octave - 1}`).join(' or ');
-    button.setAttribute('aria-label', label);
+    const labels = names.map(name => keyboardNoteName(midi, name));
+    button.setAttribute('aria-label', labels.join(' or '));
     if (names.length === 1) button.dataset.noteLetter = names[0];
     button.style.setProperty('--key-position', position - leftKey.position + 7 * (octave - startOctave));
-    button.addEventListener('click', () => onPlay(button, midi));
+    button.addEventListener('click', () => onPlay(button, midi, labels[0]));
     return button;
   });
   container.replaceChildren(...keys);
