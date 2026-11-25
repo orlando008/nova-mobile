@@ -19,7 +19,7 @@ const flagQuestion = element('flag-question');
 const flag = element('flag');
 const map = createMap(element('map'), {
   in: element('zoom-in'), out: element('zoom-out'), reset: element('reset-map'),
-}, (id, name) => submitAnswer(id, name));
+}, COUNTRIES, submitAnswer);
 const outlinesURL = new URL('../../carts/global-citizen/assets/map.json', import.meta.url);
 
 let mode;
