@@ -16,6 +16,7 @@ export function createMap(svg, controls, countries, onAnswer) {
   let frame;
   let answer;
   const pointers = new Map();
+  const raisedMarkers = [];
   let drag;
   let pinch;
   let redraw;
@@ -91,10 +92,20 @@ export function createMap(svg, controls, countries, onAnswer) {
   }
 
   function mark(correctId, chosenId) {
+    for (const [marker, sibling] of raisedMarkers.splice(0)) {
+      marker.parentNode.insertBefore(marker, sibling);
+    }
+    const missed = correctId !== chosenId;
     for (const node of svg.querySelectorAll('[data-country]')) {
       const id = node.dataset.country;
-      if (id === correctId) node.dataset.result = 'correct';
-      else if (id === chosenId) node.dataset.result = 'wrong';
+      if (id === correctId) {
+        node.dataset.result = missed ? 'revealed' : 'correct';
+        if (missed && node.classList.contains('map-marker')) {
+          // Keep the answer visible when several small countries' dots overlap.
+          raisedMarkers.push([node, node.nextSibling]);
+          node.parentNode.append(node);
+        }
+      } else if (id === chosenId) node.dataset.result = 'wrong';
       else delete node.dataset.result;
     }
   }
