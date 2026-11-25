@@ -21,7 +21,7 @@ export function createMap(svg, controls, countries, onAnswer) {
   function load(outlines) {
     const defs = svgNode('defs', {});
     shapes = outlines.map(([id, name, path, area], index) => {
-      defs.append(svgNode('path', { id: `outline-${id}`, d: path }));
+      defs.append(svgNode('path', { id: `outline-${id}`, d: path, 'vector-effect': 'non-scaling-stroke' }));
       return { id, name, area, tone: index % 4, country: countryById.get(id) };
     });
     const layers = copies.map(copy => {
