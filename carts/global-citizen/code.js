@@ -1,6 +1,7 @@
 export const ROUND_LENGTH = 10;
 export const MODES = {
   countries: 'Countries',
+  silhouette: 'Country Silhouette',
   flags: 'Flags',
   capitals: 'Capitals',
 };
@@ -24,8 +25,7 @@ export function createRound(countries, { mode, region, seed }) {
   return shuffled(pool, random).slice(0, ROUND_LENGTH).map(country => {
     if (mode === 'countries') return { country, prompt: `Tap ${country.name}` };
 
-    const isFlag = mode === 'flags';
-    const field = isFlag ? 'name' : 'capital';
+    const field = mode === 'capitals' ? 'capital' : 'name';
     const answer = country[field];
     const neighbors = shuffled(countries.filter(other => other.region === country.region), random);
     const fallback = shuffled(countries, random);
@@ -34,8 +34,8 @@ export function createRound(countries, { mode, region, seed }) {
       options.add(other[field]);
       if (options.size === 3) break;
     }
-    const prompt = isFlag ? 'Which country uses this flag?'
-      : country.capitalPrompt ?? `What is the capital of ${country.name}?`;
+    const prompt = mode === 'capitals' ? country.capitalPrompt ?? `What is the capital of ${country.name}?`
+      : mode === 'silhouette' ? 'Which country is this?' : 'Which country uses this flag?';
     return { country, prompt, answer, options: shuffled(options, random) };
   });
 }

@@ -5,6 +5,7 @@ Global Citizen is a portrait world geography game. Choose the world or one of si
 | Quiz | How to play |
 | --- | --- |
 | Countries | Tap the requested country or its dot on the map. Drag to pan. Pinch or use the zoom buttons to zoom, and use the reset button to restore the original view. Tab through visible countries and press Enter or Space to select one from a keyboard. |
+| Country Silhouette | Identify an unlabeled country outline from three names. Outlines are scaled to fit and shown north-up. France uses its metropolitan outline. |
 | Flags | Identify the country represented by a flag from three options. |
 | Capitals | Choose the capital from three options. Prompts identify the government function where a country uses multiple capitals or an administrative center. |
 

@@ -10,7 +10,7 @@
   <meta property="og:image" content="../../carts/global-citizen/assets/poster.png">
   <title>Global Citizen</title>
   <link rel="icon" href="../../carts/global-citizen/assets/icon.png">
-  <link rel="stylesheet" href="./style.css?v=2">
+  <link rel="stylesheet" href="./style.css?v=3">
 </head>
 <body>
   <div class="atlas">
@@ -41,6 +41,11 @@
               <span><strong>Countries</strong><small>Find countries on the map</small></span>
               <span class="chevron" aria-hidden="true">›</span>
             </button>
+            <button class="mode" type="button" data-mode="silhouette">
+              <span class="mode-icon" aria-hidden="true">◇</span>
+              <span><strong>Country Silhouette</strong><small>Identify a country by its outline</small></span>
+              <span class="chevron" aria-hidden="true">›</span>
+            </button>
             <button class="mode" type="button" data-mode="flags">
               <span class="mode-icon flag" aria-hidden="true">⚑</span>
               <span><strong>Flags</strong><small>Match flags to countries</small></span>
@@ -67,6 +72,7 @@
         <div id="map-question" hidden>
           <div class="map-shell">
             <svg id="map" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Country map"></svg>
+            <svg id="silhouette" role="img" aria-label="Country outline to identify" hidden><path></path></svg>
             <div id="map-controls" class="map-controls" role="group" aria-label="Map controls" hidden>
               <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
               <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
@@ -74,14 +80,14 @@
             </div>
             <p id="map-loading" role="status" hidden>Loading map…</p>
           </div>
-          <p class="map-hint">Drag to move the map. Pinch or use + and − to zoom.</p>
+          <p id="map-hint" class="map-hint">Drag to move the map. Pinch or use + and − to zoom.</p>
         </div>
         <div id="flag-question" class="flag-panel" hidden>
           <div class="flag-art" id="flag" role="img" aria-label="Flag to identify" tabindex="-1"></div>
         </div>
         <div id="answers" class="answers" aria-label="Answer choices" hidden></div>
         <p id="feedback" class="feedback" role="status"></p>
-        <button id="retry-map" class="primary" type="button" hidden>Retry map</button>
+        <button id="retry-map" class="primary" type="button" hidden>Retry</button>
         <button id="next" class="primary" type="button" hidden>Next question</button>
       </section>
       <section id="results" class="panel results" aria-labelledby="results-title" hidden>
@@ -94,6 +100,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="./game.mjs?v=6"></script>
+  <script type="module" src="./game.mjs?v=7"></script>
 </body>
 </html>

@@ -4,8 +4,9 @@ import test from 'node:test';
 import { createRound, mapFrame, MODES, panFrame, ROUND_LENGTH, worldOffset, zoomFrame } from '../carts/global-citizen/code.js';
 import { COUNTRIES } from '../carts/global-citizen/assets/countries.mjs';
 import { createMap } from '../play/global-citizen/map.mjs';
+import { silhouetteOutline } from '../play/global-citizen/silhouette.mjs';
 
-test('all three quizzes produce deterministic ten-question rounds for every region', () => {
+test('all quiz modes produce deterministic ten-question rounds for every region', () => {
   const regions = new Set(COUNTRIES.map(country => country.region));
   assert.equal(regions.size, 6);
   for (const region of ['World', ...regions]) {
@@ -22,7 +23,8 @@ test('all three quizzes produce deterministic ten-question rounds for every regi
             assert.equal(prompt, `Tap ${country.name}`);
             continue;
           }
-          assert.equal(answer, mode === 'flags' ? country.name : country.capital);
+          assert.equal(answer, mode === 'capitals' ? country.capital : country.name);
+          if (mode === 'silhouette') assert.equal(prompt, 'Which country is this?');
           assert.equal(new Set(options).size, 3);
           assert.ok(options.includes(answer));
         }
@@ -33,6 +35,24 @@ test('all three quizzes produce deterministic ten-question rounds for every regi
     createRound(COUNTRIES, { mode: 'countries', region: 'World', seed: 1 }),
     createRound(COUNTRIES, { mode: 'countries', region: 'World', seed: 2 }),
   );
+});
+
+test('all 195 countries have a framed silhouette, including Tuvalu and countries across the date line', () => {
+  const outlines = JSON.parse(readFileSync(new URL('../carts/global-citizen/assets/map.json', import.meta.url), 'utf8'));
+  const byId = new Map(outlines.map(([id, , path]) => [id, path]));
+  const frameById = new Map();
+  for (const country of COUNTRIES) {
+    const outline = byId.get(country.id);
+    assert.ok(outline, country.name);
+    const { path, viewBox } = silhouetteOutline(outline, country);
+    assert.match(path, /^M-?[\d.]+,-?[\d.]+(?: -?[\d.]+,-?[\d.]+){2,}Z/);
+    assert.ok(viewBox.every(Number.isFinite), country.name);
+    assert.ok(viewBox[2] > 0 && viewBox[3] > 0, country.name);
+    frameById.set(country.id, viewBox);
+  }
+  assert.ok(frameById.get('TUV')[2] < 1, 'Tuvalu retains its tiny outline');
+  assert.ok(frameById.get('FJI')[2] < 15, 'Fiji stays together across the date line');
+  assert.ok(frameById.get('FRA')[2] < 20, 'The French outline is framed around metropolitan France');
 });
 
 test('every quiz country has a uniquely indexed flag and a reachable map feature', () => {
