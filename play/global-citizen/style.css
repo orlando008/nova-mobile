@@ -247,6 +247,14 @@ progress::-moz-progress-bar { background: #129468; }
   cursor: grab;
 }
 #map[data-dragging] { cursor: grabbing; }
+#silhouette {
+  display: block;
+  width: 100%;
+  height: clamp(150px, 44vw, 210px);
+  background: radial-gradient(ellipse at center, #f8fdff, #eaf6fb);
+  fill: #10395c;
+  fill-rule: evenodd;
+}
 .map-country {
   fill: #c3edcd;
   stroke: #fff;

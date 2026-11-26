@@ -1,6 +1,7 @@
-import { createRound, MODES } from '../../carts/global-citizen/code.js?v=2';
+import { createRound, MODES } from '../../carts/global-citizen/code.js?v=3';
 import { COUNTRIES } from '../../carts/global-citizen/assets/countries.mjs?v=1';
 import { createMap } from './map.mjs?v=4';
+import { silhouetteOutline } from './silhouette.mjs?v=1';
 
 const element = id => document.getElementById(id);
 const menu = element('menu');
@@ -17,10 +18,13 @@ const mapLoading = element('map-loading');
 const retryMap = element('retry-map');
 const flagQuestion = element('flag-question');
 const flag = element('flag');
-const map = createMap(element('map'), {
+const mapSurface = element('map');
+const silhouette = element('silhouette');
+const silhouettePath = silhouette.querySelector('path');
+const map = createMap(mapSurface, {
   in: element('zoom-in'), out: element('zoom-out'), reset: element('reset-map'),
 }, COUNTRIES, submitAnswer);
-const outlinesURL = new URL('../../carts/global-citizen/assets/map.json', import.meta.url);
+const outlinesURL = new URL('../../carts/global-citizen/assets/map.json?v=2', import.meta.url);
 
 let mode;
 let region;
@@ -29,7 +33,8 @@ let position;
 let score;
 let answered;
 let requestId = 0;
-let mapRequest;
+let outlinesRequest;
+let mapLoaded = false;
 
 function show(screen, heading) {
   menu.hidden = screen !== menu;
@@ -40,31 +45,44 @@ function show(screen, heading) {
   window.scrollTo(0, 0);
 }
 
-async function showMap(country) {
+async function showGeography(country) {
   const request = ++requestId;
+  const isMap = mode === 'countries';
   const controls = element('map-controls');
   controls.hidden = true;
   mapLoading.hidden = false;
   retryMap.hidden = true;
   feedback.textContent = '';
   delete feedback.dataset.result;
-  mapRequest ??= fetch(outlinesURL).then(response => {
+  outlinesRequest ??= fetch(outlinesURL).then(response => {
     if (!response.ok) throw new Error('Could not load the country outlines.');
     return response.json();
-  }).then(outlines => { map.load(outlines); }).catch(error => {
-    mapRequest = undefined;
+  }).catch(error => {
+    outlinesRequest = undefined;
     throw error;
   });
   try {
-    await mapRequest;
+    const outlines = await outlinesRequest;
     if (quiz.hidden || request !== requestId) return;
-    map.start(country);
-    controls.hidden = false;
+    if (isMap) {
+      if (!mapLoaded) {
+        map.load(outlines);
+        mapLoaded = true;
+      }
+      map.start(country);
+      controls.hidden = false;
+    } else {
+      const outline = outlines.find(([id]) => id === country.id)[2];
+      const { path, viewBox } = silhouetteOutline(outline, country);
+      silhouette.setAttribute('viewBox', viewBox.join(' '));
+      silhouettePath.setAttribute('d', path);
+      answers.hidden = false;
+    }
   } catch {
     if (quiz.hidden || request !== requestId) return;
     retryMap.hidden = false;
     feedback.dataset.result = 'error';
-    feedback.textContent = 'The map could not load. Try again.';
+    feedback.textContent = isMap ? 'The map could not load. Try again.' : 'The country outline could not load. Try again.';
   } finally {
     if (request === requestId) mapLoading.hidden = true;
   }
@@ -82,9 +100,7 @@ function presentQuestion() {
   element('count').textContent = `${position + 1} / ${questions.length}`;
   element('progress').max = questions.length;
   element('progress').value = position;
-  if (mode === 'countries') {
-    void showMap(country);
-  } else {
+  if (mode !== 'countries') {
     if (mode === 'flags') {
       const x = (country.flag % 13) / 12 * 100;
       const y = Math.floor(country.flag / 13) / 14 * 100;
@@ -100,6 +116,12 @@ function presentQuestion() {
       return button;
     }));
   }
+  if (mode === 'silhouette') {
+    answers.hidden = true;
+    silhouettePath.removeAttribute('d');
+    silhouette.setAttribute('aria-label', 'Country outline to identify');
+  }
+  if (!mapQuestion.hidden) void showGeography(country);
   const questionStart = mode === 'flags' ? flag : prompt;
   questionStart.focus({ preventScroll: true });
 }
@@ -113,16 +135,21 @@ function start(nextMode, nextRegion) {
   element('mode-title').textContent = MODES[mode];
   element('quiz-region').textContent = region;
   prompt.hidden = mode === 'flags';
-  mapQuestion.hidden = mode !== 'countries';
+  const isMap = mode === 'countries';
+  const isSilhouette = mode === 'silhouette';
+  mapQuestion.hidden = !isMap && !isSilhouette;
+  mapSurface.toggleAttribute('hidden', !isMap);
+  element('map-hint').hidden = !isMap;
+  silhouette.toggleAttribute('hidden', !isSilhouette);
   flagQuestion.hidden = mode !== 'flags';
-  answers.hidden = mode === 'countries';
+  answers.hidden = isMap;
   retryMap.hidden = true;
   show(quiz);
   presentQuestion();
 }
 
 function submitAnswer(chosen, name) {
-  if (quiz.hidden || answered || (mode === 'countries' && (!mapLoading.hidden || !retryMap.hidden))) return;
+  if (quiz.hidden || answered || (!mapQuestion.hidden && (!mapLoading.hidden || !retryMap.hidden))) return;
   const { country, answer } = questions[position];
   const isMap = mode === 'countries';
   const correct = chosen === (isMap ? country.id : answer);
@@ -137,6 +164,7 @@ function submitAnswer(chosen, name) {
     }
   }
   if (mode === 'flags') flag.setAttribute('aria-label', `Flag of ${country.name}`);
+  if (mode === 'silhouette') silhouette.setAttribute('aria-label', `Outline of ${country.name}`);
   feedback.dataset.result = correct ? 'correct' : 'wrong';
   const correctName = isMap ? country.name : answer;
   feedback.textContent = correct
@@ -157,7 +185,7 @@ for (const button of menu.querySelectorAll('[data-mode]')) {
 element('again').addEventListener('click', () => start(mode, region));
 element('back').addEventListener('click', returnToMenu);
 menuButton.addEventListener('click', returnToMenu);
-retryMap.addEventListener('click', () => { void showMap(questions[position].country); });
+retryMap.addEventListener('click', () => { void showGeography(questions[position].country); });
 next.addEventListener('click', () => {
   if (!answered || quiz.hidden) return;
   if (++position < questions.length) {

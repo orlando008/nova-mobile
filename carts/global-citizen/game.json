@@ -37,8 +37,8 @@
     {
       "path": "assets/map.json",
       "lazy": true,
-      "bytes": 583328,
-      "sha256": "fc1658bdbb6848bc75b7b3a69513782eb5e6400b794f083a7b08a731b6132649"
+      "bytes": 583500,
+      "sha256": "d5cfbfd87eb472ab924605eb7ca6936f48a2082abfba65f7ac91f4c8a9520e61"
     },
     {
       "path": "assets/poster.png",
@@ -47,5 +47,5 @@
       "sha256": "a3ff1a6670a0e73f0392ef27ae6ece50bcee0914bb3a26e7ff3746cf60951d71"
     }
   ],
-  "contentVersion": "40b2db6faa1d3602d6e47840dba909f8ed1cde96c3da4712d8696413fa35669e"
+  "contentVersion": "3eed0f432c88c7cca67c1206b1c47e87c2bd8096bea02c4896a0d95286801f60"
 }
