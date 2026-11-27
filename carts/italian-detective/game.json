@@ -1,0 +1,113 @@
+{
+  "format": 1,
+  "name": "italian-detective",
+  "title": "Italian Detective",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Listen to witnesses in Italian, pin the clues, and solve three illustrated mysteries.",
+  "shelf": "Puzzle",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/cafe.webp",
+      "lazy": true,
+      "bytes": 72628,
+      "sha256": "d19cc8d2e90558bf687b97be4d7ec0ad4645b7236714008a3fc3a992b7b08268"
+    },
+    {
+      "path": "assets/dialogue/coat.mp3",
+      "lazy": true,
+      "bytes": 28177,
+      "sha256": "b2bf9509d6c4d60606d375f3e15ee26cdcb1cc73e715f7ecf8529a25004729ce"
+    },
+    {
+      "path": "assets/dialogue/counter.mp3",
+      "lazy": true,
+      "bytes": 19948,
+      "sha256": "a3acfa0c76b8db499914753ea73c85d30c4a35404e854cfe0001173ab86b0aab"
+    },
+    {
+      "path": "assets/dialogue/crate.mp3",
+      "lazy": true,
+      "bytes": 24520,
+      "sha256": "a08531e617064b3eed788c3d5a7bfa23401eaca8ea1be30fb43e9e230f4fd7b7"
+    },
+    {
+      "path": "assets/dialogue/empty.mp3",
+      "lazy": true,
+      "bytes": 26348,
+      "sha256": "6a88cccfd63a97857f29813caf464a9085d7acc0cf2ab671e1dda90d5a2d5f1d"
+    },
+    {
+      "path": "assets/dialogue/gone.mp3",
+      "lazy": true,
+      "bytes": 22169,
+      "sha256": "ea853ccda59bfbf73816b97623c845911db943cbf1e3f6420f180f9f8dee490d"
+    },
+    {
+      "path": "assets/dialogue/handoff.mp3",
+      "lazy": true,
+      "bytes": 23475,
+      "sha256": "38121d776d8022aa6cdcd812bcb8c2084156553350bd2f786736c2ec44e5aed2"
+    },
+    {
+      "path": "assets/dialogue/move.mp3",
+      "lazy": true,
+      "bytes": 23867,
+      "sha256": "d03e16a9c4ad3bb8d06ba187fed175c308afa98b557bbfaf3bdcbc1d2cd8ce9a"
+    },
+    {
+      "path": "assets/dialogue/paper.mp3",
+      "lazy": true,
+      "bytes": 24128,
+      "sha256": "3a418802e3eb30879e56db6a134b8f62e7bff4eeeadbba1f10e4298bc3e8b32b"
+    },
+    {
+      "path": "assets/dialogue/ribbon.mp3",
+      "lazy": true,
+      "bytes": 14332,
+      "sha256": "abba5e61222ab8ad886a5eaf7915fed6ca5f34b0ed1cdc48fa5332cd8c383c68"
+    },
+    {
+      "path": "assets/dialogue/spare.mp3",
+      "lazy": true,
+      "bytes": 21385,
+      "sha256": "2c7f04053ec90584a3ef479211da7932651455c2b354bd4abc7502f42c2aca16"
+    },
+    {
+      "path": "assets/dialogue/storage.mp3",
+      "lazy": true,
+      "bytes": 32748,
+      "sha256": "0e5bcbab302ff2e2d9220d84f7a98e2a935d4eec5950b1fd3b2a266da5c085ef"
+    },
+    {
+      "path": "assets/dialogue/wall.mp3",
+      "lazy": true,
+      "bytes": 17859,
+      "sha256": "70b8f07a9bf4016da862365a9fbc06aba1900206e40d5522c9106e4e59085af8"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 104272,
+      "sha256": "0f79525497f5aafda89aa83e5318aced01b757510e6e1643ad6893c3f8d77917"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 258016,
+      "sha256": "a5725f9fc9eadc1d12227fb0a4d7a97a512ef5bc2555a7bf389b8d666905b62d"
+    },
+    {
+      "path": "assets/witnesses.webp",
+      "lazy": true,
+      "bytes": 135616,
+      "sha256": "8e254757d17eae81b262782eae09c8bb507ac3af262d4be622fa3b29354250cd"
+    }
+  ],
+  "contentVersion": "5eca576125dbd21e76f98be8ab45cd85a7cc52a3c20d6816c0218432a745137a"
+}
