@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6ecd9">
+  <meta name="description" content="Drill the Italian grammar that trips you up: object pronouns, di and da, quello and che. Your trickiest rules come back until they stick.">
+  <meta property="og:title" content="Italian Tutor">
+  <meta property="og:description" content="Drill the Italian grammar that trips you up: object pronouns, di and da, quello and che. Your trickiest rules come back until they stick.">
+  <meta property="og:image" content="../../carts/italian-tutor/assets/poster.png">
+  <title>Italian Tutor</title>
+  <link rel="icon" href="../../carts/italian-tutor/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./italian-tutor.css?v=1">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="pill" href="../../">‹ Library</a>
+      <button class="pill" type="button" id="home-button" hidden>‹ Home</button>
+      <button class="pill" type="button" id="rules-button">Rule book</button>
+    </header>
+
+    <main class="card">
+      <section id="home" aria-labelledby="title">
+        <div class="hero">
+          <svg class="hero-art" viewBox="0 0 640 300" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#f7d9a8"/>
+                <stop offset="1" stop-color="#f3c48f"/>
+              </linearGradient>
+              <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#d4673d"/>
+                <stop offset="1" stop-color="#b44a28"/>
+              </linearGradient>
+            </defs>
+            <rect width="640" height="300" fill="url(#sky)"/>
+            <circle cx="500" cy="96" r="48" fill="#fbe7c2"/>
+            <path d="M0 214 Q120 170 240 196 T480 186 T640 180 V300 H0Z" fill="#9aa45a" opacity=".55"/>
+            <path d="M330 300 V140 h310 V300Z" fill="url(#wall)"/>
+            <g fill="#7f2f18" opacity=".9">
+              <path d="M352 300 V214 a34 34 0 0 1 68 0 V300Z"/>
+              <path d="M444 300 V214 a34 34 0 0 1 68 0 V300Z"/>
+              <path d="M536 300 V214 a34 34 0 0 1 68 0 V300Z"/>
+            </g>
+            <rect x="330" y="132" width="310" height="14" fill="#e9a073"/>
+            <g transform="translate(200 128)">
+            <g fill="#5d6b2c">
+              <ellipse cx="78" cy="120" rx="16" ry="7" transform="rotate(-30 78 120)"/>
+              <ellipse cx="104" cy="96" rx="16" ry="7" transform="rotate(20 104 96)"/>
+              <ellipse cx="130" cy="78" rx="16" ry="7" transform="rotate(-25 130 78)"/>
+            </g>
+            <path d="M40 150 Q100 110 160 60" stroke="#5d6b2c" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="92" cy="136" rx="17" ry="13" fill="#f4cf3d"/>
+            <ellipse cx="146" cy="96" rx="14" ry="11" fill="#f4cf3d"/>
+            </g>
+          </svg>
+          <div class="hero-copy">
+            <p class="eyebrow">Grammatica, una regola alla volta</p>
+            <h1 id="title" tabindex="-1">Italian<br>Tutor</h1>
+          </div>
+        </div>
+
+        <div class="home-body">
+          <div class="stats" aria-label="Your progress">
+            <div class="stat">
+              <strong id="stat-level"></strong>
+              <span id="stat-rank"></span>
+              <div class="meter" aria-hidden="true"><span id="stat-meter"></span></div>
+            </div>
+            <div class="stat">
+              <strong id="stat-streak"></strong>
+              <span>day streak</span>
+            </div>
+            <div class="stat">
+              <strong id="stat-mastered"></strong>
+              <span>rules mastered</span>
+            </div>
+          </div>
+
+          <button class="review" type="button" id="review-start">
+            <span class="review-label">Ripasso mirato</span>
+            <strong>Practice my trickiest rules</strong>
+            <small id="review-detail">Ten questions, weighted toward the rules you miss most.</small>
+            <span class="go" aria-hidden="true">›</span>
+          </button>
+
+          <h2 class="section-title">Topics</h2>
+          <div id="topic-list" class="topic-list"></div>
+
+          <div id="tricky" hidden>
+            <h2 class="section-title">Hardest for you</h2>
+            <ul id="tricky-list" class="rule-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="quiz" class="panel" aria-labelledby="quiz-title" hidden>
+        <div class="quiz-head">
+          <h1 id="quiz-title"></h1>
+          <span id="quiz-count"></span>
+        </div>
+        <div class="progress" aria-hidden="true"><span id="quiz-progress"></span></div>
+        <p id="retry-note" class="retry-note" hidden>Second try: you missed this one earlier.</p>
+
+        <div class="sentence-card">
+          <p id="sentence" class="sentence" lang="it" tabindex="-1"></p>
+          <p id="english" class="english"></p>
+        </div>
+
+        <div id="choices" class="choices" role="group" aria-label="Answer choices"></div>
+
+        <div id="feedback" class="feedback" role="status" hidden>
+          <p id="feedback-head" class="feedback-head"></p>
+          <div class="feedback-rule">
+            <span class="rule-chip" id="feedback-chip"></span>
+            <p id="feedback-explain"></p>
+          </div>
+          <div class="feedback-actions">
+            <button type="button" class="ghost" id="speak" hidden>🔊 Ascolta</button>
+            <button type="button" class="ghost" id="open-rule">See the rule</button>
+          </div>
+        </div>
+
+        <button id="next" class="primary" type="button" hidden>Continue</button>
+      </section>
+
+      <section id="results" class="panel results" aria-labelledby="results-title" hidden>
+        <p class="results-badge" id="results-badge" aria-hidden="true"></p>
+        <h1 id="results-title" tabindex="-1"></h1>
+        <p id="results-score" class="results-score"></p>
+        <p id="results-xp" class="results-xp"></p>
+        <h2 class="section-title">Rules this round</h2>
+        <ul id="results-rules" class="rule-list"></ul>
+        <button id="again" class="primary" type="button">Another round</button>
+        <button id="results-home" class="secondary" type="button">Back home</button>
+      </section>
+
+      <section id="rules" class="panel" aria-labelledby="rules-title" hidden>
+        <h1 id="rules-title" tabindex="-1">Rule book</h1>
+        <p class="lede">Every rule, with how you’re doing on it. Tap a rule to study it, mark it as tricky, or drill it on its own.</p>
+        <div id="rules-groups"></div>
+      </section>
+
+      <section id="rule" class="panel" aria-labelledby="rule-title" hidden>
+        <p class="eyebrow" id="rule-topic"></p>
+        <h1 id="rule-title" tabindex="-1"></h1>
+        <p id="rule-summary" class="lede"></p>
+        <div class="rule-status">
+          <span id="rule-dots" class="dots" aria-hidden="true"></span>
+          <span id="rule-record"></span>
+        </div>
+        <p id="rule-explain" class="rule-explain"></p>
+        <table id="rule-table" class="rule-table" lang="it"></table>
+        <h2 class="section-title">Examples</h2>
+        <ul id="rule-examples" class="examples"></ul>
+        <button id="rule-drill" class="primary" type="button">Drill this rule</button>
+        <button id="rule-pin" class="secondary" type="button" aria-pressed="false"></button>
+        <button id="rule-back" class="ghost wide" type="button">‹ Back</button>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="./italian-tutor.mjs?v=1"></script>
+</body>
+</html>
