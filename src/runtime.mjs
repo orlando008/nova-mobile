@@ -48,9 +48,9 @@ export function createRuntime(createCart, initialScreen, assets = [], pictures =
     asset: path => bytesByPath.get(path)?.slice(0),
     rect(x, y, width, height, [red, green, blue, alpha = 1]) {
       if (!commands) throw new Error('rect() is only available during draw()');
-      commands.push(x, y, width, height, red, green, blue, alpha, 0);
+      commands.push(x, y, width, height, red, green, blue, alpha, 0, 0);
     },
-    spr(path, x, y, { scale = 1, sx = scale, sy = scale, anchor = [0, 0], alpha = 1 } = {}) {
+    spr(path, x, y, { scale = 1, sx = scale, sy = scale, anchor = [0, 0], alpha = 1, rot = 0 } = {}) {
       if (!commands) throw new Error('spr() is only available during draw()');
       const picture = picturesByPath.get(path);
       if (!picture) throw new Error('Picture is not loaded: ' + path);
@@ -58,10 +58,15 @@ export function createRuntime(createCart, initialScreen, assets = [], pictures =
       const height = picture.height * sy;
       const [ax, ay] = anchor;
       if (!(Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0 &&
-          ax >= 0 && ax <= 1 && ay >= 0 && ay <= 1 && alpha >= 0 && alpha <= 1)) {
-        throw new RangeError('Invalid sprite scale, anchor, or alpha for ' + path);
+          Number.isFinite(rot) && ax >= 0 && ax <= 1 && ay >= 0 && ay <= 1 && alpha >= 0 && alpha <= 1)) {
+        throw new RangeError('Invalid sprite scale, anchor, alpha, or angle for ' + path);
       }
-      commands.push(x - ax * width, y - ay * height, width, height, 1, 1, 1, alpha, picture.index);
+      const dx = -ax * width;
+      const dy = -ay * height;
+      const cos = Math.cos(rot);
+      const sin = Math.sin(rot);
+      commands.push(x + dx * cos - dy * sin, y + dx * sin + dy * cos,
+        width, height, 1, 1, 1, alpha, picture.index, rot);
     },
   }));
   if (typeof cart?.update !== 'function' || typeof cart?.draw !== 'function') {

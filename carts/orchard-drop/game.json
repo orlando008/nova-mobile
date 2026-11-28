@@ -39,18 +39,18 @@
     },
     {
       "path": "assets/fruit-4.webp",
-      "bytes": 11904,
-      "sha256": "b7c6bb4d5b32b927d769f173ea231714c4a4221b6ccc5bffc0f91ebdcac16739"
+      "bytes": 15424,
+      "sha256": "8ac53faa743abeeeb0c86c762cde854841f2e5cb08791257d469582cae151ca2"
     },
     {
       "path": "assets/fruit-5.webp",
-      "bytes": 15208,
-      "sha256": "2babad203ea1ecccce088cb2e6d26f38f4af7c4d93ea39ffb58a0fc73441ef82"
+      "bytes": 20392,
+      "sha256": "afb7a6d361e3abdbe1d850f187cbe9e94e27cb32902ffdb8cc9283d11d3bd293"
     },
     {
       "path": "assets/fruit-6.webp",
-      "bytes": 20580,
-      "sha256": "3fd19d9040c617a19d04f24e2636b5bf1ae013d624753923c3965873d0294cb9"
+      "bytes": 17068,
+      "sha256": "f469273f17deb0455d38d0922e6c3035e8aad0e7daab096beb79b0fa28816ee3"
     },
     {
       "path": "assets/fruit-7.webp",
@@ -80,15 +80,21 @@
     {
       "path": "assets/icon.png",
       "lazy": true,
-      "bytes": 88860,
-      "sha256": "9c80fadb5b3cd7bc3e1cea6d19e6ac094cd5c4513506af2c8fda94cda7088012"
+      "bytes": 89469,
+      "sha256": "8b59d0fb640494a02d773cec3db977d125c4b01b77e4cbdcef20c7a269264c71"
     },
     {
       "path": "assets/poster.png",
       "lazy": true,
-      "bytes": 136431,
-      "sha256": "fbd16a595bb8c2cd0caf71244c531e9e4064f7909e826eb6ea2b2c7366f3dc3c"
+      "bytes": 137554,
+      "sha256": "3f9a862d7806c5c9c60c856e64364639f8e60a0b5a94c4267a6cce01cf826028"
+    },
+    {
+      "path": "assets/juicy.wav",
+      "lazy": true,
+      "bytes": 30798,
+      "sha256": "578fc791f5dbd34e244738faedbf48273cd9e3c4fb1b52ece297990a0aa155a7"
     }
   ],
-  "contentVersion": "100cfaf5b67f406e0bc66fa33a8ee6b4e4bc90b365efa218d0f291ab2b66ce56"
+  "contentVersion": "546177ee6edc3a806ac507e29f5e6cb69c770990f48d83d23df8d82208040dfc"
 }

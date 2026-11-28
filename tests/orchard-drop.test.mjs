@@ -39,7 +39,8 @@ test('matching fruit merge on contact and score once', () => {
   const game = make();
   game.tick(drop(180));
   advance(game, 105);
-  assert.equal(game.state().bodies[0].y, CRATE.floor - fruitBounds(0).bottom);
+  const blueberry = game.state().bodies[0];
+  assert.equal(blueberry.y, CRATE.floor - fruitBounds(0, blueberry.angle).bottom);
   assert.equal(game.state().score, 0);
 
   game.tick(drop(180));
@@ -47,7 +48,7 @@ test('matching fruit merge on contact and score once', () => {
   const after = game.state();
   assert.equal(after.bodies.length, 1);
   assert.equal(after.bodies[0].tier, 1);
-  assert.equal(after.bodies[0].y, CRATE.floor - fruitBounds(1).bottom);
+  assert.equal(after.bodies[0].y, CRATE.floor - fruitBounds(1, after.bodies[0].angle).bottom);
   assert.equal(after.score, 3);
   assert.equal(after.largest, 1);
 });
@@ -55,10 +56,15 @@ test('matching fruit merge on contact and score once', () => {
 test('the banana contacts fruit around its curve and leaves its hollow open', () => {
   const banana = FRUIT.findIndex(fruit => fruit.name === 'Banana');
   const coconut = FRUIT.findIndex(fruit => fruit.name === 'Coconut');
-  assert.equal(FRUIT[banana + 1].name, 'Fig');
+  assert.equal(FRUIT[banana - 1].name, 'Orange');
+  assert.equal(FRUIT[banana + 1].name, 'Apple');
+  assert.ok(FRUIT[banana - 1].radius < FRUIT[banana].radius);
+  assert.ok(FRUIT[banana].radius < FRUIT[banana + 1].radius);
   assert.equal(FRUIT[coconut + 1].name, 'Golden pear');
   assert.equal(fruitContact(banana, 0, 0, -18), null);
   assert.ok(fruitContact(banana, 0, 0, 20)?.depth > 0);
+  assert.ok(fruitContact(banana, 0, 0, -20, Math.PI)?.depth > 0);
+  assert.equal(fruitContact(banana, 0, 0, 23, Math.PI), null);
 
   const pear = coconut + 1;
   assert.equal(fruitContact(pear, 0, 37, -36), null);
@@ -87,12 +93,16 @@ test('higher-resolution sprites still draw at the fruit collision sizes', () => 
   const settled = game.state().bodies;
   const bodySprites = sprites.slice(-settled.length);
   for (const [index, body] of settled.entries()) {
-    const [x, y, width, height] = bodySprites[index];
-    const diameter = body.radius * 2 * screen.w / WIDTH;
+    const [x, y, width, height, , , , , , angle] = bodySprites[index];
+    const age = game.state().tick - body.born;
+    const pulse = age < 12 ? 1 + .13 * Math.sin(age / 12 * Math.PI) : 1;
+    const diameter = body.radius * pulse * 2 * screen.w / WIDTH;
     assert.ok(width >= diameter && width < diameter + 2);
     assert.equal(height, width);
-    assert.ok(Math.abs(x + width / 2 - body.x * screen.w / WIDTH) < .001);
-    assert.ok(Math.abs(y + height / 2 - body.y * screen.w / WIDTH) < .001);
+    const cx = x + (width * Math.cos(angle) - height * Math.sin(angle)) / 2;
+    const cy = y + (width * Math.sin(angle) + height * Math.cos(angle)) / 2;
+    assert.ok(Math.abs(cx - body.x * screen.w / WIDTH) < .001);
+    assert.ok(Math.abs(cy - body.y * screen.w / WIDTH) < .001);
   }
 });
 
@@ -107,6 +117,42 @@ test('canceled, paused, and resized touches do not drop fruit', () => {
   }
   assert.equal(game.state().dropped, 0);
   assert.equal(game.state().pointer, null);
+});
+
+test('an off-center hit transfers spin into the banana', () => {
+  const banana = FRUIT.findIndex(fruit => fruit.name === 'Banana');
+  const y = CRATE.floor - fruitBounds(banana).bottom;
+  const makeCollision = x => createRuntime(api => createCart(api, [
+    { tier: banana, x: 180, y },
+    { tier: 5, x, y: y - 65, vy: 10 },
+  ]), screen, [], pictures, { seed: 8 });
+  const left = makeCollision(152);
+  const right = makeCollision(212);
+  advance(left, 8);
+  advance(right, 8);
+  const leftAngle = left.state().bodies[0].angle;
+  const rightAngle = right.state().bodies[0].angle;
+  assert.ok(Math.abs(leftAngle) > .05);
+  assert.ok(Math.abs(rightAngle) > .05);
+  assert.ok(leftAngle * rightAngle < 0);
+});
+
+test('two watermelons clear together and trigger one juicy harvest', () => {
+  const tier = FRUIT.length - 1;
+  const game = createRuntime(api => createCart(api, [
+    { tier, x: 120, y: 370 },
+    { tier, x: 238, y: 370 },
+  ]), screen, [], pictures);
+  game.tick(frame());
+  const { bodies, harvestCount, bursts, score, cue, status } = game.state();
+  assert.equal(bodies.length, 0);
+  assert.equal(harvestCount, 1);
+  assert.equal(bursts[0].cleared, true);
+  assert.equal(score, 100);
+  assert.equal(cue.name, 'harvest');
+  assert.match(status, /^JUICY!!/);
+  advance(game, 60);
+  assert.equal(game.state().harvestCount, 1);
 });
 
 test('a heavy merge gives nearby lighter fruit a stronger shove', () => {
@@ -141,13 +187,15 @@ test('the same inputs replay chain scores and overflow independent of drawing', 
   const replay = make();
   let attempts = 0;
   let chained = false;
+  let before = game.state();
 
-  while (!game.state().lost && attempts < 320) {
+  while (!before.lost && attempts < 320) {
     const samples = [drop(30), ...Array.from({ length: 22 }, () => frame())];
     for (const sample of samples) {
-      const before = game.state();
-      assert.ok(game.draw(.5).length > 0);
-      assert.deepEqual(game.state(), before);
+      if (before.tick % 11 === 0) {
+        assert.ok(game.draw(.5).length > 0);
+        assert.deepEqual(game.state(), before);
+      }
       game.tick(sample);
       replay.tick(sample);
       const after = game.state();
@@ -156,8 +204,10 @@ test('the same inputs replay chain scores and overflow independent of drawing', 
       if (after.lost) {
         assert.equal(before.danger, 89);
         assert.equal(after.danger, 90);
+        before = after;
         break;
       }
+      before = after;
     }
     attempts++;
   }

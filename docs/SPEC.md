@@ -140,8 +140,8 @@ characters made from them, with a picture of each.
 The current runtime draws eager PNG and WebP assets by their manifest path, such as
 `spr('assets/crate.png', x, y, { scale: 0.55, anchor: [0.5, 0.5] })`. It loads verified image bytes into the
 renderer once at startup. `scale` sets points per image pixel and defaults to `1`. `sx` and `sy` can scale the
-axes independently. `anchor` defaults to `[0, 0]` at top left and `alpha` defaults to `1`. WebGL 2 and Canvas 2D
-draw the same ordered commands. WebGL 2 groups adjacent commands with the same texture.
+axes independently. `anchor` defaults to `[0, 0]` at top left and `alpha` defaults to `1`. `rot` rotates
+clockwise around the anchor in radians and defaults to `0`. WebGL 2 and Canvas 2D draw the same ordered commands. WebGL 2 groups adjacent commands with the same texture.
 
 The planned sprite API extends this first implementation.
 `spr(asset, x, y, opts)` draws an asset. Options: `scale` (or `sx`, `sy`), `rot`, `anchor` (0..1, 0..1), `alpha`,

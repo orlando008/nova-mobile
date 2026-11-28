@@ -7,10 +7,10 @@ export const FRUIT = [
   { name: 'Cherry', radius: 15, pixels: 192 },
   { name: 'Peach', radius: 20, pixels: 192 },
   { name: 'Lime', radius: 25, pixels: 288 },
-  { name: 'Banana', radius: 28, pixels: 288 },
-  { name: 'Fig', radius: 31, pixels: 288 },
-  { name: 'Orange', radius: 35, pixels: 288 },
-  { name: 'Apple', radius: 40, pixels: 512 },
+  { name: 'Fig', radius: 30, pixels: 288 },
+  { name: 'Orange', radius: 34, pixels: 288 },
+  { name: 'Banana', radius: 39, pixels: 384 },
+  { name: 'Apple', radius: 42, pixels: 512 },
   { name: 'Pomegranate', radius: 45, pixels: 512 },
   { name: 'Coconut', radius: 50, pixels: 512 },
   { name: 'Golden pear', radius: 57, pixels: 512 },
@@ -53,9 +53,9 @@ const outlines = [
   roundOutline([[46, 7], [71, 4], [90, 19], [95, 39], [89, 62], [69, 85], [46, 95], [24, 88], [6, 66], [2, 38], [8, 17], [25, 5]]),
   roundOutline([[46, 5], [74, 4], [92, 21], [95, 48], [86, 74], [62, 92], [38, 95], [15, 82], [3, 60], [3, 34], [16, 11]]),
   ellipse(45, 37, -.34),
-  [...bananaTop, ...bananaBottom.toReversed()],
   roundOutline([[47, 3], [59, 10], [72, 24], [85, 42], [91, 61], [84, 82], [63, 94], [36, 94], [15, 84], [5, 65], [10, 46], [23, 28], [37, 14]]),
   ellipse(46, 44),
+  [...bananaTop, ...bananaBottom.toReversed()],
   roundOutline([[48, 7], [68, 3], [87, 13], [95, 36], [90, 63], [78, 84], [64, 94], [45, 94], [27, 94], [13, 80], [3, 59], [1, 36], [10, 15], [28, 3]]),
   roundOutline([[48, 6], [69, 10], [88, 24], [94, 46], [89, 70], [70, 90], [47, 95], [24, 90], [6, 74], [2, 50], [8, 27], [26, 12]]),
   ellipse(46, 41, .34),
@@ -121,95 +121,164 @@ function convexPieces(outline) {
   return pieces;
 }
 
-const shapes = FRUIT.map(({ radius }, tier) => {
+function makeGeometry(outline, pieces) {
+  const limits = bounds(outline);
+  const extreme = (axis, value) => {
+    const points = outline.filter(point => Math.abs(point[axis] - value) < .08);
+    return [points.reduce((sum, point) => sum + point[0], 0) / points.length,
+      points.reduce((sum, point) => sum + point[1], 0) / points.length];
+  };
+  return {
+    ...limits,
+    leftPoint: extreme(0, limits.left),
+    rightPoint: extreme(0, limits.right),
+    bottomPoint: extreme(1, limits.bottom),
+    pieces: pieces.map(points => ({ points, ...bounds(points), axes: points.map(([x, y], i) => {
+      const [nextX, nextY] = points[(i + 1) % points.length];
+      const dx = nextX - x;
+      const dy = nextY - y;
+      const length = Math.hypot(dx, dy);
+      const nx = dy / length;
+      const ny = -dx / length;
+      return { nx, ny, limit: nx * x + ny * y };
+    }) })),
+  };
+}
+
+const localShapes = FRUIT.map(({ radius }, tier) => {
   const outline = localPoints(outlines[tier], radius);
-  return { ...bounds(outline), pieces: convexPieces(outline) };
+  return { outline, pieces: convexPieces(outline) };
 });
-export const fruitBounds = tier => {
-  const { left, right, top, bottom } = shapes[tier];
+const shapes = localShapes.map(({ outline, pieces }) => makeGeometry(outline, pieces));
+
+function rotatedGeometry(tier, angle) {
+  if (!angle) return shapes[tier];
+  const c = Math.cos(angle);
+  const s = Math.sin(angle);
+  const rotate = ([x, y]) => [x * c - y * s, x * s + y * c];
+  const { outline, pieces } = localShapes[tier];
+  return makeGeometry(outline.map(rotate), pieces.map(points => points.map(rotate)));
+}
+
+export const fruitBounds = (tier, angle = 0) => {
+  const { left, right, top, bottom } = rotatedGeometry(tier, angle);
   return { left, right, top, bottom };
 };
 
-function edgeAxes(points) {
-  return points.map(([x, y], i) => {
-    const [nextX, nextY] = points[(i + 1) % points.length];
-    const dx = nextX - x;
-    const dy = nextY - y;
-    const length = Math.hypot(dx, dy);
-    return [dy / length, -dx / length];
-  });
-}
+const projection = (points, index, nx, ny) => points[index][0] * nx + points[index][1] * ny;
 
-function contactAxes(a, b) {
-  return [...edgeAxes(a), ...edgeAxes(b)].map(([nx, ny]) => {
-    const aValues = a.map(([x, y]) => nx * x + ny * y);
-    const bValues = b.map(([x, y]) => nx * x + ny * y);
-    return { nx, ny, low: Math.min(...aValues) - Math.max(...bValues),
-      high: Math.max(...aValues) - Math.min(...bValues) };
-  });
-}
-
-// Orientations stay fixed, so the separating axes and local projections can be reused every tick.
-const pairAxes = shapes.map(a => shapes.map(b => a.pieces.flatMap(first =>
-  b.pieces.map(second => contactAxes(first, second)))));
-
-export function fruitContact(aTier, bTier, dx, dy) {
-  const a = shapes[aTier];
-  const b = shapes[bTier];
-  if (dx < a.left - b.right || dx > a.right - b.left || dy < a.top - b.bottom || dy > a.bottom - b.top) return null;
-  let contact = null;
-  for (const axes of pairAxes[aTier][bTier]) {
-    let depth = Infinity;
-    let normalX = 0;
-    let normalY = 0;
-    for (const { nx, ny, low, high } of axes) {
-      const projection = dx * nx + dy * ny;
-      const towardLow = projection - low;
-      const towardHigh = high - projection;
-      const overlap = Math.min(towardLow, towardHigh);
-      if (overlap < 0) {
-        depth = -1;
-        break;
-      }
-      if (overlap < depth) {
-        depth = overlap;
-        const sign = towardLow < towardHigh ? -1 : 1;
-        normalX = nx * sign;
-        normalY = ny * sign;
-      }
+function firstSupport(points, nx, ny) {
+  let support = 0;
+  let min = projection(points, 0, nx, ny);
+  for (let i = 1; i < points.length; i++) {
+    const value = projection(points, i, nx, ny);
+    if (value < min) {
+      min = value;
+      support = i;
     }
-    if (depth >= 0 && (!contact || depth > contact.depth)) contact = { nx: normalX, ny: normalY, depth };
+  }
+  return support;
+}
+
+function nextSupport(points, support, nx, ny) {
+  // Both convex outlines wind clockwise, so the support point advances with the face normals.
+  let min = projection(points, support, nx, ny);
+  let next = (support + 1) % points.length;
+  let value = projection(points, next, nx, ny);
+  while (value < min - EPSILON) {
+    support = next;
+    min = value;
+    next = (support + 1) % points.length;
+    value = projection(points, next, nx, ny);
+  }
+  return support;
+}
+
+function scanFaces(a, b, dx, dy) {
+  let depth = Infinity;
+  let face;
+  let bestSupport;
+  let bestProjection;
+  let support = 0;
+  const { points } = b;
+  for (let i = 0; i < a.axes.length; i++) {
+    const edge = a.axes[i];
+    const { nx, ny } = edge;
+    support = i === 0 ? firstSupport(points, nx, ny) : nextSupport(points, support, nx, ny);
+    const min = projection(points, support, nx, ny);
+    const overlap = edge.limit - (min + dx * nx + dy * ny);
+    if (overlap < -EPSILON) return null;
+    if (overlap < depth) {
+      depth = overlap;
+      face = edge;
+      bestSupport = support;
+      bestProjection = min;
+    }
+  }
+  const { nx, ny } = face;
+  const [px, py] = points[bestSupport];
+  const neighbor = [points.at(bestSupport - 1), points[(bestSupport + 1) % points.length]].find(
+    ([x, y]) => Math.abs(x * nx + y * ny - bestProjection) < EPSILON);
+  const x = neighbor ? (px + neighbor[0]) / 2 : px;
+  const y = neighbor ? (py + neighbor[1]) / 2 : py;
+  return { nx, ny, depth: Math.max(0, depth), x: x + dx, y: y + dy };
+}
+
+function overlaps(a, b, dx, dy) {
+  return dx >= a.left - b.right - EPSILON && dx <= a.right - b.left + EPSILON &&
+    dy >= a.top - b.bottom - EPSILON && dy <= a.bottom - b.top + EPSILON;
+}
+
+function collide(a, b, dx, dy) {
+  if (!overlaps(a, b, dx, dy)) return null;
+  let contact = null;
+  for (const first of a.pieces) {
+    for (const second of b.pieces) {
+      if (!overlaps(first, second, dx, dy)) continue;
+      const aFace = scanFaces(first, second, dx, dy);
+      if (!aFace) continue;
+      const bFace = scanFaces(second, first, -dx, -dy);
+      if (!bFace) continue;
+      const face = aFace.depth <= bFace.depth ? aFace : {
+        nx: -bFace.nx, ny: -bFace.ny, depth: bFace.depth, x: bFace.x + dx, y: bFace.y + dy,
+      };
+      if (!contact || face.depth > contact.depth) contact = face;
+    }
   }
   return contact;
 }
 
-function verticalEntry(aTier, bTier, dx, start) {
-  const a = shapes[aTier];
-  const b = shapes[bTier];
+export function fruitContact(aTier, bTier, dx, dy, aAngle = 0, bAngle = 0) {
+  return collide(rotatedGeometry(aTier, aAngle), rotatedGeometry(bTier, bAngle), dx, dy);
+}
+
+function verticalEntry(a, b, dx, start) {
   if (dx < a.left - b.right || dx > a.right - b.left) return Infinity;
   let first = Infinity;
-  for (const axes of pairAxes[aTier][bTier]) {
-    let enter = -Infinity;
-    let exit = Infinity;
-    for (const { nx, ny, low, high } of axes) {
-      const projection = dx * nx;
-      if (Math.abs(ny) < 1e-9) {
-        if (projection <= low || projection >= high) {
-          enter = Infinity;
-          break;
+  for (const firstPiece of a.pieces) {
+    for (const secondPiece of b.pieces) {
+      if (dx < firstPiece.left - secondPiece.right || dx > firstPiece.right - secondPiece.left) continue;
+      let enter = -Infinity;
+      let exit = Infinity;
+      for (const [reference, other, sign] of [[firstPiece, secondPiece, 1], [secondPiece, firstPiece, -1]]) {
+        let point = 0;
+        for (let i = 0; i < reference.axes.length; i++) {
+          const { nx, ny, limit } = reference.axes[i];
+          point = i === 0 ? firstSupport(other.points, nx, ny) : nextSupport(other.points, point, nx, ny);
+          const stop = limit - projection(other.points, point, nx, ny) - nx * dx * sign;
+          const slope = ny * sign;
+          if (slope > EPSILON) exit = Math.min(exit, stop / slope);
+          else if (slope < -EPSILON) enter = Math.max(enter, stop / slope);
+          else if (stop <= EPSILON) enter = Infinity;
+          if (enter >= exit) break;
         }
-        continue;
       }
-      const yLow = (low - projection) / ny;
-      const yHigh = (high - projection) / ny;
-      enter = Math.max(enter, Math.min(yLow, yHigh));
-      exit = Math.min(exit, Math.max(yLow, yHigh));
-      if (enter >= exit) break;
+      if (enter < exit && exit > start) first = Math.min(first, enter);
     }
-    if (enter < exit && exit > start) first = Math.min(first, enter);
   }
   return first;
 }
+
 const OVERFLOW_TICKS = 90;
 const CHAIN_TICKS = 48;
 const DROP_DELAY = 22;
@@ -224,54 +293,103 @@ function clampX(x, tier) {
   return clamp(x, CRATE.left - left, CRATE.right - right);
 }
 
-function confine(body) {
-  const x = clampX(body.x, body.tier);
-  if (body.x !== x) {
-    if ((body.x - x) * body.vx > 0) body.vx *= -.22;
-    body.x = x;
-  }
-  const floor = CRATE.floor - shapes[body.tier].bottom;
+const inverseMass = body => 1 / body.radius ** 2;
+const inverseInertia = body => 2.65 / body.radius ** 4;
+const cross2 = (x, y, nx, ny) => x * ny - y * nx;
+
+function applyImpulse(body, x, y, ix, iy) {
+  body.vx += ix * inverseMass(body);
+  body.vy += iy * inverseMass(body);
+  body.spin = clamp(body.spin + cross2(x, y, ix, iy) * inverseInertia(body), -.26, .26);
+}
+
+function wallImpulse(body, [x, y], nx, ny) {
+  const vx = body.vx - body.spin * y;
+  const vy = body.vy + body.spin * x;
+  const closing = vx * nx + vy * ny;
+  if (closing >= 0) return;
+  const arm = cross2(x, y, nx, ny);
+  const mass = inverseMass(body);
+  const inertia = inverseInertia(body);
+  const bounce = closing < -1.6 ? .2 : 0;
+  const normal = -closing * (1 + bounce) / (mass + arm ** 2 * inertia);
+  const tx = -ny;
+  const ty = nx;
+  const tangentArm = cross2(x, y, tx, ty);
+  const tangentSpeed = vx * tx + vy * ty + normal * arm * inertia * tangentArm;
+  const tangent = clamp(-tangentSpeed / (mass + tangentArm ** 2 * inertia), -.32 * normal, .32 * normal);
+  applyImpulse(body, x, y, nx * normal + tx * tangent, ny * normal + ty * tangent);
+}
+
+function confine(body, shape) {
+  const x = clamp(body.x, CRATE.left - shape.left, CRATE.right - shape.right);
+  if (body.x <= CRATE.left - shape.left) wallImpulse(body, shape.leftPoint, 1, 0);
+  if (body.x >= CRATE.right - shape.right) wallImpulse(body, shape.rightPoint, -1, 0);
+  body.x = x;
+  const floor = CRATE.floor - shape.bottom;
   if (body.y < floor) return;
   body.y = floor;
   body.landed = true;
-  if (body.vy > 0) {
-    body.vx *= .97;
-    body.vy = body.vy > 1.6 ? -.2 * body.vy : 0;
-  }
+  wallImpulse(body, shape.bottomPoint, 0, -1);
 }
 
-function separate(a, b, nx, ny, overlap) {
-  // Fruit mass grows with its area. A small fruit moves farther than a large one.
-  const inverseA = 1 / a.radius ** 2;
-  const inverseB = 1 / b.radius ** 2;
-  const total = inverseA + inverseB;
-  const correction = Math.max(0, overlap - .02) * .83 / total;
-  a.x -= nx * correction * inverseA;
-  a.y -= ny * correction * inverseA;
-  b.x += nx * correction * inverseB;
-  b.y += ny * correction * inverseB;
+function separate(a, b, { nx, ny, depth, x, y }) {
+  const ax = x;
+  const ay = y;
+  const bx = x + a.x - b.x;
+  const by = y + a.y - b.y;
+  const massA = inverseMass(a);
+  const massB = inverseMass(b);
+  const total = massA + massB;
+  const correction = Math.max(0, depth - .02) * .83 / total;
+  a.x -= nx * correction * massA;
+  a.y -= ny * correction * massA;
+  b.x += nx * correction * massB;
+  b.y += ny * correction * massB;
 
-  const dvx = b.vx - a.vx;
-  const dvy = b.vy - a.vy;
-  const closing = dvx * nx + dvy * ny;
+  const avx = a.vx - a.spin * ay;
+  const avy = a.vy + a.spin * ax;
+  const bvx = b.vx - b.spin * by;
+  const bvy = b.vy + b.spin * bx;
+  const speedA = avx * nx + avy * ny;
+  const speedB = bvx * nx + bvy * ny;
+  const closing = speedB - speedA;
   if (closing >= 0) return;
-  const momentumA = (a.vx * nx + a.vy * ny) / inverseA;
-  const momentumB = -(b.vx * nx + b.vy * ny) / inverseB;
-  const impactRadius = momentumA >= momentumB ? a.radius : b.radius;
+  const impactRadius = speedA / massA >= -speedB / massB ? a.radius : b.radius;
   const bounce = closing < -1.4 ? .06 + .0055 * impactRadius : 0;
-  const normal = -closing * (1 + bounce) / total;
-  const tangent = clamp((dvx * ny - dvy * nx) / total, -.13 * normal, .13 * normal);
-  const ix = nx * normal - ny * tangent;
-  const iy = ny * normal + nx * tangent;
-  a.vx -= ix * inverseA;
-  a.vy -= iy * inverseA;
-  b.vx += ix * inverseB;
-  b.vy += iy * inverseB;
+  const armA = cross2(ax, ay, nx, ny);
+  const armB = cross2(bx, by, nx, ny);
+  const inertiaA = inverseInertia(a);
+  const inertiaB = inverseInertia(b);
+  const normal = -closing * (1 + bounce) / (total + armA ** 2 * inertiaA + armB ** 2 * inertiaB);
+  const tx = -ny;
+  const ty = nx;
+  const tangentA = cross2(ax, ay, tx, ty);
+  const tangentB = cross2(bx, by, tx, ty);
+  const tangentSpeed = (bvx - avx) * tx + (bvy - avy) * ty +
+    normal * (armA * inertiaA * tangentA + armB * inertiaB * tangentB);
+  const tangent = clamp(-tangentSpeed / (total + tangentA ** 2 * inertiaA + tangentB ** 2 * inertiaB),
+    -.24 * normal, .24 * normal);
+  const ix = nx * normal + tx * tangent;
+  const iy = ny * normal + ty * tangent;
+  applyImpulse(a, ax, ay, -ix, -iy);
+  applyImpulse(b, bx, by, ix, iy);
 }
 
-export function createCart(api) {
-  const bodies = [];
+export function createCart(api, startingPile = []) {
+  const bodies = startingPile.map(({ tier, x, y, vx = 0, vy = 0, angle = 0, spin = 0 }) =>
+    ({ tier, x, y, vx, vy, angle, spin, radius: FRUIT[tier].radius, landed: false, born: -12 }));
   const bursts = [];
+  const geometries = new WeakMap();
+
+  function bodyGeometry(body) {
+    if (body.angle === 0) return shapes[body.tier];
+    const cached = geometries.get(body);
+    if (cached?.angle === body.angle) return cached.shape;
+    const shape = rotatedGeometry(body.tier, body.angle);
+    geometries.set(body, { angle: body.angle, shape });
+    return shape;
+  }
   let random = (api.options.seed ?? 1) >>> 0;
   let bag = [];
   let tick = 0;
@@ -287,6 +405,7 @@ export function createCart(api) {
   let danger = 0;
   let lost = false;
   let cue = { id: 0 };
+  let harvestCount = 0;
   let status = 'Press and drag to aim, then release to drop.';
 
   function nextFruit() {
@@ -317,7 +436,8 @@ export function createCart(api) {
       status = 'That spot is blocked. Try another part of the crate.';
       return;
     }
-    bodies.push({ tier: current, radius, x, y: DROP_Y, vx: dropped % 2 ? .12 : -.12, vy: 0, landed: false, born: tick - 12 });
+    bodies.push({ tier: current, radius, x, y: DROP_Y, vx: dropped % 2 ? .12 : -.12, vy: 0,
+      angle: 0, spin: 0, landed: false, born: tick - 12 });
     largest = Math.max(largest ?? current, current);
     dropped++;
     cooldown = DROP_DELAY;
@@ -344,16 +464,19 @@ export function createCart(api) {
     largest = Math.max(largest ?? tier, tier);
     bursts.push({ x, y, tier, radius, points, chain, start: tick, cleared });
     bodies.splice(j, 1);
-    if (cleared) bodies.splice(i, 1);
-    else {
+    if (cleared) {
+      bodies.splice(i, 1);
+      harvestCount++;
+    } else {
       const merged = {
-        tier, radius, x: clampX(x, tier), y: Math.min(y, CRATE.floor - shapes[tier].bottom),
-        vx: (a.vx + b.vx) * .32, vy: (a.vy + b.vy) * .28 - .55, landed: true, born: tick,
+        tier, radius, x, y, vx: (a.vx + b.vx) * .32, vy: (a.vy + b.vy) * .28 - .55,
+        angle: a.angle, spin: (a.spin + b.spin) * .35, landed: true, born: tick,
       };
+      confine(merged, bodyGeometry(merged));
       bodies[i] = merged;
       pushNearbyFruit(merged);
     }
-    status = (cleared ? 'Watermelon harvest!' : name + ' merged!') + ' Plus ' + points + ' points.';
+    status = (cleared ? 'JUICY!!' : name + ' merged!') + ' Plus ' + points + ' points.';
     playCue(cleared ? 'harvest' : 'merge', tier);
   }
 
@@ -361,13 +484,15 @@ export function createCart(api) {
     const mass = merged.radius ** 2;
     for (const body of bodies) {
       if (body === merged) continue;
-      const contact = fruitContact(merged.tier, body.tier, body.x - merged.x, body.y - merged.y);
+      const dx = body.x - merged.x;
+      const dy = body.y - merged.y;
+      const contact = collide(bodyGeometry(merged), bodyGeometry(body), dx, dy);
       if (!contact || contact.depth === 0) continue;
       const massShare = mass / (mass + body.radius ** 2);
       const depth = Math.min(1, contact.depth / (merged.radius * .4));
       const impulse = (1.1 + merged.radius * .07) * massShare * (.55 + .45 * depth);
-      body.vx += contact.nx * impulse;
-      body.vy += contact.ny * impulse;
+      const scaled = impulse / inverseMass(body);
+      applyImpulse(body, contact.x - dx, contact.y - dy, contact.nx * scaled, contact.ny * scaled);
     }
   }
 
@@ -376,14 +501,14 @@ export function createCart(api) {
       const a = bodies[i];
       for (let j = i + 1; j < bodies.length; j++) {
         const b = bodies[j];
-        const contact = fruitContact(a.tier, b.tier, b.x - a.x, b.y - a.y);
+        const contact = collide(bodyGeometry(a), bodyGeometry(b), b.x - a.x, b.y - a.y);
         if (!contact) continue;
         if (a.tier === b.tier) {
           merge(i, j);
           break;
         }
         a.landed = b.landed = true;
-        separate(a, b, contact.nx, contact.ny, contact.depth);
+        separate(a, b, contact);
       }
     }
   }
@@ -394,19 +519,21 @@ export function createCart(api) {
         body.vy = Math.min(12 + body.radius * .055, body.vy + .5 / SUBSTEPS);
         body.x += body.vx / SUBSTEPS;
         body.y += body.vy / SUBSTEPS;
+        body.spin = Math.abs(body.spin) < .00035 ? 0 : body.spin * .985;
+        body.angle = (body.angle + body.spin / SUBSTEPS) % (2 * Math.PI);
       }
       for (let pass = 0; pass < SOLVER_PASSES; pass++) {
-        for (const body of bodies) confine(body);
+        for (const body of bodies) confine(body, bodyGeometry(body));
         contacts();
       }
-      for (const body of bodies) confine(body);
+      for (const body of bodies) confine(body, bodyGeometry(body));
     }
   }
 
   function guideEnd(x, tier) {
     let y = CRATE.floor - shapes[tier].bottom;
     for (const body of bodies) {
-      const entry = verticalEntry(body.tier, tier, x - body.x, DROP_Y - body.y);
+      const entry = verticalEntry(bodyGeometry(body), shapes[tier], x - body.x, DROP_Y - body.y);
       y = Math.min(y, body.y + entry);
     }
     return y;
@@ -439,7 +566,7 @@ export function createCart(api) {
     handleInput();
     physics();
 
-    const overflowing = bodies.some(body => body.landed && body.y + shapes[body.tier].top < CRATE.line - 1);
+    const overflowing = bodies.some(body => body.landed && body.y + bodyGeometry(body).top < CRATE.line - 1);
     if (overflowing && !danger) status = 'Crate almost full. Merge fruit to clear the fill line!';
     danger = overflowing ? danger + 1 : 0;
     if (danger >= OVERFLOW_TICKS) {
@@ -454,10 +581,10 @@ export function createCart(api) {
   function draw(alpha) {
     const scale = api.screen().w / WIDTH;
     const rect = (x, y, w, h, color) => api.rect(x * scale, y * scale, w * scale, h * scale, color);
-    const fruit = (tier, x, y, radius, opacity = 1) => api.spr(fruitPath(tier), x * scale, y * scale, {
+    const fruit = (tier, x, y, radius, opacity = 1, angle = 0) => api.spr(fruitPath(tier), x * scale, y * scale, {
       // Cover the subpixel seam where the antialiased edges of two fruit touch.
       scale: (radius + FRUIT_EDGE_BLEED) * 2 * scale / FRUIT[tier].pixels,
-      anchor: [.5, .5], alpha: opacity,
+      anchor: [.5, .5], alpha: opacity, rot: angle,
     });
     api.spr('assets/crate.webp', 0, 0, { sx: scale / 2, sy: scale / 2 });
 
@@ -485,7 +612,7 @@ export function createCart(api) {
     for (const body of bodies) {
       const age = tick - body.born + alpha;
       const size = age < 12 ? 1 + .13 * Math.sin(age / 12 * Math.PI) : 1;
-      fruit(body.tier, body.x, body.y, body.radius * size);
+      fruit(body.tier, body.x, body.y, body.radius * size, 1, body.angle);
     }
     for (const burst of bursts) {
       const age = tick - burst.start + alpha;
@@ -507,7 +634,7 @@ export function createCart(api) {
     return {
       tick, dropped, aimX, pointer, score, largest, chain, lastMerge, cooldown, danger, lost,
       current, next, random, openingBag, bag: [...bag], bodies: bodies.map(body => ({ ...body })),
-      bursts: bursts.map(burst => ({ ...burst })), cue, status, readout: { score },
+      bursts: bursts.map(burst => ({ ...burst })), cue, harvestCount, status, readout: { score },
     };
   }
 

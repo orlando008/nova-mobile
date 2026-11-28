@@ -1,4 +1,4 @@
-import { createRuntime } from './runtime.mjs';
+import { createRuntime } from './runtime.mjs?v=2';
 
 let session;
 let createCart;
