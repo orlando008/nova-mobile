@@ -1,6 +1,6 @@
 # Orchard Drop
 
-Orchard Drop is a portrait score-attack puzzle set in a wooden harvest crate. Aim a fruit along the drop guide, release it, and let it roll into a matching fruit.
+Orchard Drop is a portrait score-attack puzzle set in a wooden harvest crate against a sunny orchard backdrop. Each fruit has a distinct face and silhouette. Aim a fruit along the drop guide, release it, and let it roll into a matching fruit.
 
 ## Controls
 

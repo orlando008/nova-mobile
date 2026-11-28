@@ -246,19 +246,25 @@ export function createCart(api) {
     });
     api.spr('assets/crate.webp', 0, 0, { sx: scale / 2, sy: scale / 2 });
 
-    const limitColor = danger ? [1, .43, .31, .9] : [1, .79, .49, .34];
-    for (let x = CRATE.left + 7; x < CRATE.right - 5; x += 10) rect(x, CRATE.line, 4, 1, limitColor);
+    const limitColor = danger ? [.67, .21, .15, 1] : [.49, .32, .19, .8];
+    for (let x = CRATE.left + 7; x < CRATE.right - 5; x += 10) {
+      rect(x, CRATE.line - 1, 6, 3, [1, .97, .83, .76]);
+      rect(x, CRATE.line, 6, 1.5, limitColor);
+    }
     if (danger) {
       const fill = Math.min(1, danger / OVERFLOW_TICKS);
-      rect(CRATE.left, CRATE.line - 2, (CRATE.right - CRATE.left) * fill, 2, [1, .39, .28, .9]);
+      rect(CRATE.left, CRATE.line - 3, (CRATE.right - CRATE.left) * fill, 3, limitColor);
     }
 
     if (!lost && !cooldown) {
       const x = aim();
       const radius = FRUIT[current].radius;
       const end = guideEnd(x, radius);
-      const guideColor = [1, .88, .68, pointer === null ? .26 : .6];
-      for (let y = DROP_Y + radius + 7; y < end; y += 10) rect(x - .6, y, 1.2, 4, guideColor);
+      const guideColor = [.16, .37, .27, pointer === null ? .58 : .9];
+      for (let y = DROP_Y + radius + 7; y < end; y += 10) {
+        rect(x - 1.2, y - .6, 2.4, 5.2, [1, .98, .88, .63]);
+        rect(x - .65, y, 1.3, 4, guideColor);
+      }
       fruit(current, x, DROP_Y, radius, end < DROP_Y ? .35 : 1);
     }
     for (const body of bodies) {

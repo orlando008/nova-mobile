@@ -2,7 +2,7 @@
   color-scheme: light;
   --ink: #223a2d;
   --muted: #56644c;
-  --paper: #f5eddb;
+  --paper: #f3efda;
   --cream: #fffaee;
   --accent: #f3ad62;
   --line: #ded1b7;
@@ -17,7 +17,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(ellipse at 50% 10%, #fff9ec, var(--paper) 75%);
+  background: radial-gradient(ellipse at 50% 6%, #fffcf0, var(--paper) 67%, #edeecd);
 }
 
 main {
@@ -116,7 +116,7 @@ button:disabled { opacity: .56; cursor: default; }
   position: relative;
   border-radius: 14px;
   overflow: hidden;
-  background: #1b332a;
+  background: #c6dfde;
   box-shadow: 0 4px 14px #52432b32;
 }
 canvas {
