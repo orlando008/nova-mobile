@@ -3,16 +3,16 @@ export const HEIGHT = 460;
 export const CRATE = { left: 19, right: 341, floor: 441, line: 95 };
 export const DROP_Y = 44;
 export const FRUIT = [
-  { name: 'Blueberry', radius: 11, color: '#899ad6' },
-  { name: 'Cherry', radius: 15, color: '#f66673' },
-  { name: 'Apricot', radius: 20, color: '#ffab63' },
-  { name: 'Lime', radius: 25, color: '#b5c654' },
-  { name: 'Fig', radius: 30, color: '#b377ad' },
-  { name: 'Orange', radius: 36, color: '#ff8d33' },
-  { name: 'Apple', radius: 43, color: '#ed514b' },
-  { name: 'Pomegranate', radius: 50, color: '#cb4f6c' },
-  { name: 'Golden pear', radius: 58, color: '#f5cb59' },
-  { name: 'Watermelon', radius: 68, color: '#73a25b' },
+  { name: 'Blueberry', radius: 11, pixels: 192 },
+  { name: 'Cherry', radius: 15, pixels: 192 },
+  { name: 'Peach', radius: 20, pixels: 192 },
+  { name: 'Lime', radius: 25, pixels: 288 },
+  { name: 'Fig', radius: 30, pixels: 288 },
+  { name: 'Orange', radius: 36, pixels: 288 },
+  { name: 'Apple', radius: 43, pixels: 512 },
+  { name: 'Pomegranate', radius: 50, pixels: 512 },
+  { name: 'Golden pear', radius: 58, pixels: 512 },
+  { name: 'Watermelon', radius: 68, pixels: 576 },
 ];
 export const fruitPath = tier => 'assets/fruit-' + tier + '.webp';
 const OVERFLOW_TICKS = 90;
@@ -21,6 +21,7 @@ const DROP_DELAY = 22;
 const SUBSTEPS = 3;
 const SOLVER_PASSES = 5;
 const MAX_TIER = FRUIT.length - 1;
+const FRUIT_EDGE_BLEED = .35;
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
 function clampX(x, radius) {
@@ -58,7 +59,11 @@ function separate(a, b, nx, ny, overlap) {
   const dvy = b.vy - a.vy;
   const closing = dvx * nx + dvy * ny;
   if (closing >= 0) return;
-  const normal = -closing * (closing < -1.4 ? 1.12 : 1) / total;
+  const momentumA = (a.vx * nx + a.vy * ny) / inverseA;
+  const momentumB = -(b.vx * nx + b.vy * ny) / inverseB;
+  const impactRadius = momentumA >= momentumB ? a.radius : b.radius;
+  const bounce = closing < -1.4 ? .06 + .0055 * impactRadius : 0;
+  const normal = -closing * (1 + bounce) / total;
   const tangent = clamp((dvx * ny - dvy * nx) / total, -.13 * normal, .13 * normal);
   const ix = nx * normal - ny * tangent;
   const iy = ny * normal + nx * tangent;
@@ -143,13 +148,32 @@ export function createCart(api) {
     bodies.splice(j, 1);
     if (cleared) bodies.splice(i, 1);
     else {
-      bodies[i] = {
+      const merged = {
         tier, radius, x: clampX(x, radius), y: Math.min(y, CRATE.floor - radius),
         vx: (a.vx + b.vx) * .32, vy: (a.vy + b.vy) * .28 - .55, landed: true, born: tick,
       };
+      bodies[i] = merged;
+      pushNearbyFruit(merged);
     }
     status = (cleared ? 'Watermelon harvest!' : name + ' merged!') + ' Plus ' + points + ' points.';
     playCue(cleared ? 'harvest' : 'merge', tier);
+  }
+
+  function pushNearbyFruit(merged) {
+    const mass = merged.radius ** 2;
+    for (const body of bodies) {
+      if (body === merged) continue;
+      const dx = body.x - merged.x;
+      const dy = body.y - merged.y;
+      const distance = Math.hypot(dx, dy);
+      const overlap = merged.radius + body.radius - distance;
+      if (overlap <= 0) continue;
+      const massShare = mass / (mass + body.radius ** 2);
+      const depth = Math.min(1, overlap / (merged.radius * .4));
+      const impulse = (1.1 + merged.radius * .07) * massShare * (.55 + .45 * depth);
+      body.vx += (distance ? dx / distance : 1) * impulse;
+      body.vy += (distance ? dy / distance : 0) * impulse;
+    }
   }
 
   function contacts() {
@@ -176,7 +200,7 @@ export function createCart(api) {
   function physics() {
     for (let step = 0; step < SUBSTEPS; step++) {
       for (const body of bodies) {
-        body.vy = Math.min(13, body.vy + .5 / SUBSTEPS);
+        body.vy = Math.min(12 + body.radius * .055, body.vy + .5 / SUBSTEPS);
         body.x += body.vx / SUBSTEPS;
         body.y += body.vy / SUBSTEPS;
       }
@@ -242,7 +266,9 @@ export function createCart(api) {
     const scale = api.screen().w / WIDTH;
     const rect = (x, y, w, h, color) => api.rect(x * scale, y * scale, w * scale, h * scale, color);
     const fruit = (tier, x, y, radius, opacity = 1) => api.spr(fruitPath(tier), x * scale, y * scale, {
-      scale: radius * 2 * scale / 96, anchor: [.5, .5], alpha: opacity,
+      // Cover the subpixel seam where the antialiased edges of two fruit touch.
+      scale: (radius + FRUIT_EDGE_BLEED) * 2 * scale / FRUIT[tier].pixels,
+      anchor: [.5, .5], alpha: opacity,
     });
     api.spr('assets/crate.webp', 0, 0, { sx: scale / 2, sy: scale / 2 });
 

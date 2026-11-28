@@ -8,8 +8,9 @@ Press and move horizontally anywhere in the crate to aim. Release to drop. A can
 
 ## Rules
 
-- Identical touching fruit merge automatically. The order is blueberry, cherry, apricot, lime, fig, orange, apple, pomegranate, golden pear, and watermelon.
+- Identical touching fruit merge automatically. The order is blueberry, cherry, peach, lime, fig, orange, apple, pomegranate, golden pear, and watermelon.
 - Drops use a shuffled bag of two each of the first four fruits. A brief interval separates drops.
+- Heavy fruit transfer more momentum on impact. A growing fruit can push neighbors outward when it merges.
 - A merge into the second fruit is worth 3 points. Later tiers earn successively larger values through 55 points for a watermelon. Two watermelons clear both fruit and earn 100 points before any multiplier.
 - Merges within 48 ticks of each other, with no new drop between them, increase the multiplier up to four times the base value.
 - A fruit that has made contact can start an overflow warning. If fruit stays above the dashed fill line for 90 ticks, the run ends. Merge or settle the pile below the line before the meter fills to continue.
