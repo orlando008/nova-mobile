@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5eddb">
+  <meta name="description" content="Drop fruit into a harvest crate, chain matching pairs, and make room for a watermelon.">
+  <meta property="og:title" content="Orchard Drop">
+  <meta property="og:description" content="Drop fruit into a harvest crate, chain matching pairs, and make room for a watermelon.">
+  <meta property="og:image" content="../../carts/orchard-drop/assets/poster.png">
+  <title>Orchard Drop</title>
+  <link rel="icon" href="../../carts/orchard-drop/assets/icon.png" sizes="512x512" type="image/png">
+  <link rel="stylesheet" href="./orchard.css">
+</head>
+<body data-cart="orchard-drop">
+  <main>
+    <header class="topbar">
+      <a href="../../">← Library</a>
+      <h1>Orchard Drop</h1>
+      <button id="menu" type="button" aria-label="Pause" hidden>Ⅱ</button>
+    </header>
+
+    <section id="intro" aria-label="How to play">
+      <img class="poster" src="../../carts/orchard-drop/assets/poster.png" width="1200" height="630" alt="Illustrated fruit in a wooden harvest crate">
+      <button id="play" class="primary" type="button">Play Orchard Drop</button>
+      <ol class="rules">
+        <li>Press and drag to aim. Release to drop.</li>
+        <li>Touching pairs merge into bigger fruit. Chain merges for bonus points.</li>
+        <li>Keep the pile below the dashed line. Merge two watermelons to clear them.</li>
+      </ol>
+    </section>
+
+    <section id="board" aria-label="Orchard Drop game" hidden>
+      <div class="scorecard">
+        <div><span>Score</span><strong data-cart-field="score">0</strong></div>
+        <div><span>Best</span><strong id="best">0</strong></div>
+        <div class="next"><span>Next</span><img id="next-fruit" alt="" width="36" height="36"></div>
+      </div>
+      <div class="crate">
+        <canvas id="surface" data-cart-events aria-label="Harvest crate" aria-describedby="hint cart-status"></canvas>
+        <div id="merge-pop" aria-hidden="true" hidden></div>
+      </div>
+      <p id="hint">Press and drag to aim. Release to drop.</p>
+      <p id="cart-status" class="sr-only" role="status"></p>
+      <div class="ladder" aria-label="Fruit order">
+        <ol id="fruit-ladder"></ol>
+      </div>
+    </section>
+    <p id="feedback" role="status"></p>
+  </main>
+
+  <dialog id="pause-menu" aria-labelledby="pause-title">
+    <h2 id="pause-title">Paused</h2>
+    <button id="resume" class="primary" type="button">Resume</button>
+    <label class="sound">Sound effects <input id="sound" type="checkbox" checked></label>
+    <button data-new-run type="button">New game</button>
+    <details id="controls" hidden>
+      <summary>Replay tools</summary>
+      <div class="replay">
+        <button id="record" type="button" disabled>Record</button>
+        <button id="replay" type="button" disabled>Replay</button>
+        <button id="live" type="button" data-reset disabled>Live play</button>
+      </div>
+    </details>
+  </dialog>
+
+  <dialog id="result" aria-labelledby="result-title">
+    <h2 id="result-title">Crate full</h2>
+    <p id="result-detail"></p>
+    <button class="primary" data-new-run type="button">Play again</button>
+    <a class="library-link" href="../../">Back to Library</a>
+  </dialog>
+  <div id="safe-area" aria-hidden="true"></div>
+  <script type="module" src="./orchard.mjs"></script>
+</body>
+</html>

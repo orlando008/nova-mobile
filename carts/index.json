@@ -1,6 +1,7 @@
 {
   "format": 1,
   "carts": [
+    { "name": "orchard-drop", "path": "carts/orchard-drop/" },
     { "name": "global-citizen", "path": "carts/global-citizen/" },
     { "name": "music-tutor", "path": "carts/music-tutor/" },
     { "name": "axolotl-attack", "path": "carts/axolotl-attack/" },
