@@ -1,4 +1,4 @@
-import { DRAW_STRIDE, PICTURE_INDEX } from '../draw-list.mjs';
+import { DRAW_STRIDE, PICTURE_INDEX } from '../draw-list.mjs?v=2';
 
 export function createCanvasRenderer(canvas, pictures = []) {
   const ctx = canvas.getContext('2d', { alpha: false });
@@ -13,7 +13,16 @@ export function createCanvasRenderer(canvas, pictures = []) {
       const image = list[i + PICTURE_INDEX];
       if (image) {
         ctx.globalAlpha = alpha;
-        ctx.drawImage(pictures[image - 1], x, y, width, height);
+        const angle = list[i + PICTURE_INDEX + 1];
+        if (angle) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(angle);
+          ctx.drawImage(pictures[image - 1], 0, 0, width, height);
+          ctx.restore();
+        } else {
+          ctx.drawImage(pictures[image - 1], x, y, width, height);
+        }
         ctx.globalAlpha = 1;
       } else {
         ctx.fillStyle = 'rgba(' + [red * 255, green * 255, blue * 255, alpha].join(',') + ')';

@@ -20,11 +20,11 @@ function layer({ rect, spr }) {
 test('the runtime packs ordered rectangles and sprites with their placement and opacity', () => {
   const frame = makeRuntime(layer).draw(0);
   assert.deepEqual([...frame], [
-    0, 0, 64, 48, 1, 0, 0, 1, 0,
-    0, 0, 3, 3, 1, 0, 0, 1, 0,
-    0, 4, 32, 8, 1, 1, 1, 0.5, 1,
-    20, 20, 16, 8, 1, 1, 1, 1, 1,
-    4, 4, 2, 2, 0, 0, 1, 0.5, 0,
+    0, 0, 64, 48, 1, 0, 0, 1, 0, 0,
+    0, 0, 3, 3, 1, 0, 0, 1, 0, 0,
+    0, 4, 32, 8, 1, 1, 1, 0.5, 1, 0,
+    20, 20, 16, 8, 1, 1, 1, 1, 1, 0,
+    4, 4, 2, 2, 0, 0, 1, 0.5, 0, 0,
   ]);
   assert.throws(() => makeRuntime(({ spr }) => spr('assets/missing.png', 0, 0)).draw(0),
     /Picture is not loaded: assets\/missing.png/);
@@ -50,6 +50,23 @@ test('Canvas 2D draws the decoded image in order and restores opacity for solid 
   ]);
 });
 
+test('a rotated sprite turns around its chosen anchor in Canvas 2D', () => {
+  const commands = [];
+  const context = {
+    setTransform() {},
+    fillRect() {},
+    save() { commands.push('save'); },
+    translate(x, y) { commands.push([x, y]); },
+    rotate(angle) { commands.push(angle); },
+    drawImage(image, x, y, w, h) { commands.push([image, x, y, w, h]); },
+    restore() { commands.push('restore'); },
+  };
+  const frame = makeRuntime(({ spr }) => spr(picture.path, 20, 16, { anchor: [.5, .5], rot: Math.PI / 2 })).draw(0);
+  const renderer = createCanvasRenderer({ width: 64, height: 48, getContext: () => context }, [bitmap]);
+  renderer.draw(frame, screen);
+  assert.deepEqual(commands, ['save', [24, 8], Math.fround(Math.PI / 2), [bitmap, 0, 0, 16, 8], 'restore']);
+});
+
 test('WebGL uploads the picture once and batches only adjacent uses of the same texture', () => {
   let texture = 1;
   let boundTexture;
@@ -66,9 +83,9 @@ test('WebGL uploads the picture once and batches only adjacent uses of the same 
     texImage2D(...args) { textures.push(args.at(-1)); },
     bufferData() { uploads += 1; },
     vertexAttribPointer(attribute, _size, _type, _normalized, stride, byteOffset) {
-      assert.equal(stride, 36);
+      assert.equal(stride, 40);
       if (attribute === 0) offset = byteOffset;
-      else assert.equal(byteOffset, offset + 16);
+      else assert.equal(byteOffset, offset + (attribute === 1 ? 16 : 36));
     },
     drawArraysInstanced(_mode, _first, _vertices, count) { batches.push([boundTexture, offset, count]); },
   }, { get: (target, key) => target[key] ?? (() => {}) });
@@ -76,5 +93,5 @@ test('WebGL uploads the picture once and batches only adjacent uses of the same 
   renderer.draw(makeRuntime(layer).draw(0), screen);
   assert.equal(uploads, 1);
   assert.deepEqual(textures, [new Uint8Array([255, 255, 255, 255]), bitmap]);
-  assert.deepEqual(batches, [[1, 0, 2], [2, 72, 2], [1, 144, 1]]);
+  assert.deepEqual(batches, [[1, 0, 2], [2, 80, 2], [1, 160, 1]]);
 });

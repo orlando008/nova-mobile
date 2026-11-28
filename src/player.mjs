@@ -1,8 +1,8 @@
 import { loadCart } from './cart.mjs';
 import { bindPointers, measureScreen } from './input/pointers.mjs';
-import { createClock } from './runtime.mjs';
-import { createRenderer } from './webgl/rects.mjs';
-import { createCanvasRenderer } from './canvas/rects.mjs';
+import { createClock } from './runtime.mjs?v=2';
+import { createRenderer } from './webgl/rects.mjs?v=2';
+import { createCanvasRenderer } from './canvas/rects.mjs?v=2';
 import { decodePictures } from './pictures.mjs';
 
 const byId = id => document.getElementById(id);
@@ -204,7 +204,7 @@ byId('play').addEventListener('click', async () => {
     renderer = createRenderer(canvas, bitmaps) ?? createCanvasRenderer(canvas, bitmaps);
     screen = measureScreen(canvas, safeArea);
     pointers = bindPointers(inputSurface, () => screen);
-    worker = new Worker(new URL('./worker.mjs', import.meta.url), { type: 'module' });
+    worker = new Worker(new URL('./worker.mjs?v=2', import.meta.url), { type: 'module' });
     worker.addEventListener('message', onMessage);
     worker.addEventListener('error', event => fail(event.message));
     new ResizeObserver(refresh).observe(canvas);

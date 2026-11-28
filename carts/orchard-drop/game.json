@@ -1,0 +1,100 @@
+{
+  "format": 1,
+  "name": "orchard-drop",
+  "title": "Orchard Drop",
+  "version": "0.1.0",
+  "console": "0.1",
+  "description": "Drop fruit into a harvest crate, chain matching pairs, and make room for a watermelon.",
+  "shelf": "Merge",
+  "orientations": [
+    "portrait"
+  ],
+  "poster": "assets/poster.png",
+  "icon": "assets/icon.png",
+  "assets": [
+    {
+      "path": "assets/crate.webp",
+      "bytes": 60386,
+      "sha256": "12942b076a250d2262524c3aee02ec9728d72798f9e1c8580dd313b2c21fbb3a"
+    },
+    {
+      "path": "assets/fruit-0.webp",
+      "bytes": 10850,
+      "sha256": "0dbade3e8f034cd75aa755f4620ced3ba4d09bc2f54f8e0652fdfc3f4fe1703a"
+    },
+    {
+      "path": "assets/fruit-1.webp",
+      "bytes": 9004,
+      "sha256": "0f7bb3d5f9d8a429b38d3e006202d3d509f3a584fcf49111a74d0a17b594c245"
+    },
+    {
+      "path": "assets/fruit-2.webp",
+      "bytes": 10060,
+      "sha256": "a041a12b8c765a6e57db221d035057a389c71cd6626a8c2bbe6a8c41a7fd1d00"
+    },
+    {
+      "path": "assets/fruit-3.webp",
+      "bytes": 15728,
+      "sha256": "2e57f19c4330ddd0445a08e2c43f4af1ad9ab623169affae5ee9a05d796b0f5e"
+    },
+    {
+      "path": "assets/fruit-4.webp",
+      "bytes": 15424,
+      "sha256": "8ac53faa743abeeeb0c86c762cde854841f2e5cb08791257d469582cae151ca2"
+    },
+    {
+      "path": "assets/fruit-5.webp",
+      "bytes": 20392,
+      "sha256": "afb7a6d361e3abdbe1d850f187cbe9e94e27cb32902ffdb8cc9283d11d3bd293"
+    },
+    {
+      "path": "assets/fruit-6.webp",
+      "bytes": 17068,
+      "sha256": "f469273f17deb0455d38d0922e6c3035e8aad0e7daab096beb79b0fa28816ee3"
+    },
+    {
+      "path": "assets/fruit-7.webp",
+      "bytes": 30926,
+      "sha256": "9dd82069187eb179967794a1d3e9513ec9a371bd4b79c6be2b35b4ff808b04c6"
+    },
+    {
+      "path": "assets/fruit-8.webp",
+      "bytes": 26556,
+      "sha256": "b3a30f4486b672ac44f3c33cac235321c340b704afa7ae4a20410ff040169fae"
+    },
+    {
+      "path": "assets/fruit-9.webp",
+      "bytes": 37688,
+      "sha256": "9e54c32c020890035833d417580e4dd19a206de8c5e17c2408a3d235d3a8d337"
+    },
+    {
+      "path": "assets/fruit-10.webp",
+      "bytes": 29474,
+      "sha256": "2361b12d95778247f3fc5069ee8860066b3d3b34dbe364a3059ed8bbcb8eaddc"
+    },
+    {
+      "path": "assets/fruit-11.webp",
+      "bytes": 44488,
+      "sha256": "0bd8a58506babb51fa39052e76615e0f094f32abdbc2dde6c426e07dbb27f773"
+    },
+    {
+      "path": "assets/icon.png",
+      "lazy": true,
+      "bytes": 89469,
+      "sha256": "8b59d0fb640494a02d773cec3db977d125c4b01b77e4cbdcef20c7a269264c71"
+    },
+    {
+      "path": "assets/poster.png",
+      "lazy": true,
+      "bytes": 137554,
+      "sha256": "3f9a862d7806c5c9c60c856e64364639f8e60a0b5a94c4267a6cce01cf826028"
+    },
+    {
+      "path": "assets/juicy.wav",
+      "lazy": true,
+      "bytes": 30798,
+      "sha256": "578fc791f5dbd34e244738faedbf48273cd9e3c4fb1b52ece297990a0aa155a7"
+    }
+  ],
+  "contentVersion": "546177ee6edc3a806ac507e29f5e6cb69c770990f48d83d23df8d82208040dfc"
+}
