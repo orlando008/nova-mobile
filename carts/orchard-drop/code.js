@@ -7,14 +7,209 @@ export const FRUIT = [
   { name: 'Cherry', radius: 15, pixels: 192 },
   { name: 'Peach', radius: 20, pixels: 192 },
   { name: 'Lime', radius: 25, pixels: 288 },
-  { name: 'Fig', radius: 30, pixels: 288 },
-  { name: 'Orange', radius: 36, pixels: 288 },
-  { name: 'Apple', radius: 43, pixels: 512 },
-  { name: 'Pomegranate', radius: 50, pixels: 512 },
-  { name: 'Golden pear', radius: 58, pixels: 512 },
-  { name: 'Watermelon', radius: 68, pixels: 576 },
+  { name: 'Banana', radius: 28, pixels: 288 },
+  { name: 'Fig', radius: 31, pixels: 288 },
+  { name: 'Orange', radius: 35, pixels: 288 },
+  { name: 'Apple', radius: 40, pixels: 512 },
+  { name: 'Pomegranate', radius: 45, pixels: 512 },
+  { name: 'Coconut', radius: 50, pixels: 512 },
+  { name: 'Golden pear', radius: 57, pixels: 512 },
+  { name: 'Watermelon', radius: 66, pixels: 576 },
 ];
 export const fruitPath = tier => 'assets/fruit-' + tier + '.webp';
+
+function ellipse(rx, ry, angle = 0) {
+  return Array.from({ length: 32 }, (_, i) => {
+    const t = i * Math.PI / 16;
+    const x = Math.cos(t) * rx;
+    const y = Math.sin(t) * ry;
+    return [48 + x * Math.cos(angle) - y * Math.sin(angle), 48 + x * Math.sin(angle) + y * Math.cos(angle)];
+  });
+}
+
+function roundOutline(points) {
+  return points.flatMap(([x, y], i) => {
+    const before = points.at(i - 1);
+    const after = points[(i + 1) % points.length];
+    return [0, 1 / 3, 2 / 3].map(t => {
+      const a = (1 - t) ** 2 / 2;
+      const b = t ** 2 / 2;
+      return [x + a * (before[0] - x) + b * (after[0] - x),
+        y + a * (before[1] - y) + b * (after[1] - y)];
+    });
+  });
+}
+
+// Draw the upper and lower curves from the same columns used for collision geometry.
+const bananaColumns = [
+  [3, 34, 41], [9, 39, 53], [19, 46, 66], [29, 49, 73], [40, 48, 76],
+  [51, 44, 74], [62, 37, 68], [73, 28, 59], [82, 17, 46], [89, 12, 31],
+  [93, 13, 23],
+];
+const bananaTop = bananaColumns.map(([x, top]) => [x, top]);
+const bananaBottom = bananaColumns.map(([x, , bottom]) => [x, bottom]);
+const outlines = [
+  ellipse(46, 46),
+  roundOutline([[46, 7], [71, 4], [90, 19], [95, 39], [89, 62], [69, 85], [46, 95], [24, 88], [6, 66], [2, 38], [8, 17], [25, 5]]),
+  roundOutline([[46, 5], [74, 4], [92, 21], [95, 48], [86, 74], [62, 92], [38, 95], [15, 82], [3, 60], [3, 34], [16, 11]]),
+  ellipse(45, 37, -.34),
+  [...bananaTop, ...bananaBottom.toReversed()],
+  roundOutline([[47, 3], [59, 10], [72, 24], [85, 42], [91, 61], [84, 82], [63, 94], [36, 94], [15, 84], [5, 65], [10, 46], [23, 28], [37, 14]]),
+  ellipse(46, 44),
+  roundOutline([[48, 7], [68, 3], [87, 13], [95, 36], [90, 63], [78, 84], [64, 94], [45, 94], [27, 94], [13, 80], [3, 59], [1, 36], [10, 15], [28, 3]]),
+  roundOutline([[48, 6], [69, 10], [88, 24], [94, 46], [89, 70], [70, 90], [47, 95], [24, 90], [6, 74], [2, 50], [8, 27], [26, 12]]),
+  ellipse(46, 41, .34),
+  roundOutline([[48, 3], [62, 7], [69, 22], [74, 36], [85, 50], [91, 64], [87, 81], [73, 92], [49, 95], [26, 92], [10, 82], [5, 66], [12, 49], [24, 35], [29, 21], [35, 8]]),
+  ellipse(47, 42, -.14),
+];
+export const fruitOutline = tier => outlines[tier];
+
+function bounds(points) {
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  return { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys) };
+}
+
+function localPoints(points, radius) {
+  return points.map(([x, y]) => [(x - 48) * radius / 48, (y - 48) * radius / 48]);
+}
+
+const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+const EPSILON = 1e-8;
+const convex = points => points.every((a, i) => cross(a, points[(i + 1) % points.length],
+  points[(i + 2) % points.length]) >= -EPSILON);
+
+function joinConvex(a, b) {
+  for (let i = 0; i < a.length; i++) {
+    const next = (i + 1) % a.length;
+    const j = b.indexOf(a[next]);
+    if (j < 0 || b[(j + 1) % b.length] !== a[i]) continue;
+    const joined = [...a.slice(next), ...a.slice(0, next)];
+    for (let step = 2; step < b.length; step++) joined.push(b[(j + step) % b.length]);
+    if (convex(joined)) return joined;
+  }
+  return null;
+}
+
+function convexPieces(outline) {
+  if (convex(outline)) return [outline];
+
+  // Cut ears from the outline, then join adjacent triangles where the result stays convex.
+  const points = [...outline];
+  const pieces = [];
+  while (points.length > 3) {
+    const i = points.findIndex((b, i) => {
+      const a = points.at(i - 1);
+      const c = points[(i + 1) % points.length];
+      return cross(a, b, c) > EPSILON && !points.some(p => p !== a && p !== b && p !== c &&
+        cross(a, b, p) >= -EPSILON && cross(b, c, p) >= -EPSILON && cross(c, a, p) >= -EPSILON);
+    });
+    if (i < 0) throw new Error('Invalid fruit outline');
+    pieces.push([points.at(i - 1), points[i], points[(i + 1) % points.length]]);
+    points.splice(i, 1);
+  }
+  pieces.push(points);
+  for (let i = 0; i < pieces.length; i++) {
+    for (let j = i + 1; j < pieces.length; j++) {
+      const joined = joinConvex(pieces[i], pieces[j]);
+      if (!joined) continue;
+      pieces[i] = joined;
+      pieces.splice(j, 1);
+      j = i;
+    }
+  }
+  return pieces;
+}
+
+const shapes = FRUIT.map(({ radius }, tier) => {
+  const outline = localPoints(outlines[tier], radius);
+  return { ...bounds(outline), pieces: convexPieces(outline) };
+});
+export const fruitBounds = tier => {
+  const { left, right, top, bottom } = shapes[tier];
+  return { left, right, top, bottom };
+};
+
+function edgeAxes(points) {
+  return points.map(([x, y], i) => {
+    const [nextX, nextY] = points[(i + 1) % points.length];
+    const dx = nextX - x;
+    const dy = nextY - y;
+    const length = Math.hypot(dx, dy);
+    return [dy / length, -dx / length];
+  });
+}
+
+function contactAxes(a, b) {
+  return [...edgeAxes(a), ...edgeAxes(b)].map(([nx, ny]) => {
+    const aValues = a.map(([x, y]) => nx * x + ny * y);
+    const bValues = b.map(([x, y]) => nx * x + ny * y);
+    return { nx, ny, low: Math.min(...aValues) - Math.max(...bValues),
+      high: Math.max(...aValues) - Math.min(...bValues) };
+  });
+}
+
+// Orientations stay fixed, so the separating axes and local projections can be reused every tick.
+const pairAxes = shapes.map(a => shapes.map(b => a.pieces.flatMap(first =>
+  b.pieces.map(second => contactAxes(first, second)))));
+
+export function fruitContact(aTier, bTier, dx, dy) {
+  const a = shapes[aTier];
+  const b = shapes[bTier];
+  if (dx < a.left - b.right || dx > a.right - b.left || dy < a.top - b.bottom || dy > a.bottom - b.top) return null;
+  let contact = null;
+  for (const axes of pairAxes[aTier][bTier]) {
+    let depth = Infinity;
+    let normalX = 0;
+    let normalY = 0;
+    for (const { nx, ny, low, high } of axes) {
+      const projection = dx * nx + dy * ny;
+      const towardLow = projection - low;
+      const towardHigh = high - projection;
+      const overlap = Math.min(towardLow, towardHigh);
+      if (overlap < 0) {
+        depth = -1;
+        break;
+      }
+      if (overlap < depth) {
+        depth = overlap;
+        const sign = towardLow < towardHigh ? -1 : 1;
+        normalX = nx * sign;
+        normalY = ny * sign;
+      }
+    }
+    if (depth >= 0 && (!contact || depth > contact.depth)) contact = { nx: normalX, ny: normalY, depth };
+  }
+  return contact;
+}
+
+function verticalEntry(aTier, bTier, dx, start) {
+  const a = shapes[aTier];
+  const b = shapes[bTier];
+  if (dx < a.left - b.right || dx > a.right - b.left) return Infinity;
+  let first = Infinity;
+  for (const axes of pairAxes[aTier][bTier]) {
+    let enter = -Infinity;
+    let exit = Infinity;
+    for (const { nx, ny, low, high } of axes) {
+      const projection = dx * nx;
+      if (Math.abs(ny) < 1e-9) {
+        if (projection <= low || projection >= high) {
+          enter = Infinity;
+          break;
+        }
+        continue;
+      }
+      const yLow = (low - projection) / ny;
+      const yHigh = (high - projection) / ny;
+      enter = Math.max(enter, Math.min(yLow, yHigh));
+      exit = Math.min(exit, Math.max(yLow, yHigh));
+      if (enter >= exit) break;
+    }
+    if (enter < exit && exit > start) first = Math.min(first, enter);
+  }
+  return first;
+}
 const OVERFLOW_TICKS = 90;
 const CHAIN_TICKS = 48;
 const DROP_DELAY = 22;
@@ -24,17 +219,18 @@ const MAX_TIER = FRUIT.length - 1;
 const FRUIT_EDGE_BLEED = .35;
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
-function clampX(x, radius) {
-  return clamp(x, CRATE.left + radius, CRATE.right - radius);
+function clampX(x, tier) {
+  const { left, right } = shapes[tier];
+  return clamp(x, CRATE.left - left, CRATE.right - right);
 }
 
 function confine(body) {
-  const x = clampX(body.x, body.radius);
+  const x = clampX(body.x, body.tier);
   if (body.x !== x) {
     if ((body.x - x) * body.vx > 0) body.vx *= -.22;
     body.x = x;
   }
-  const floor = CRATE.floor - body.radius;
+  const floor = CRATE.floor - shapes[body.tier].bottom;
   if (body.y < floor) return;
   body.y = floor;
   body.landed = true;
@@ -80,6 +276,7 @@ export function createCart(api) {
   let bag = [];
   let tick = 0;
   let dropped = 0;
+  let openingBag = true;
   let aimX = WIDTH / 2;
   let pointer = null;
   let cooldown = 0;
@@ -94,7 +291,8 @@ export function createCart(api) {
 
   function nextFruit() {
     if (!bag.length) {
-      bag = [0, 0, 1, 1, 2, 2, 3, 3];
+      bag = openingBag ? [0, 0, 1, 1, 2, 2, 3, 3] : [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5];
+      openingBag = false;
       for (let i = bag.length - 1; i > 0; i--) {
         random = (Math.imul(random, 1664525) + 1013904223) >>> 0;
         const j = Math.floor(random / 4294967296 * (i + 1));
@@ -106,7 +304,7 @@ export function createCart(api) {
 
   let current = nextFruit();
   let next = nextFruit();
-  const aim = () => clampX(aimX, FRUIT[current].radius);
+  const aim = () => clampX(aimX, current);
 
   function playCue(name, tier) {
     cue = { id: cue.id + 1, name, tier };
@@ -115,7 +313,7 @@ export function createCart(api) {
   function drop() {
     const { radius } = FRUIT[current];
     const x = aim();
-    if (guideEnd(x, radius) < DROP_Y) {
+    if (guideEnd(x, current) < DROP_Y) {
       status = 'That spot is blocked. Try another part of the crate.';
       return;
     }
@@ -149,7 +347,7 @@ export function createCart(api) {
     if (cleared) bodies.splice(i, 1);
     else {
       const merged = {
-        tier, radius, x: clampX(x, radius), y: Math.min(y, CRATE.floor - radius),
+        tier, radius, x: clampX(x, tier), y: Math.min(y, CRATE.floor - shapes[tier].bottom),
         vx: (a.vx + b.vx) * .32, vy: (a.vy + b.vy) * .28 - .55, landed: true, born: tick,
       };
       bodies[i] = merged;
@@ -163,16 +361,13 @@ export function createCart(api) {
     const mass = merged.radius ** 2;
     for (const body of bodies) {
       if (body === merged) continue;
-      const dx = body.x - merged.x;
-      const dy = body.y - merged.y;
-      const distance = Math.hypot(dx, dy);
-      const overlap = merged.radius + body.radius - distance;
-      if (overlap <= 0) continue;
+      const contact = fruitContact(merged.tier, body.tier, body.x - merged.x, body.y - merged.y);
+      if (!contact || contact.depth === 0) continue;
       const massShare = mass / (mass + body.radius ** 2);
-      const depth = Math.min(1, overlap / (merged.radius * .4));
+      const depth = Math.min(1, contact.depth / (merged.radius * .4));
       const impulse = (1.1 + merged.radius * .07) * massShare * (.55 + .45 * depth);
-      body.vx += (distance ? dx / distance : 1) * impulse;
-      body.vy += (distance ? dy / distance : 0) * impulse;
+      body.vx += contact.nx * impulse;
+      body.vy += contact.ny * impulse;
     }
   }
 
@@ -181,18 +376,14 @@ export function createCart(api) {
       const a = bodies[i];
       for (let j = i + 1; j < bodies.length; j++) {
         const b = bodies[j];
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const reach = a.radius + b.radius;
-        const distanceSquared = dx * dx + dy * dy;
-        if (distanceSquared > reach * reach) continue;
+        const contact = fruitContact(a.tier, b.tier, b.x - a.x, b.y - a.y);
+        if (!contact) continue;
         if (a.tier === b.tier) {
           merge(i, j);
           break;
         }
         a.landed = b.landed = true;
-        const distance = Math.sqrt(distanceSquared);
-        separate(a, b, distance ? dx / distance : 1, distance ? dy / distance : 0, reach - distance);
+        separate(a, b, contact.nx, contact.ny, contact.depth);
       }
     }
   }
@@ -212,13 +403,11 @@ export function createCart(api) {
     }
   }
 
-  function guideEnd(x, radius) {
-    let y = CRATE.floor - radius;
+  function guideEnd(x, tier) {
+    let y = CRATE.floor - shapes[tier].bottom;
     for (const body of bodies) {
-      const dx = x - body.x;
-      const reach = body.radius + radius;
-      if (Math.abs(dx) >= reach || body.y + reach <= DROP_Y) continue;
-      y = Math.min(y, body.y - Math.sqrt(reach ** 2 - dx ** 2));
+      const entry = verticalEntry(body.tier, tier, x - body.x, DROP_Y - body.y);
+      y = Math.min(y, body.y + entry);
     }
     return y;
   }
@@ -250,7 +439,7 @@ export function createCart(api) {
     handleInput();
     physics();
 
-    const overflowing = bodies.some(body => body.landed && body.y - body.radius < CRATE.line - 1);
+    const overflowing = bodies.some(body => body.landed && body.y + shapes[body.tier].top < CRATE.line - 1);
     if (overflowing && !danger) status = 'Crate almost full. Merge fruit to clear the fill line!';
     danger = overflowing ? danger + 1 : 0;
     if (danger >= OVERFLOW_TICKS) {
@@ -285,9 +474,9 @@ export function createCart(api) {
     if (!lost && !cooldown) {
       const x = aim();
       const radius = FRUIT[current].radius;
-      const end = guideEnd(x, radius);
+      const end = guideEnd(x, current);
       const guideColor = [.16, .37, .27, pointer === null ? .58 : .9];
-      for (let y = DROP_Y + radius + 7; y < end; y += 10) {
+      for (let y = DROP_Y + shapes[current].bottom + 7; y < end; y += 10) {
         rect(x - 1.2, y - .6, 2.4, 5.2, [1, .98, .88, .63]);
         rect(x - .65, y, 1.3, 4, guideColor);
       }
@@ -317,7 +506,7 @@ export function createCart(api) {
   function state() {
     return {
       tick, dropped, aimX, pointer, score, largest, chain, lastMerge, cooldown, danger, lost,
-      current, next, random, bag: [...bag], bodies: bodies.map(body => ({ ...body })),
+      current, next, random, openingBag, bag: [...bag], bodies: bodies.map(body => ({ ...body })),
       bursts: bursts.map(burst => ({ ...burst })), cue, status, readout: { score },
     };
   }

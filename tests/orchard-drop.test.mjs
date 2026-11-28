@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { CRATE, DROP_Y, FRUIT, HEIGHT, WIDTH, createCart, fruitPath } from '../carts/orchard-drop/code.js';
+import { CRATE, DROP_Y, FRUIT, HEIGHT, WIDTH, createCart, fruitBounds, fruitContact, fruitPath } from '../carts/orchard-drop/code.js';
 import { DRAW_STRIDE, PICTURE_INDEX } from '../src/draw-list.mjs';
 import { createRuntime } from '../src/runtime.mjs';
 
@@ -29,7 +29,7 @@ test('dragging clamps the drop and only the owning pointer can release it', () =
   assert.equal(after.dropped, 1);
   assert.equal(after.current, initial.next);
   assert.equal(after.bodies[0].tier, initial.current);
-  assert.ok(Math.abs(after.bodies[0].x - (CRATE.left + FRUIT[0].radius)) < .3);
+  assert.ok(Math.abs(after.bodies[0].x - (CRATE.left - fruitBounds(0).left)) < .3);
   assert.ok(after.bodies[0].y > DROP_Y);
   game.tick(drop(150));
   assert.equal(game.state().dropped, 1);
@@ -39,7 +39,7 @@ test('matching fruit merge on contact and score once', () => {
   const game = make();
   game.tick(drop(180));
   advance(game, 105);
-  assert.equal(game.state().bodies[0].y, CRATE.floor - FRUIT[0].radius);
+  assert.equal(game.state().bodies[0].y, CRATE.floor - fruitBounds(0).bottom);
   assert.equal(game.state().score, 0);
 
   game.tick(drop(180));
@@ -47,20 +47,37 @@ test('matching fruit merge on contact and score once', () => {
   const after = game.state();
   assert.equal(after.bodies.length, 1);
   assert.equal(after.bodies[0].tier, 1);
-  assert.equal(after.bodies[0].y, CRATE.floor - FRUIT[1].radius);
+  assert.equal(after.bodies[0].y, CRATE.floor - fruitBounds(1).bottom);
   assert.equal(after.score, 3);
   assert.equal(after.largest, 1);
 });
 
+test('the banana contacts fruit around its curve and leaves its hollow open', () => {
+  const banana = FRUIT.findIndex(fruit => fruit.name === 'Banana');
+  const coconut = FRUIT.findIndex(fruit => fruit.name === 'Coconut');
+  assert.equal(FRUIT[banana + 1].name, 'Fig');
+  assert.equal(FRUIT[coconut + 1].name, 'Golden pear');
+  assert.equal(fruitContact(banana, 0, 0, -18), null);
+  assert.ok(fruitContact(banana, 0, 0, 20)?.depth > 0);
+
+  const pear = coconut + 1;
+  assert.equal(fruitContact(pear, 0, 37, -36), null);
+  const contact = fruitContact(pear, 0, 38, 28);
+  assert.ok(contact?.depth > 0);
+  const separated = fruitContact(pear, 0, 38 + contact.nx * (contact.depth + .01),
+    28 + contact.ny * (contact.depth + .01));
+  assert.equal(separated, null);
+});
+
 test('higher-resolution sprites still draw at the fruit collision sizes', () => {
   const game = make();
-  for (let i = 0; i < 70 && game.state().largest < 6; i++) {
+  for (let i = 0; i < 70 && game.state().largest < 7; i++) {
     game.tick(drop(180));
     advance(game, 54);
   }
 
   const { bodies } = game.state();
-  assert.ok(bodies.some(body => body.tier >= 6));
+  assert.ok(bodies.some(body => body.tier >= 7));
   advance(game, 20);
   const draw = game.draw(0);
   const sprites = [];
@@ -93,14 +110,14 @@ test('canceled, paused, and resized touches do not drop fruit', () => {
 });
 
 test('a heavy merge gives nearby lighter fruit a stronger shove', () => {
-  const game = make();
+  const game = make(1);
   for (let attempt = 0; attempt < 80; attempt++) {
-    for (const sample of [drop(30), ...Array.from({ length: 22 }, () => frame())]) {
+    for (const sample of [drop(180), ...Array.from({ length: 22 }, () => frame())]) {
       const before = game.state();
       game.tick(sample);
       const after = game.state();
       const merge = after.bursts.at(-1);
-      if (merge?.start !== after.tick || merge.tier < 6) continue;
+      if (merge?.start !== after.tick || merge.tier < 7) continue;
       for (const body of after.bodies) {
         if (body.radius >= merge.radius || body.born === after.tick) continue;
         const candidates = before.bodies.filter(previous => previous.tier === body.tier &&
@@ -125,7 +142,7 @@ test('the same inputs replay chain scores and overflow independent of drawing', 
   let attempts = 0;
   let chained = false;
 
-  while (!game.state().lost && attempts < 240) {
+  while (!game.state().lost && attempts < 320) {
     const samples = [drop(30), ...Array.from({ length: 22 }, () => frame())];
     for (const sample of samples) {
       const before = game.state();
@@ -146,6 +163,7 @@ test('the same inputs replay chain scores and overflow independent of drawing', 
   }
   const end = game.state();
   assert.ok(chained);
+  assert.ok(end.largest >= FRUIT.findIndex(fruit => fruit.name === 'Coconut'));
   assert.ok(end.lost);
   game.tick(drop(180));
   assert.deepEqual(game.state(), end);

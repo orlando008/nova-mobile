@@ -1,8 +1,8 @@
-import { FRUIT, HEIGHT, WIDTH, fruitPath } from '../../carts/orchard-drop/code.js?v=3';
+import { FRUIT, HEIGHT, WIDTH, fruitPath } from '../../carts/orchard-drop/code.js?v=4';
 import { chooseCartOptions, pausePlayer, restartPlayer } from '../../src/player.mjs';
 
 const byId = id => document.getElementById(id);
-const asset = tier => '../../carts/orchard-drop/' + fruitPath(tier) + '?v=3';
+const asset = tier => '../../carts/orchard-drop/' + fruitPath(tier) + '?v=4';
 const storageKey = 'orchard-drop:' + new URL('../../', import.meta.url).pathname;
 const menu = byId('pause-menu');
 const result = byId('result');
